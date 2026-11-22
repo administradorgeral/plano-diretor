@@ -85,13 +85,6 @@
     transform: scale(0.97);
 }
 
-.petition-chevron {
-    font-weight: 900;
-    color: #a7f3d0;
-    font-size: 13px;
-    line-height: 1;
-}
-
 .petition-counter-pill {
     background: rgba(6, 78, 59, 0.9);
     border: 1px solid rgba(167, 243, 208, 0.5);
