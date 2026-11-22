@@ -1,5 +1,6 @@
 /* ==========================================================================
    7. MAIN.JS — Inicialização Geral da Aplicação e Orquestração de Eventos
+      (Removido info-card intermediário: foco total no modal-card)
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,14 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 5. Eventos dos Cards e Modais
-    const infoCard = document.getElementById('infoCard');
+    // 5. Eventos do Modal-Card Único (#streetModal) e Modal de Metodologia (#infoModal)
     const streetModal = document.getElementById('streetModal');
     const infoModal = document.getElementById('infoModal');
-
-    document.getElementById('btnCloseCard').addEventListener('click', () => {
-        infoCard.style.display = 'none';
-    });
 
     document.getElementById('btnCloseStreetModal').addEventListener('click', () => {
         streetModal.classList.remove('visible');
@@ -68,24 +64,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reenquadrar Mapa
     document.getElementById('btnRecenter').addEventListener('click', () => AppMap.recenter());
 
-    // Abrir Raio-X do Cidadão
-    const btnOpenRaioX = document.getElementById('btnOpenRaioX');
-    if (btnOpenRaioX) {
-        btnOpenRaioX.addEventListener('click', () => {
-            if (AppState.lastSelectedZone) {
-                const sel = AppState.lastSelectedZone;
-                AppDiagnostics.showStreetImpactModal(sel.props.nome_zona, 'Região Municipal', sel.center.lat, sel.center.lng, sel.props);
-            } else {
-                AppDiagnostics.showStreetImpactModal('São Roque', 'Região Central', -23.5315, -47.1345);
-            }
-        });
-    }
-
+    // Botão de Raio-X no Topo Direito abre direto o Modal-Card da região centralizada
     const btnTopRaioX = document.getElementById('btnTopRaioX');
     if (btnTopRaioX) {
         btnTopRaioX.addEventListener('click', () => {
-            const center = AppState.map.getCenter();
-            AppDiagnostics.showStreetImpactModal('Sua Localização', 'São Roque', center.lat, center.lng);
+            if (AppState.lastSelectedZone) {
+                const sel = AppState.lastSelectedZone;
+                AppDiagnostics.showStreetImpactModal(sel.props.nome_zona, 'Região Selecionada', sel.center.lat, sel.center.lng, sel.props);
+            } else {
+                const center = AppState.map.getCenter();
+                AppDiagnostics.showStreetImpactModal('Diagnóstico da Região Centralizada', 'São Roque', center.lat, center.lng);
+            }
         });
     }
 

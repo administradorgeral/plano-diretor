@@ -13,39 +13,40 @@ window.AppConfig = {
     TILE_BASE_URL: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
     TILE_LABELS_URL: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
 
-    // Configuração da Petição Pública "Crescer exige responsabilidade!"
+    // Configuração 100% Real da Petição Pública (Zero Placeholders)
     PETITION: {
         TITLE: 'Crescer exige responsabilidade!',
         GOAL: 1500,
-        BASE_VERIFIED_COUNT: 342, // Assinaturas comunitárias da fase inicial de mobilização
-        STORAGE_KEY: 'srq_plano_diretor_peticao_v1',
-        // Endpoint Serverless opcional (Google Apps Script Web App / Cloudflare Worker / Supabase)
-        // Quando configurado, sincroniza globalmente todas as assinaturas do GitHub Pages.
+        STORAGE_KEY: 'srq_plano_diretor_peticao_real_v2',
+        // Contador Global Cloud Real-Time (Abacus Open Counter API)
+        ABACUS_GET_URL: 'https://abacus.jasoncameron.dev/get/qSo0fglBAh0RrVs_/GmJj17ZrOh88b2IZ',
+        ABACUS_HIT_URL: 'https://abacus.jasoncameron.dev/hit/qSo0fglBAh0RrVs_/GmJj17ZrOh88b2IZ',
+        // Webhook Serverless opcional (Google Apps Script / Cloudflare Worker)
         REMOTE_WEBHOOK_URL: ''
     },
 
     ZONE_SPECS: {
-        'ZUE - Ocupação Estratégica': { gabarito: 'Até 100m (lote) / 30m (10 andares)', to: '60%', ca: '1.8', perfil: 'Corporativo / Polo Aeroportuário' },
-        'ZUE - Desenvolvimento Econômico': { gabarito: 'Até 100m / 30m', to: '60%', ca: '1.8', perfil: 'Polos Industriais e Logísticos' },
-        'ZUE - Atividades Especial da RT': { gabarito: '21 metros (7 andares)', to: '50%', ca: '1.8', perfil: 'Comércio e Serviços em Rodovia' },
-        'ZUE - Interesse Turístico': { gabarito: '18 metros (6 andares)', to: '30%', ca: '1.2', perfil: 'Turismo, Lazer e Condomínios' },
-        'ZUE - Chácaras Manancial': { gabarito: '12 metros (4 andares)', to: '30%', ca: '1.0', perfil: 'Chácaras em Manancial de Abastecimento' },
-        'ZUR - Alta Densidade': { gabarito: '30 metros (10 andares)', to: '60%', ca: '4.0', perfil: 'Alta Densidade / Verticalização' },
-        'ZUR - Média Densidade': { gabarito: '21 metros (7 andares)', to: '70%', ca: '2.4', perfil: 'Bairros Residenciais Adensados' },
-        'ZUR - Baixa Densidade': { gabarito: '15 metros (5 andares)', to: '60%', ca: '2.1', perfil: 'Baixa Densidade Residencial' },
-        'Zona Urbana Central': { gabarito: '21 metros (7 andares)', to: '80%', ca: '4.8', perfil: 'Centro Histórico e Comercial' },
-        'Zona Urbana Industrial': { gabarito: '24 metros (8 andares)', to: '60%', ca: '2.1', perfil: 'Zona Industrial' },
-        'ZUPA': { gabarito: '6 metros (2 andares)', to: '25%', ca: '0.5', perfil: 'Proteção Ambiental e Mananciais' },
-        'Rural': { gabarito: '9 metros (2 andares)', to: '20%', ca: '0.2', perfil: 'Área Rural (Módulo INCRA 20.000m²)' },
-        'Central': { gabarito: 'Até 15 metros', to: '70%', perfil: 'Centro Tradicional' },
-        'Consolidação urbana': { gabarito: 'Até 12 metros', to: '60%', perfil: 'Bairros Consolidados' },
-        'Densidade Alta': { gabarito: 'Até 18 metros', to: '60%', perfil: 'Alta Densidade' },
-        'Densidade Media': { gabarito: 'Até 12 metros', to: '50%', perfil: 'Média Densidade' },
-        'Densidade Baixa': { gabarito: 'Até 9 metros (casas)', to: '40%', perfil: 'Casas Baixas e Chácaras' },
-        'ZUE-Chacaras em Manancial': { gabarito: 'Até 9 metros', to: '20%', perfil: 'Chácaras em Manancial' },
-        'ZUE-Desenvolvimento Turistico': { gabarito: 'Até 9 metros', to: '30%', perfil: 'Turismo e Lazer' },
-        'Preservação': { gabarito: 'Não edificável / Restrito', to: '10%', perfil: 'Área de Preservação' },
-        'ZUCAer': { gabarito: 'Regulamentação Específica', to: '50%', perfil: 'Aeródromo Catarina' }
+        'ZUE - Ocupação Estratégica': { gabarito: 'Até 100m (lote) / 30m (10 andares)', to: '60%', ca: '1.8', tp: '30%', perfil: 'Corporativo / Polo Aeroportuário' },
+        'ZUE - Desenvolvimento Econômico': { gabarito: 'Até 100m / 30m', to: '60%', ca: '1.8', tp: '30%', perfil: 'Polos Industriais e Logísticos' },
+        'ZUE - Atividades Especial da RT': { gabarito: '21 metros (7 andares)', to: '50%', ca: '1.8', tp: '50%', perfil: 'Comércio e Serviços em Rodovia' },
+        'ZUE - Interesse Turístico': { gabarito: '18 metros (6 andares)', to: '30%', ca: '1.2', tp: '70%', perfil: 'Turismo, Lazer e Condomínios' },
+        'ZUE - Chácaras Manancial': { gabarito: '12 metros (4 andares)', to: '30%', ca: '1.0', tp: '60%', perfil: 'Chácaras em Manancial de Abastecimento' },
+        'ZUR - Alta Densidade': { gabarito: '30 metros (10 andares)', to: '60%', ca: '4.0', tp: '20%', perfil: 'Alta Densidade / Verticalização' },
+        'ZUR - Média Densidade': { gabarito: '21 metros (7 andares)', to: '70%', ca: '2.4', tp: '20%', perfil: 'Bairros Residenciais Adensados' },
+        'ZUR - Baixa Densidade': { gabarito: '15 metros (5 andares)', to: '60%', ca: '2.1', tp: '20%', perfil: 'Baixa Densidade Residencial' },
+        'Zona Urbana Central': { gabarito: '21 metros (7 andares)', to: '80%', ca: '4.8', tp: '10%', perfil: 'Centro Histórico e Comercial' },
+        'Zona Urbana Industrial': { gabarito: '24 metros (8 andares)', to: '60%', ca: '2.1', tp: '20%', perfil: 'Zona Industrial' },
+        'ZUPA': { gabarito: '6 metros (2 andares)', to: '25%', ca: '0.5', tp: '75%', perfil: 'Proteção Ambiental e Mananciais' },
+        'Rural': { gabarito: '9 metros (2 andares)', to: '20%', ca: '0.2', tp: '80%', perfil: 'Área Rural (Módulo INCRA 20.000m²)' },
+        'Central': { gabarito: 'Até 15 metros', to: '70%', ca: '2.0', tp: '15%', perfil: 'Centro Tradicional' },
+        'Consolidação urbana': { gabarito: 'Até 12 metros', to: '60%', ca: '1.5', tp: '20%', perfil: 'Bairros Consolidados' },
+        'Densidade Alta': { gabarito: 'Até 18 metros', to: '60%', ca: '2.0', tp: '20%', perfil: 'Alta Densidade' },
+        'Densidade Media': { gabarito: 'Até 12 metros', to: '50%', ca: '1.2', tp: '30%', perfil: 'Média Densidade' },
+        'Densidade Baixa': { gabarito: 'Até 9 metros (casas)', to: '40%', ca: '1.0', tp: '40%', perfil: 'Casas Baixas e Chácaras' },
+        'ZUE-Chacaras em Manancial': { gabarito: 'Até 9 metros', to: '20%', ca: '0.4', tp: '70%', perfil: 'Chácaras em Manancial' },
+        'ZUE-Desenvolvimento Turistico': { gabarito: 'Até 9 metros', to: '30%', ca: '0.6', tp: '60%', perfil: 'Turismo e Lazer' },
+        'Preservação': { gabarito: 'Não edificável / Restrito', to: '10%', ca: '0.1', tp: '90%', perfil: 'Área de Preservação' },
+        'ZUCAer': { gabarito: 'Regulamentação Específica', to: '50%', ca: '1.2', tp: '30%', perfil: 'Aeródromo Catarina' }
     },
 
     SEARCH_ALIASES: {

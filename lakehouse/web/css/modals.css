@@ -1,5 +1,5 @@
 /* ==========================================================================
-   3. MODALS.CSS — Raio-X do Cidadão, Metodologia e Petição Pública Online
+   3. MODALS.CSS — Modal-Card Unificado de Impacto Negativo e Petição Pública
    ========================================================================== */
 
 .modal-overlay {
@@ -24,7 +24,7 @@
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 20px;
     width: 100%;
-    max-width: 500px;
+    max-width: 540px;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
@@ -41,6 +41,10 @@
     max-width: 560px;
 }
 
+.public-doc-modal-card {
+    max-width: 780px;
+}
+
 .modal-header {
     padding: 16px 20px 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -50,20 +54,36 @@
     gap: 12px;
 }
 
+.modal-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+}
+
 .modal-tag {
-    font-size: 10px;
-    font-weight: 800;
+    font-size: 10.5px;
+    font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     display: block;
-    margin-bottom: 3px;
 }
 
 .modal-header h2 {
-    font-size: 16px;
-    font-weight: 800;
+    font-size: 16.5px;
+    font-weight: 900;
     color: #fff;
     line-height: 1.25;
+}
+
+.modal-subtitle-meta {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #94a3b8;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
 }
 
 .modal-close-btn {
@@ -104,20 +124,86 @@
 }
 
 .modal-btn-action {
-    background: var(--primary);
-    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
-    padding: 10px 18px;
+    padding: 9px 16px;
     border-radius: var(--radius-xl);
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s ease;
-    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
 }
 
 .modal-btn-action:hover {
-    background: #2563eb;
+    background: rgba(255, 255, 255, 0.18);
+}
+
+/* Destaque de Impacto Negativo Direto no Topo do Modal-Card */
+.negative-impact-lead {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.18) 0%, rgba(153, 27, 27, 0.12) 100%);
+    border: 1.5px solid rgba(239, 68, 68, 0.65);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.negative-impact-lead-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.negative-impact-lead-title {
+    font-size: 13px;
+    font-weight: 900;
+    color: #fca5a5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+}
+
+.negative-impact-lead-body {
+    font-size: 13px;
+    color: #f8fafc;
+    line-height: 1.5;
+}
+
+.negative-metrics-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+}
+
+@media (max-width: 480px) {
+    .negative-metrics-strip {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.negative-metric-box {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 7px 9px;
+    font-size: 11px;
+}
+
+.negative-metric-box span {
+    color: #94a3b8;
+    display: block;
+    font-size: 10px;
+}
+
+.negative-metric-box strong {
+    color: #fca5a5;
+    font-size: 12px;
 }
 
 /* Estilos do Modal de Metodologia e Fontes */
@@ -197,7 +283,7 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #93c5fd;
+    color: #fca5a5;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -251,8 +337,8 @@
     letter-spacing: 0.03em;
 }
 
-.citizen-badge.critico { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
-.citizen-badge.alerta { background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4); }
+.citizen-badge.critico { background: rgba(239, 68, 68, 0.22); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5); }
+.citizen-badge.alerta { background: rgba(245, 158, 11, 0.22); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.5); }
 .citizen-badge.atencao { background: rgba(59, 130, 246, 0.2); color: #bfdbfe; border: 1px solid rgba(59, 130, 246, 0.4); }
 .citizen-badge.promessa { background: rgba(168, 85, 247, 0.2); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.4); }
 
@@ -263,7 +349,7 @@
 }
 
 .citizen-alert-box {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba(239, 68, 68, 0.12);
     border-left: 3px solid #ef4444;
     border-radius: 6px;
     padding: 8px 10px;
@@ -274,7 +360,7 @@
 }
 
 .citizen-asymmetry-box {
-    background: rgba(168, 85, 247, 0.1);
+    background: rgba(168, 85, 247, 0.12);
     border-left: 3px solid #a855f7;
     border-radius: 6px;
     padding: 8px 10px;
@@ -527,6 +613,7 @@
     padding: 8px 10px;
     font-size: 11px;
     color: #a7f3d0;
+    white-space: pre-wrap;
     word-break: break-all;
     line-height: 1.45;
 }
@@ -556,6 +643,7 @@
     gap: 7px;
     transition: all 0.15s ease;
     text-decoration: none;
+    font-family: inherit;
 }
 
 .share-btn.whatsapp {
@@ -578,12 +666,23 @@
 
 .share-btn.public-doc {
     grid-column: 1 / -1;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    color: #f8fafc;
+    background: rgba(16, 185, 129, 0.16);
+    border: 1px solid rgba(52, 211, 153, 0.45);
+    color: #ecfdf5;
 }
 .share-btn.public-doc:hover {
-    background: rgba(255, 255, 255, 0.16);
+    background: rgba(16, 185, 129, 0.28);
+}
+
+.share-btn.new-sig {
+    grid-column: 1 / -1;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px dashed rgba(255, 255, 255, 0.25);
+    color: #cbd5e1;
+}
+.share-btn.new-sig:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
 }
 
 /* Lista Recente de Assinaturas Públicas (CPF Mascarado + Hash) */
@@ -607,12 +706,27 @@
     align-items: center;
 }
 
+.btn-export-csv {
+    background: rgba(52, 211, 153, 0.15);
+    border: 1px solid rgba(52, 211, 153, 0.4);
+    color: #6ee7b7;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.btn-export-csv:hover {
+    background: rgba(52, 211, 153, 0.28);
+    color: #fff;
+}
+
 .signature-item-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 11px;
-    padding: 5px 0;
+    padding: 6px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     gap: 8px;
 }

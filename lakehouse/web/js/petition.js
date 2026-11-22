@@ -1,31 +1,23 @@
 /* ==========================================================================
    6. PETITION.JS — Petição Pública Online "Crescer exige responsabilidade!"
-      • Validação Matemática de CPF (Algoritmo Módulo 11 da Receita Federal)
+      • 100% Funcional e Real (Zero Nomes Fictícios / Zero Contador Placeholder)
+      • Validação Matemática Oficial de CPF (Módulo-11 da Receita Federal)
       • Hashing Criptográfico SHA-256 (Web Crypto API) & Mascaramento LGPD
-      • Contador Sincronizado em Tempo Real + Persistência Híbrida (Local + Webhook)
-      • Compartilhamento (WhatsApp / Web Share / Link)
-      • Compositor de Documento Público Auditável (Câmara Municipal & MPSP)
+      • Contador Global em Nuvem (Abacus Open Counter API) + Persistência Local
+      • Suporte Multi-Assinatura no Mesmo Aparelho (Familiares / Vizinhos)
+      • Visualizador In-App, Impressão PDF e Download Direto (.HTML e .CSV)
    ========================================================================== */
 
 window.AppPetition = {
     signatures: [],
-    remoteCountBonus: 0,
+    remoteGlobalCount: 0,
     lastReceipt: null,
-
-    // Semente auditável inicial representativa de apoios comunitários validados
-    seedSignatures: [
-        { name: 'Carlos Eduardo M. de Oliveira', bairro: 'Bairro do Carmo', vinculo: 'Morador', cpfMasked: '***.412.898-**', hash: '8f4b2e91c0d7a3f5', timestamp: '2026-11-18T14:22:10-03:00' },
-        { name: 'Mariana Ribeiro dos Santos', bairro: 'Junqueira', vinculo: 'Morador', cpfMasked: '***.735.128-**', hash: '3a9d1c44e7b8012a', timestamp: '2026-11-19T09:15:42-03:00' },
-        { name: 'Roberto Villaça Silveira', bairro: 'Canguera / Rota do Vinho', vinculo: 'Proprietário Rural', cpfMasked: '***.194.608-**', hash: 'c71e094ab56d331f', timestamp: '2026-11-20T18:40:05-03:00' },
-        { name: 'Helena Aparecida Domingues', bairro: 'Mailasqui', vinculo: 'Morador', cpfMasked: '***.882.348-**', hash: '5d2a77f891e4c09b', timestamp: '2026-11-21T11:05:19-03:00' },
-        { name: 'Dr. Fernando Henrique Pascal', bairro: 'Centro Histórico', vinculo: 'Trabalhador / Profissional Liberal', cpfMasked: '***.509.778-**', hash: 'e19c4b02d8a67f34', timestamp: '2026-11-22T10:30:00-03:00' }
-    ],
 
     init: function () {
         this.loadFromStorage();
         this.updateAllCounters(false);
         this.bindEvents();
-        this.syncWithRemoteWebhook();
+        this.syncGlobalCountFromCloud();
     },
 
     loadFromStorage: function () {
@@ -35,6 +27,9 @@ window.AppPetition = {
                 const parsed = JSON.parse(raw);
                 if (Array.isArray(parsed.signatures)) {
                     this.signatures = parsed.signatures;
+                }
+                if (typeof parsed.remoteGlobalCount === 'number') {
+                    this.remoteGlobalCount = parsed.remoteGlobalCount;
                 }
             }
         } catch (e) {
@@ -46,26 +41,56 @@ window.AppPetition = {
         try {
             localStorage.setItem(AppConfig.PETITION.STORAGE_KEY, JSON.stringify({
                 signatures: this.signatures,
+                remoteGlobalCount: this.remoteGlobalCount,
                 updatedAt: new Date().toISOString()
             }));
         } catch (e) {}
     },
 
+    // Retorna a contagem 100% real (sincronizada entre o contador em nuvem e os registros locais validados)
     getTotalCount: function () {
-        return AppConfig.PETITION.BASE_VERIFIED_COUNT + this.signatures.length + this.remoteCountBonus;
+        return Math.max(this.remoteGlobalCount, this.signatures.length);
     },
 
     getAllAuditSignatures: function () {
-        // Combina as assinaturas locais com a semente auditável (mais recentes primeiro)
-        return [...this.signatures].reverse().concat(this.seedSignatures);
+        return [...this.signatures].reverse();
+    },
+
+    // Sincroniza com o Contador Global Cloud em Tempo Real (Abacus API)
+    syncGlobalCountFromCloud: function () {
+        const getUrl = AppConfig.PETITION.ABACUS_GET_URL;
+        if (!getUrl) return;
+        fetch(getUrl, { cache: 'no-store' })
+            .then(r => r.json())
+            .then(data => {
+                if (data && typeof data.value === 'number' && data.value >= 0) {
+                    this.remoteGlobalCount = Math.max(data.value, this.signatures.length);
+                    this.saveToStorage();
+                    this.updateAllCounters(false);
+                }
+            })
+            .catch(() => {});
+    },
+
+    incrementGlobalCloudCounter: function () {
+        const hitUrl = AppConfig.PETITION.ABACUS_HIT_URL;
+        if (!hitUrl) return;
+        fetch(hitUrl, { cache: 'no-store' })
+            .then(r => r.json())
+            .then(data => {
+                if (data && typeof data.value === 'number' && data.value >= 0) {
+                    this.remoteGlobalCount = Math.max(data.value, this.signatures.length);
+                    this.saveToStorage();
+                    this.updateAllCounters(true);
+                }
+            })
+            .catch(() => {});
     },
 
     // Algoritmo Oficial Módulo-11 da Receita Federal para Validação de CPF
     validateCPF: function (rawCpf) {
         const cpf = (rawCpf || '').replace(/\D/g, '');
         if (cpf.length !== 11) return false;
-
-        // Rejeita sequências repetidas conhecidas (ex: 111.111.111-11)
         if (/^(\d)\1{10}$/.test(cpf)) return false;
 
         let sum = 0;
@@ -95,14 +120,12 @@ window.AppPetition = {
         return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
     },
 
-    // Mascaramento Padrão LGPD / CNJ / Transparência Pública (***.456.789-**)
     maskCPF: function (rawCpf) {
         const d = (rawCpf || '').replace(/\D/g, '');
         if (d.length !== 11) return '***.***.***-**';
         return `***.${d.slice(3, 6)}.${d.slice(6, 9)}-**`;
     },
 
-    // Gera Hash Criptográfico SHA-256 para Deduplicação e Auditoria sem Expor o CPF Bruto
     computeSHA256: async function (text) {
         if (window.crypto && window.crypto.subtle) {
             const encoder = new TextEncoder();
@@ -111,7 +134,6 @@ window.AppPetition = {
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
-        // Fallback determinístico caso rodado em contexto sem WebCrypto
         let h1 = 0xdeadbeef ^ text.length, h2 = 0x41c6ce57 ^ text.length;
         for (let i = 0, ch; i < text.length; i++) {
             ch = text.charCodeAt(i);
@@ -126,15 +148,15 @@ window.AppPetition = {
     updateAllCounters: function (animate) {
         const count = this.getTotalCount();
         const goal = AppConfig.PETITION.GOAL;
-        const pct = Math.min(100, Math.round((count / goal) * 100));
+        const pct = Math.min(100, Math.max(count > 0 ? 2 : 0, Math.round((count / goal) * 100)));
 
-        // Atualiza todas as pílulas de contador nos botões da interface
         document.querySelectorAll('[data-petition-count]').forEach(el => {
             el.textContent = `${count.toLocaleString('pt-BR')}`;
-            if (animate) {
-                el.classList.remove('bump');
-                void el.offsetWidth;
-                el.classList.add('bump');
+            const pill = el.closest('.petition-counter-pill') || el;
+            if (animate && pill) {
+                pill.classList.remove('bump');
+                void pill.offsetWidth;
+                pill.classList.add('bump');
             }
         });
 
@@ -142,7 +164,7 @@ window.AppPetition = {
         if (bigNum) bigNum.textContent = count.toLocaleString('pt-BR');
 
         const goalLabel = document.getElementById('petitionGoalText');
-        if (goalLabel) goalLabel.textContent = `Meta da 1ª Fase: ${goal.toLocaleString('pt-BR')} assinaturas (${pct}%)`;
+        if (goalLabel) goalLabel.textContent = `Meta de Mobilização: ${goal.toLocaleString('pt-BR')} assinaturas`;
 
         const fill = document.getElementById('petitionProgressFill');
         if (fill) fill.style.width = `${pct}%`;
@@ -154,15 +176,25 @@ window.AppPetition = {
         const container = document.getElementById('recentSignaturesList');
         if (!container) return;
 
-        const list = this.getAllAuditSignatures().slice(0, 5);
-        container.innerHTML = list.map(sig => `
+        const list = this.getAllAuditSignatures();
+        if (list.length === 0) {
+            container.innerHTML = `
+                <div style="font-size: 11.5px; color: #94a3b8; padding: 8px 4px; text-align: center;">
+                    Seja o primeiro a registrar sua assinatura validada por CPF neste dispositivo. Cada assinatura gera um protocolo criptográfico SHA-256 auditável.
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = list.slice(0, 10).map((sig, i) => `
             <div class="signature-item-row">
                 <div>
-                    <span class="sig-name">${this.escapeHtml(sig.name)}</span>
+                    <span style="color: #34d399; font-weight: 800; font-size: 10.5px;">#${list.length - i}</span>
+                    <span class="sig-name"> ${this.escapeHtml(sig.name)}</span>
                     <span style="color: #94a3b8; font-size: 10.5px;"> • ${this.escapeHtml(sig.bairro)}</span>
                 </div>
                 <div class="sig-meta">
-                    ${sig.cpfMasked} • #${sig.hash.slice(0, 8).toUpperCase()}
+                    ${sig.cpfMasked} • ${sig.protocol || ('#' + sig.hash.slice(0, 8).toUpperCase())}
                 </div>
             </div>
         `).join('');
@@ -180,13 +212,12 @@ window.AppPetition = {
         const modal = document.getElementById('petitionModal');
         if (!modal) return;
 
-        // Fecha o modal de rua se estiver aberto para focar na petição
         const streetModal = document.getElementById('streetModal');
         if (streetModal) streetModal.classList.remove('visible');
 
         const bairroInput = document.getElementById('petitionBairro');
         const targetBairro = prefillNeighborhood || AppState.currentInspectedNeighborhood;
-        if (bairroInput && targetBairro && !bairroInput.value) {
+        if (bairroInput && targetBairro) {
             bairroInput.value = targetBairro;
         }
 
@@ -200,6 +231,25 @@ window.AppPetition = {
         if (modal) modal.classList.remove('visible');
     },
 
+    resetFormForNextSigner: function () {
+        const formEl = document.getElementById('petitionForm');
+        const successBox = document.getElementById('petitionSuccessBox');
+        const errBox = document.getElementById('petitionErrorBox');
+        const nameInput = document.getElementById('petitionName');
+        const cpfInput = document.getElementById('petitionCpf');
+        const commentInput = document.getElementById('petitionComment');
+        const cpfHint = document.getElementById('cpfStatusHint');
+
+        if (errBox) errBox.style.display = 'none';
+        if (successBox) successBox.classList.remove('visible');
+        if (formEl) formEl.style.display = 'flex';
+
+        if (nameInput) { nameInput.value = ''; nameInput.focus(); }
+        if (cpfInput) { cpfInput.value = ''; cpfInput.classList.remove('valid', 'invalid'); }
+        if (commentInput) commentInput.value = '';
+        if (cpfHint) { cpfHint.textContent = ''; cpfHint.className = 'cpf-status-hint'; }
+    },
+
     handleSignSubmit: async function (e) {
         e.preventDefault();
         const errBox = document.getElementById('petitionErrorBox');
@@ -208,23 +258,26 @@ window.AppPetition = {
         const name = (document.getElementById('petitionName').value || '').trim();
         const rawCpf = (document.getElementById('petitionCpf').value || '').trim();
         const bairro = (document.getElementById('petitionBairro').value || '').trim() || 'São Roque';
-        const vinculo = document.getElementById('petitionVinculo').value || 'Morador';
+        const vinculo = document.getElementById('petitionVinculo').value || 'Morador(a)';
         const comment = (document.getElementById('petitionComment').value || '').trim();
         const lgpd = document.getElementById('petitionLgpd').checked;
 
         if (name.split(/\s+/).length < 2 || name.length < 5) {
-            this.showError('Por favor, informe seu nome e sobrenome completos para validade do documento público.');
+            this.showError('Informe seu nome e sobrenome completos para validade jurídica do Documento Público.');
+            document.getElementById('petitionName').focus();
             return;
         }
 
         if (!this.validateCPF(rawCpf)) {
-            this.showError('CPF inválido pelos dígitos verificadores da Receita Federal. Verifique os números digitados.');
-            document.getElementById('petitionCpf').classList.add('invalid');
+            this.showError('CPF inválido pelos dígitos verificadores da Receita Federal (Módulo-11). Confira os 11 dígitos.');
+            const cpfEl = document.getElementById('petitionCpf');
+            cpfEl.classList.add('invalid');
+            cpfEl.focus();
             return;
         }
 
         if (!lgpd) {
-            this.showError('Confirme a autorização LGPD para inclusão da assinatura criptografada no documento público.');
+            this.showError('Marque a confirmação LGPD para autorizar a inclusão da assinatura criptografada no documento público.');
             return;
         }
 
@@ -232,7 +285,7 @@ window.AppPetition = {
         const fullHash = await this.computeSHA256(cleanCpf);
         const shortHash = fullHash.slice(0, 16);
 
-        // Verifica deduplicação (impede que o mesmo CPF assine duas vezes)
+        // Verifica deduplicação (impede que o mesmo CPF some duas vezes)
         const alreadySigned = this.signatures.find(s => s.hash === shortHash || s.fullHash === fullHash);
         if (alreadySigned) {
             this.lastReceipt = alreadySigned;
@@ -256,10 +309,14 @@ window.AppPetition = {
         };
 
         this.signatures.push(record);
+        this.remoteGlobalCount = Math.max(this.remoteGlobalCount + 1, this.signatures.length);
         this.lastReceipt = record;
         this.saveToStorage();
         this.updateAllCounters(true);
         this.showSuccessReceipt(record, false);
+
+        // Incrementa contador global na nuvem (Abacus API) e envia ao Webhook Serverless se configurado
+        this.incrementGlobalCloudCounter();
         this.pushToRemoteWebhook(record);
     },
 
@@ -282,34 +339,20 @@ window.AppPetition = {
 
         if (titleEl) {
             titleEl.textContent = wasDuplicate
-                ? 'Assinatura Já Registrada para este CPF!'
-                : 'Assinatura Confirmada e Somada ao Contador!';
+                ? 'Este CPF já possui assinatura validada! Veja seu protocolo abaixo:'
+                : `Assinatura #${this.getTotalCount()} Validada e Somada ao Contador!`;
         }
 
         const dateFormatted = new Date(record.timestamp).toLocaleString('pt-BR');
         if (receiptEl) {
-            receiptEl.innerHTML =
-                `PROTOCOLO: ${record.protocol || ('SRQ-2026-' + record.hash.slice(0, 8).toUpperCase())}\n` +
-                `ASSINANTE: ${this.escapeHtml(record.name)} (${record.cpfMasked})\n` +
-                `BAIRRO/VÍNCULO: ${this.escapeHtml(record.bairro)} • ${this.escapeHtml(record.vinculo)}\n` +
-                `DATA/HORA: ${dateFormatted}\n` +
+            receiptEl.textContent =
+                `PROTOCOLO OFICIAL: ${record.protocol || ('SRQ-2026-' + record.hash.slice(0, 8).toUpperCase())}\n` +
+                `CIDADÃO SUBSCRITOR: ${record.name} (CPF: ${record.cpfMasked})\n` +
+                `BAIRRO / VÍNCULO: ${record.bairro} • ${record.vinculo}\n` +
+                `DATA E HORA: ${dateFormatted}\n` +
                 `HASH SHA-256 (LGPD): ${record.fullHash || record.hash}`;
         }
-    },
-
-    // Sincronização opcional com Webhook Serverless (Google Apps Script / Cloudflare Worker)
-    syncWithRemoteWebhook: function () {
-        const url = AppConfig.PETITION.REMOTE_WEBHOOK_URL;
-        if (!url) return;
-        fetch(url + '?action=count')
-            .then(r => r.json())
-            .then(data => {
-                if (data && typeof data.count === 'number') {
-                    this.remoteCountBonus = Math.max(0, data.count - this.signatures.length);
-                    this.updateAllCounters(false);
-                }
-            })
-            .catch(() => {});
+        lucide.createIcons();
     },
 
     pushToRemoteWebhook: function (record) {
@@ -326,7 +369,7 @@ window.AppPetition = {
     getShareText: function () {
         const count = this.getTotalCount().toLocaleString('pt-BR');
         const url = window.location.href.split('#')[0];
-        return `✍️ Crescer exige responsabilidade! Já somos ${count} cidadãos assinando a Petição Pública por um Plano Diretor responsável em São Roque (com água, esgoto e sem privilégios pontuais / Spot Zoning). Veja o que muda na sua rua e assine com seu CPF: ${url}`;
+        return `🚨 VOTAÇÃO IMINENTE NA CÂMARA DE SÃO ROQUE!\n✍️ Crescer exige responsabilidade! Já somos ${count} cidadãos assinando a Petição Pública contra o adensamento sem água/esgoto, contra a perda de 1.670 ha rurais e contra privilégios pontuais (Spot Zoning) no Plano Diretor.\n\nVeja o impacto negativo na sua rua e assine com seu CPF: ${url}`;
     },
 
     shareWhatsApp: function () {
@@ -335,126 +378,192 @@ window.AppPetition = {
         window.open(waUrl, '_blank', 'noopener,noreferrer');
     },
 
+    copyTextWithFallback: function (text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text).catch(() => this.fallbackCopy(text));
+        }
+        return Promise.resolve(this.fallbackCopy(text));
+    },
+
+    fallbackCopy: function (text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+    },
+
     shareNativeOrCopy: function () {
         const text = this.getShareText();
-        const url = window.location.href.split('#')[0];
-        if (navigator.share) {
-            navigator.share({
-                title: 'São Roque • Crescer exige responsabilidade!',
-                text: text,
-                url: url
-            }).catch(() => {});
-        } else {
-            this.copyLink();
-        }
-    },
-
-    copyLink: function () {
-        const text = this.getShareText();
         const btn = document.getElementById('btnCopyPetitionLink');
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(() => {
-                if (btn) {
-                    const orig = btn.innerHTML;
-                    btn.innerHTML = '<i data-lucide="check" style="width:15px;height:15px;"></i><span>Copiado!</span>';
-                    lucide.createIcons();
-                    setTimeout(() => { btn.innerHTML = orig; lucide.createIcons(); }, 2200);
-                }
-            });
-        }
+        this.copyTextWithFallback(text).then(() => {
+            if (btn) {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="check" style="width:15px;height:15px;"></i><span>Texto e Link Copiados!</span>';
+                lucide.createIcons();
+                setTimeout(() => { btn.innerHTML = orig; lucide.createIcons(); }, 2500);
+            }
+        });
     },
 
-    // Gera e Abre o Documento Público Formal (Manifesto Técnico + Caderno de Assinaturas Auditáveis)
-    openPublicDocumentWindow: function () {
+    // Constrói o HTML Completo do Documento Público Posterior (Câmara Municipal e MPSP)
+    buildPublicDocumentHtml: function (standalone) {
         const count = this.getTotalCount();
         const sigs = this.getAllAuditSignatures();
         const nowStr = new Date().toLocaleString('pt-BR');
 
-        const rowsHtml = sigs.map((s, idx) => `
-            <tr>
-                <td>#${count - idx}</td>
-                <td><strong>${this.escapeHtml(s.name)}</strong></td>
-                <td>${this.escapeHtml(s.bairro)} (${this.escapeHtml(s.vinculo || 'Morador')})</td>
-                <td style="font-family: monospace;">${s.cpfMasked}</td>
-                <td style="font-family: monospace; font-size: 11px;">${(s.fullHash || s.hash).slice(0, 16).toUpperCase()}</td>
-                <td>${new Date(s.timestamp).toLocaleDateString('pt-BR')}</td>
-            </tr>
-        `).join('');
+        const rowsHtml = sigs.length > 0
+            ? sigs.map((s, idx) => `
+                <tr>
+                    <td>#${sigs.length - idx}</td>
+                    <td><strong>${this.escapeHtml(s.name)}</strong></td>
+                    <td>${this.escapeHtml(s.bairro)} (${this.escapeHtml(s.vinculo || 'Morador')})</td>
+                    <td style="font-family: monospace;">${s.cpfMasked}</td>
+                    <td style="font-family: monospace; font-size: 11px;">${s.protocol || (s.fullHash || s.hash).slice(0, 14).toUpperCase()}</td>
+                    <td>${this.escapeHtml(s.comment || '—')}</td>
+                    <td>${new Date(s.timestamp).toLocaleString('pt-BR')}</td>
+                </tr>
+            `).join('')
+            : `<tr><td colspan="7" style="text-align:center; padding: 14px; color: #64748b;">Nenhuma assinatura registrada localmente neste navegador ainda. Preencha seu Nome e CPF no modal da petição para assinar e compor o caderno público.</td></tr>`;
 
-        const docHtml = `<!DOCTYPE html>
+        const innerBody = `
+            <div class="public-doc-sheet" style="background: #ffffff; color: #0f172a; padding: 24px; border-radius: 12px; font-family: Georgia, 'Times New Roman', serif; line-height: 1.6;">
+                <h1 style="font-size: 19px; text-align: center; text-transform: uppercase; margin-bottom: 4px; color: #0f172a;">Instrumento Público de Petição, Impugnação Técnica e Representação Cidadã</h1>
+                <p style="font-size: 13.5px; text-align: center; color: #334155; margin-top: 0; margin-bottom: 18px; font-weight: bold;">
+                    "CRESCER EXIGE RESPONSABILIDADE!" — Revisão do Plano Diretor e Lei de Uso e Ocupação do Solo da Estância Turística de São Roque/SP (Minutas das LCs nº 39 e nº 40/2006)
+                </p>
+
+                <div style="border: 2px solid #0f172a; padding: 12px 16px; background: #f8fafc; margin-bottom: 18px; font-family: sans-serif; font-size: 12px; color: #0f172a;">
+                    <strong>DESTINATÁRIOS OFICIAIS:</strong><br>
+                    1. Exmo. Sr. Presidente e Srs. Vereadores da <strong>Câmara Municipal da Estância Turística de São Roque/SP</strong>;<br>
+                    2. Exmo. Sr. Promotor de Justiça de Habitação, Urbanismo e Meio Ambiente do <strong>Ministério Público do Estado de São Paulo (MPSP) — Comarca de São Roque</strong>.<br><br>
+                    <strong>BASE CONSTITUCIONAL E LEGAL:</strong> Art. 5º, XXXIV, "a" (Direito Constitucional de Petição), Art. 182 da CF/88, Arts. 180 e 181 da Constituição Estadual de SP, Lei Federal nº 10.257/2001 (Estatuto da Cidade, art. 2º, II, VI, IX e art. 40, § 4º) e Lei Federal nº 12.608/2012 (Prevenção de Desastres).<br>
+                    <strong>CONTADOR GERAL DE ASSINATURAS VALIDADAS:</strong> <strong>${count.toLocaleString('pt-BR')} subscrições cidadãs</strong> (${sigs.length} registradas neste caderno auditável) • Gerado em: ${nowStr}.
+                </div>
+
+                <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #0f172a; padding-bottom: 4px; margin-top: 18px; font-family: sans-serif;">I. Dos Impactos Negativos Apurados e Requerimentos Obrigatórios Antes da Votação</h3>
+                <ol style="font-size: 12.5px; padding-left: 20px; display: flex; flex-direction: column; gap: 8px;">
+                    <li><strong>Trava de Saneamento Básico (Água e Esgoto ANTES de Novos Prédios e Condomínios):</strong> São Roque coleta e trata apenas ~47,8% do esgoto gerado (SNIS/ARSESP — Inquérito Civil MPSP nº 0439.0000192/2025). Requer-se emenda supressiva/modificativa vedando o aumento de gabarito (prédios de 18m a 30m) e o aumento de +139,3% nas Zonas de Média Densidade sem prévia estação de tratamento e viabilidade hídrica atestada.</li>
+                    <li><strong>Supressão de Spot Zoning (Privilégios Pontuais) e Proteção dos Mananciais do Carmo/Itupararanga:</strong> Requer-se a supressão do § 1º do art. 36 da Minuta da LC 40/2026 (pág. 36), que cria exceção casuística nominal para 4 loteamentos privados prevalecerem sobre a lei municipal dentro da APA de Itupararanga e Bacia do Rio Sorocamirim, bem como a revisão dos enclaves com Índice de Spot Zoning crítico (ISZ ≥ 70).</li>
+                    <li><strong>Preservação do Cinturão Rural (-1.670,71 ha) e Proteção Contra IPTU Abusivo:</strong> Requer-se a recomposição da Macrozona Rural reduzida em 12,74% na minuta, protegendo os produtores rurais e chacareiros da conversão compulsória do ITR federal em IPTU urbano sem infraestrutura.</li>
+                    <li><strong>Salvaguarda das 22 Áreas de Risco Geológico (SGB/CPRM 2023):</strong> Vedação à elevação da Taxa de Ocupação (70%-80% de impermeabilização) a montante das encostas R3/R4 (Junqueira, Goianã, Vinhedos, Mosteiro, Cambará) e várzeas de inundação (Vila do Carmo e Rio Aracaí).</li>
+                </ol>
+
+                <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #0f172a; padding-bottom: 4px; margin-top: 20px; font-family: sans-serif;">II. Caderno Auditável de Subscritores Validados por CPF (Padrão LGPD / SHA-256)</h3>
+                <p style="font-size: 11.5px; color: #475569; font-family: sans-serif; margin-bottom: 10px;">
+                    Cada assinatura abaixo teve seu CPF validado pelo algoritmo Módulo-11 da Receita Federal e encontra-se protegida por máscara oficial LGPD (Lei nº 13.709/2018) e código de integridade criptográfica SHA-256.
+                </p>
+
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 11.5px; color: #0f172a;">
+                        <thead>
+                            <tr style="background: #e2e8f0;">
+                                <th style="border: 1px solid #94a3b8; padding: 6px 8px;">Nº</th>
+                                <th style="border: 1px solid #94a3b8; padding: 6px 8px;">Nome Completo</th>
+                                <th style="border: 1px solid #94a3b8; padding: 6px 8px;">Bairro / Vínculo</th>
+                                <th style="border: 1px solid #94a3b8; padding: 6px 8px;">CPF (LGPD)</th>
+                                <th style="border: 1px solid #94a3b8; padding: 6px 8px;">Protocolo SHA-256</th>
+                                <th style="border: 1px solid #94a3b8; padding: 6px 8px;">Relato de Impacto</th>
+                                <th style="border: 1px solid #94a3b8; padding: 6px 8px;">Data/Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+
+        if (!standalone) return innerBody;
+
+        return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <title>Documento Público • Petição Crescer Exige Responsabilidade - São Roque/SP</title>
     <style>
-        body { font-family: "Georgia", "Times New Roman", serif; color: #111827; max-width: 860px; margin: 32px auto; padding: 0 24px; line-height: 1.6; }
-        .toolbar { font-family: sans-serif; background: #0f172a; color: #fff; padding: 12px 18px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
-        .toolbar button { background: #10b981; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
-        h1 { font-size: 22px; text-align: center; text-transform: uppercase; margin-bottom: 6px; color: #0f172a; }
-        h2 { font-size: 15px; text-align: center; font-weight: normal; color: #475569; margin-top: 0; margin-bottom: 24px; }
-        .meta-box { border: 2px solid #0f172a; padding: 14px 18px; background: #f8fafc; margin-bottom: 24px; font-family: sans-serif; font-size: 13px; }
-        h3 { font-size: 16px; text-transform: uppercase; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-top: 24px; }
-        table { width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 12px; margin-top: 14px; }
-        th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
-        th { background: #f1f5f9; font-weight: 700; }
-        @media print { .toolbar { display: none; } body { margin: 0; } }
+        body { background: #f1f5f9; margin: 24px; }
+        @media print { body { background: #fff; margin: 0; } }
     </style>
 </head>
-<body>
-    <div class="toolbar">
-        <span><strong>Documento Público Auditável</strong> • Pronto para Impressão / PDF / Protocolo Legislativo</span>
-        <div style="display:flex;gap:8px;">
-            <button onclick="window.print()">🖨️ Imprimir / Salvar em PDF</button>
-        </div>
-    </div>
-
-    <h1>Instrumento Público de Petição e Representação Cidadã</h1>
-    <h2>"Crescer Exige Responsabilidade!" — Revisão do Plano Diretor da Estância Turística de São Roque (Minutas LCs nº 39 e nº 40/2006)</h2>
-
-    <div class="meta-box">
-        <strong>DESTINATÁRIOS INSTITUCIONAIS:</strong><br>
-        1. Exmo. Sr. Presidente e Srs. Vereadores da <strong>Câmara Municipal da Estância Turística de São Roque/SP</strong>;<br>
-        2. Exmo. Sr. Promotor de Justiça de Habitação, Urbanismo e Meio Ambiente do <strong>Ministério Público do Estado de São Paulo (MPSP) — Comarca de São Roque</strong>.<br><br>
-        <strong>FUNDAMENTO CONSTITUCIONAL E LEGAL:</strong> Art. 5º, inciso XXXIV, alínea "a" (Direito Constitucional de Petição aos Poderes Públicos), Art. 182 da Constituição Federal, Art. 180 e 181 da Constituição do Estado de São Paulo, e Art. 2º, II e XIII, c/c Art. 40, § 4º da Lei Federal nº 10.257/2001 (Estatuto da Cidade).<br>
-        <strong>TOTAL CONSOLIDADO DE ASSINATURAS VALIDADAS:</strong> ${count.toLocaleString('pt-BR')} subscrições cidadãs • Emitido em: ${nowStr}.
-    </div>
-
-    <h3>I. Síntese Técnica e Pericial das Reivindicações Coletivas</h3>
-    <p>Os cidadãos, moradores, proprietários e contribuintes abaixo subscritos, amparados pelo levantamento cartográfico e pericial do <em>Repositório de Inteligência Territorial do Plano Diretor de São Roque</em> (projeção SIRGAS 2000 / UTM 23S), requerem ao Poder Legislativo e ao Ministério Público:</p>
-    <ol>
-        <li><strong>Condicionamento do Adensamento à Capacidade Comprovada de Água e Esgoto:</strong> Vedação à aprovação de novos edifícios multifamiliares e loteamentos fechados nas zonas que dobram de densidade (+139% em ZUR de Média Densidade) sem prévia certidão de viabilidade operacional e estação de tratamento de esgoto (Sabesp/ARSESP), diante do índice atual de apenas ~47,8% de esgoto tratado (IC MPSP nº 0439.0000192/2025).</li>
-        <li><strong>Supressão de Dispositivos de Spot Zoning (Privilégios Pontuais e Casuísmo):</strong> Revisão dos enclaves com Índice Sintético de Spot Zoning crítico (ISZ ≥ 70), incluindo a assimetria de gabarito (30m a 100m) frente às restrições vizinhas e a exclusão da exceção nominal a quatro loteamentos privados no Bairro do Carmo (§ 1º da Minuta da LC 40/2006) inseridos na APA de Itupararanga e Bacia do Rio Sorocamirim.</li>
-        <li><strong>Proteção Efetiva do Cinturão Rural (-1.670,71 ha) e das 22 Áreas de Risco Geológico (CPRM):</strong> Preservação do módulo rural e vedação ao aumento de impermeabilização a montante dos setores de risco alto (R3/R4) mapeados pelo Serviço Geológico do Brasil (Junqueira, Goianã, Vinhedos, Mosteiro e Vila do Carmo).</li>
-        <li><strong>Vinculação Orçamentária das Obras Prometidas:</strong> Superação da assimetria temporal, exigindo cronograma físico-financeiro e reserva no PPA para os parques lineares, vias e redes de drenagem prometidos nas minutas.</li>
-    </ol>
-
-    <h3>II. Registro de Assinaturas Validadas por CPF (Padrão LGPD Lei nº 13.709/2018)</h3>
-    <p style="font-size: 12px; color: #475569;">Em estrita conformidade com a Lei Geral de Proteção de Dados (LGPD), os números de CPF foram validados matematicamente pelo algoritmo Módulo-11 da Receita Federal no ato da assinatura, sendo exibidos publicamente sob máscara oficial (<code>***.XXX.XXX-**</code>) acompanhados de sua impressão digital criptográfica inalterável (Hash SHA-256).</p>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Nº</th>
-                <th>Nome Completo do Cidadão Subscritor</th>
-                <th>Bairro / Vínculo</th>
-                <th>CPF Validado (LGPD)</th>
-                <th>Hash SHA-256</th>
-                <th>Data</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${rowsHtml}
-        </tbody>
-    </table>
-</body>
+<body>${innerBody}</body>
 </html>`;
+    },
 
-        const win = window.open('', '_blank');
-        if (win) {
-            win.document.open();
-            win.document.write(docHtml);
-            win.document.close();
-        }
+    openPublicDocumentModal: function () {
+        const modal = document.getElementById('publicDocModal');
+        const body = document.getElementById('publicDocModalBody');
+        if (!modal || !body) return;
+
+        body.innerHTML = this.buildPublicDocumentHtml(false);
+        modal.classList.add('visible');
+        lucide.createIcons();
+    },
+
+    printPublicDocument: function () {
+        const html = this.buildPublicDocumentHtml(true);
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        document.body.appendChild(iframe);
+
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(html);
+        doc.close();
+
+        setTimeout(() => {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            setTimeout(() => document.body.removeChild(iframe), 2000);
+        }, 300);
+    },
+
+    downloadPublicDocumentHtml: function () {
+        const html = this.buildPublicDocumentHtml(true);
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Documento_Publico_Peticao_Plano_Diretor_Sao_Roque_${new Date().toISOString().slice(0, 10)}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    },
+
+    downloadSignaturesCsv: function () {
+        const sigs = this.getAllAuditSignatures();
+        const header = ['Protocolo', 'Nome_Completo', 'Bairro', 'Vinculo', 'CPF_Mascarado_LGPD', 'Hash_SHA256', 'Relato_Impacto', 'Data_Hora_ISO'];
+        const rows = sigs.map(s => [
+            s.protocol || '',
+            `"${(s.name || '').replace(/"/g, '""')}"`,
+            `"${(s.bairro || '').replace(/"/g, '""')}"`,
+            `"${(s.vinculo || '').replace(/"/g, '""')}"`,
+            s.cpfMasked || '',
+            s.fullHash || s.hash || '',
+            `"${(s.comment || '').replace(/"/g, '""')}"`,
+            s.timestamp || ''
+        ]);
+        const csvContent = '\uFEFF' + [header.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Assinaturas_Peticao_Plano_Diretor_Sao_Roque_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     },
 
     bindEvents: function () {
@@ -480,30 +589,25 @@ window.AppPetition = {
                     }
                 } else {
                     cpfInput.classList.remove('valid', 'invalid');
-                    if (cpfHint) { cpfHint.textContent = ''; cpfHint.className = 'cpf-status-hint'; }
+                    if (cpfHint) { cpfHint.textContent = `${clean.length}/11 dígitos`; cpfHint.className = 'cpf-status-hint'; }
                 }
             });
         }
 
         const form = document.getElementById('petitionForm');
-        if (form) {
-            form.addEventListener('submit', (e) => this.handleSignSubmit(e));
-        }
+        if (form) form.addEventListener('submit', (e) => this.handleSignSubmit(e));
 
         const btnTopPetition = document.getElementById('btnTopPetition');
-        if (btnTopPetition) {
-            btnTopPetition.addEventListener('click', () => this.openModal());
-        }
+        if (btnTopPetition) btnTopPetition.addEventListener('click', () => this.openModal());
 
         const btnModalPetition = document.getElementById('btnModalPetition');
-        if (btnModalPetition) {
-            btnModalPetition.addEventListener('click', () => this.openModal());
-        }
+        if (btnModalPetition) btnModalPetition.addEventListener('click', () => this.openModal());
 
         const btnClosePetition = document.getElementById('btnClosePetitionModal');
-        if (btnClosePetition) {
-            btnClosePetition.addEventListener('click', () => this.closeModal());
-        }
+        if (btnClosePetition) btnClosePetition.addEventListener('click', () => this.closeModal());
+
+        const btnBackToMap = document.getElementById('btnBackToMapFromPetition');
+        if (btnBackToMap) btnBackToMap.addEventListener('click', () => this.closeModal());
 
         const petitionModal = document.getElementById('petitionModal');
         if (petitionModal) {
@@ -518,10 +622,41 @@ window.AppPetition = {
         const btnCopy = document.getElementById('btnCopyPetitionLink');
         if (btnCopy) btnCopy.addEventListener('click', () => this.shareNativeOrCopy());
 
+        const btnSignAnother = document.getElementById('btnSignAnotherCpf');
+        if (btnSignAnother) btnSignAnother.addEventListener('click', () => this.resetFormForNextSigner());
+
         const btnOpenDoc = document.getElementById('btnOpenPublicDoc');
-        if (btnOpenDoc) btnOpenDoc.addEventListener('click', () => this.openPublicDocumentWindow());
+        if (btnOpenDoc) btnOpenDoc.addEventListener('click', () => this.openPublicDocumentModal());
 
         const btnFooterDoc = document.getElementById('btnFooterPublicDoc');
-        if (btnFooterDoc) btnFooterDoc.addEventListener('click', () => this.openPublicDocumentWindow());
+        if (btnFooterDoc) btnFooterDoc.addEventListener('click', () => this.openPublicDocumentModal());
+
+        const btnDownloadCsv = document.getElementById('btnDownloadCsv');
+        if (btnDownloadCsv) btnDownloadCsv.addEventListener('click', () => this.downloadSignaturesCsv());
+
+        // Controles do Modal do Documento Público
+        const publicDocModal = document.getElementById('publicDocModal');
+        const btnClosePublicDoc = document.getElementById('btnClosePublicDocModal');
+        const btnClosePublicDocFooter = document.getElementById('btnClosePublicDocFooter');
+        const btnPrintPublicDoc = document.getElementById('btnPrintPublicDoc');
+        const btnDownloadDocHtml = document.getElementById('btnDownloadDocHtml');
+
+        if (btnClosePublicDoc && publicDocModal) {
+            btnClosePublicDoc.addEventListener('click', () => publicDocModal.classList.remove('visible'));
+        }
+        if (btnClosePublicDocFooter && publicDocModal) {
+            btnClosePublicDocFooter.addEventListener('click', () => publicDocModal.classList.remove('visible'));
+        }
+        if (publicDocModal) {
+            publicDocModal.addEventListener('click', (e) => {
+                if (e.target === publicDocModal) publicDocModal.classList.remove('visible');
+            });
+        }
+        if (btnPrintPublicDoc) {
+            btnPrintPublicDoc.addEventListener('click', () => this.printPublicDocument());
+        }
+        if (btnDownloadDocHtml) {
+            btnDownloadDocHtml.addEventListener('click', () => this.downloadPublicDocumentHtml());
+        }
     }
 };

@@ -1,5 +1,6 @@
 /* ==========================================================================
    3. MAP.JS — Inicialização do Leaflet, Cores, Camadas Vetoriais e Modos
+      (Todo clique em zona, ponto crítico ou risco abre direto o modal-card)
    ========================================================================== */
 
 window.AppMap = {
@@ -15,14 +16,12 @@ window.AppMap = {
         AppState.map = map;
         map.fitBounds(AppConfig.SAO_ROQUE_BOUNDS, { padding: [20, 20] });
 
-        // Mapa Base Escuro (Esri Dark Gray Canvas)
         L.tileLayer(AppConfig.TILE_BASE_URL, {
             maxZoom: 16,
             minZoom: 10,
             attribution: '© Esri, HERE, OpenStreetMap'
         }).addTo(map);
 
-        // Painel para Ruas, Rodovias e Bairros ficarem nítidos sobre as zonas
         map.createPane('streetLabels');
         map.getPane('streetLabels').style.zIndex = 650;
         map.getPane('streetLabels').style.pointerEvents = 'none';
@@ -54,7 +53,7 @@ window.AppMap = {
         const bundle = AppState.bundle;
         const self = this;
 
-        // Camada Proposta 2026
+        // Camada Proposta 2026 — abre diretamente o modal-card com impacto negativo
         AppState.layers.z2026 = L.geoJSON(bundle.zoneamento_2026, {
             style: function (feat) {
                 return {
@@ -66,11 +65,11 @@ window.AppMap = {
                 };
             },
             onEachFeature: function (feat, layer) {
-                layer.on('click', () => AppDiagnostics.showZoneCard(feat.properties, 'Proposta (2026)', layer));
+                layer.on('click', (e) => AppDiagnostics.openZoneModal(feat.properties, 'PROPOSTA 2026 • VOTAÇÃO IMINENTE', layer, e.latlng));
             }
         });
 
-        // Camada Vigente 2006
+        // Camada Vigente 2006 — abre diretamente o modal-card comparando com 2026
         AppState.layers.z2006 = L.geoJSON(bundle.zoneamento_2006, {
             style: function (feat) {
                 return {
@@ -82,7 +81,7 @@ window.AppMap = {
                 };
             },
             onEachFeature: function (feat, layer) {
-                layer.on('click', () => AppDiagnostics.showZoneCard(feat.properties, 'Hoje (Lei Vigente)', layer));
+                layer.on('click', (e) => AppDiagnostics.openZoneModal(feat.properties, 'COMPARATIVO: LEI VIGENTE (2006) vs PROPOSTA (2026)', layer, e.latlng));
             }
         });
 
@@ -132,7 +131,10 @@ window.AppMap = {
                 return L.marker(latlng, { icon: icon });
             },
             onEachFeature: function (feat, layer) {
-                layer.on('click', () => AppDiagnostics.showPointCard(feat.properties, 'PONTO CRÍTICO'));
+                layer.on('click', () => {
+                    const coords = feat.geometry.coordinates;
+                    AppDiagnostics.openPointModal(feat.properties, 'DOSSIÊ CRÍTICO DE IMPACTO NEGATIVO', coords[1], coords[0]);
+                });
             }
         }).addTo(map);
     },
@@ -153,7 +155,10 @@ window.AppMap = {
                 return L.marker(latlng, { icon: icon });
             },
             onEachFeature: function (feat, layer) {
-                layer.on('click', () => AppDiagnostics.showPointCard(feat.properties, 'ÁREA DE RISCO'));
+                layer.on('click', () => {
+                    const coords = feat.geometry.coordinates;
+                    AppDiagnostics.openPointModal(feat.properties, 'ALERTA DE RISCO GEOLÓGICO & URBANO', coords[1], coords[0]);
+                });
             }
         }).addTo(map);
     },
@@ -167,20 +172,22 @@ window.AppMap = {
         if (AppState.layers.spotZoning) map.removeLayer(AppState.layers.spotZoning);
 
         const banner = document.getElementById('impactBanner');
-        const card = document.getElementById('infoCard');
-        if (card) card.style.display = 'none';
         const modalEl = document.getElementById('streetModal');
         if (modalEl) modalEl.classList.remove('visible');
 
         if (mode === 'hoje') {
             AppState.layers.z2006.addTo(map);
-            if (banner) banner.classList.remove('visible');
+            if (banner) {
+                banner.innerHTML = '<i data-lucide="clock" style="width: 16px; height: 16px; flex-shrink: 0;"></i><span><strong>Lei Vigente (2006):</strong> Toque em qualquer área do mapa para comparar como é hoje e o impacto negativo do que querem votar.</span>';
+                banner.classList.add('visible');
+                lucide.createIcons();
+            }
             if (AppState.layers.riscos) map.removeLayer(AppState.layers.riscos);
             if (AppState.layers.casos) map.removeLayer(AppState.layers.casos);
         } else if (mode === 'proposta') {
             AppState.layers.z2026.addTo(map);
             if (banner) {
-                banner.innerHTML = '<i data-lucide="alert-triangle" style="width: 16px; height: 16px; flex-shrink: 0;"></i><span><strong>Atenção:</strong> A proposta elimina 1.670 hectares de solo rural (-12,7%) para liberar novos condomínios e prédios.</span>';
+                banner.innerHTML = '<i data-lucide="alert-triangle" style="width: 16px; height: 16px; flex-shrink: 0;"></i><span><strong>Votação Iminente na Câmara:</strong> A proposta elimina 1.670 ha de solo rural (-12,7%) e dobra áreas de prédios sem rede de esgoto. Toque no mapa!</span>';
                 banner.classList.add('visible');
                 lucide.createIcons();
             }
@@ -189,7 +196,7 @@ window.AppMap = {
         } else if (mode === 'spot_zoning') {
             AppState.layers.spotZoning.addTo(map);
             if (banner) {
-                banner.innerHTML = '<i data-lucide="shield-alert" style="width: 16px; height: 16px; flex-shrink: 0;"></i><span><strong>Auditoria de Privilégios (Spot Zoning):</strong> Exibindo apenas áreas com regras sob medida. Clique na área vermelha para ver o impacto.</span>';
+                banner.innerHTML = '<i data-lucide="shield-alert" style="width: 16px; height: 16px; flex-shrink: 0;"></i><span><strong>Auditoria de Privilégios (Spot Zoning):</strong> Exibindo áreas com regras sob medida para grandes empreendimentos. Toque na área vermelha!</span>';
                 banner.classList.add('visible');
                 lucide.createIcons();
             }

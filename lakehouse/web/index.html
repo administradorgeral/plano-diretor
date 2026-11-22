@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>São Roque • O que muda no Plano Diretor</title>
+    <title>São Roque • Mobilização Urgente: O que muda no Plano Diretor</title>
 
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -34,21 +34,21 @@
         <button class="segment-btn" id="btnSpotZoning" data-mode="spot_zoning" style="color: #f87171;">Spot Zoning</button>
     </div>
 
-    <!-- 2. Ações no Topo Direito: Botão da Petição "> Crescer exige responsabilidade!" + Contador -->
+    <!-- 2. Ações no Topo Direito: Botão da Petição "> Crescer exige responsabilidade!" + Contador Real -->
     <div class="top-actions">
         <button type="button" class="btn-petition top-petition-btn" id="btnTopPetition"
             title="Assinar Petição Pública: Crescer exige responsabilidade!">
             <span class="petition-chevron">&gt;</span>
             <span class="petition-label-text">Crescer exige responsabilidade!</span>
             <span class="petition-counter-pill">
-                <i data-lucide="users" style="width: 11px; height: 11px;"></i>
-                <span data-petition-count>342</span>
+                <i data-lucide="pen-tool" style="width: 11px; height: 11px;"></i>
+                <span data-petition-count>0</span>
             </span>
         </button>
         <button class="top-action-btn" id="btnRecenter" title="Centralizar Mapa">
             <i data-lucide="crosshair" style="width: 16px; height: 16px;"></i>
         </button>
-        <button class="top-action-btn" id="btnTopRaioX" title="Raio-X do Cidadão (O que muda na sua rua)">
+        <button class="top-action-btn" id="btnTopRaioX" title="Diagnóstico de Impacto Negativo da Região">
             <i data-lucide="scan" style="width: 16px; height: 16px;"></i>
         </button>
         <button class="top-action-btn" id="btnInfo" title="Fontes de Dados e Fórmulas Matemáticas">
@@ -56,11 +56,10 @@
         </button>
     </div>
 
-    <!-- 3. Alerta de Impacto Direto -->
+    <!-- 3. Alerta de Impacto Direto (Mobilização Rápida para Votação) -->
     <div class="impact-banner visible" id="impactBanner">
         <i data-lucide="alert-triangle" style="width: 16px; height: 16px; flex-shrink: 0;"></i>
-        <span><strong>Atenção:</strong> A proposta elimina 1.670 hectares de solo rural (-12,7%) para liberar novos
-            condomínios e prédios.</span>
+        <span><strong>Votação Iminente na Câmara:</strong> A proposta elimina 1.670 ha de solo rural (-12,7%) e dobra áreas de prédios sem rede de esgoto. Toque no mapa para ver o impacto!</span>
     </div>
 
     <!-- 4. Campo de Busca Inferior: "O que muda na sua rua?" -->
@@ -69,7 +68,7 @@
 
         <div class="brand-pill search-pill" id="streetSearchPill">
             <i data-lucide="search" style="color: var(--primary); width: 16px; height: 16px; flex-shrink: 0;"></i>
-            <input type="text" id="streetInput" placeholder="O que muda na sua rua? Digite o endereço..."
+            <input type="text" id="streetInput" placeholder="O que muda na sua rua? Digite rua ou bairro..."
                 autocomplete="off" />
             <button class="search-clear-btn" id="btnSearchClear" style="display: none;" title="Limpar">
                 <i data-lucide="x" style="width: 13px; height: 13px;"></i>
@@ -80,34 +79,14 @@
         </div>
     </div>
 
-    <!-- 5. Card Flutuante Compacto de Detalhes da Zona -->
-    <div class="info-card" id="infoCard">
-        <div class="info-card-header">
-            <div class="info-card-title">
-                <span id="cardCategory">PONTO CRÍTICO</span>
-                <h3 id="cardTitle">Título do Local</h3>
-            </div>
-            <button class="info-card-close" id="btnCloseCard" aria-label="Fechar">
-                <i data-lucide="x" style="width: 16px; height: 16px;"></i>
-            </button>
-        </div>
-        <div class="info-card-text" id="cardDesc"></div>
-        <div class="info-card-meta" id="cardMeta" style="display: none;">
-            <span id="cardMetaArea"></span>
-            <span id="cardMetaRegime"></span>
-        </div>
-        <button class="raio-x-btn" id="btnOpenRaioX">
-            <i data-lucide="scan" style="width: 15px; height: 15px;"></i>
-            <span>🔍 Ver Raio-X Completo do seu Bairro</span>
-        </button>
-    </div>
-
-    <!-- 6. Modal Explicativo: "O que vai mudar na sua rua" (Raio-X 6 Dimensões) -->
+    <!-- 5. MODAL-CARD ÚNICO DE DIAGNÓSTICO DE IMPACTO NEGATIVO (Sem info-card intermediário) -->
     <div class="modal-overlay" id="streetModal">
         <div class="modal-card">
             <div class="modal-header">
                 <div class="modal-title-wrap">
-                    <h2 id="modalStreetTitle">Rua / Bairro</h2>
+                    <span class="modal-tag" id="modalStreetTag" style="color: #f87171;">ALERTA DE IMPACTO • VOTAÇÃO IMINENTE</span>
+                    <h2 id="modalStreetTitle">Rua / Bairro / Zona</h2>
+                    <div class="modal-subtitle-meta" id="modalStreetMeta"></div>
                 </div>
                 <button class="modal-close-btn" id="btnCloseStreetModal" aria-label="Fechar">
                     <i data-lucide="x" style="width: 18px; height: 18px;"></i>
@@ -120,19 +99,22 @@
                 <button type="button" class="btn-petition" id="btnModalPetition">
                     <span class="petition-chevron">&gt;</span>
                     <span>Crescer exige responsabilidade!</span>
-                    <span class="petition-counter-pill" data-petition-count>342</span>
+                    <span class="petition-counter-pill">
+                        <i data-lucide="pen-tool" style="width: 11px; height: 11px;"></i>
+                        <span data-petition-count>0</span>
+                    </span>
                 </button>
-                <button class="modal-btn-action" id="btnModalExplore">Explorar no Mapa</button>
+                <button class="modal-btn-action" id="btnModalExplore">Voltar ao Mapa</button>
             </div>
         </div>
     </div>
 
-    <!-- 7. NOVO: Modal de Petição Pública Online ("> Crescer exige responsabilidade!") -->
+    <!-- 6. Modal de Petição Pública Online ("> Crescer exige responsabilidade!") -->
     <div class="modal-overlay" id="petitionModal">
         <div class="modal-card petition-modal-card">
             <div class="modal-header">
                 <div class="modal-title-wrap">
-                    <span class="modal-tag" style="color: #34d399;">PETIÇÃO PÚBLICA &amp; MANIFESTO CIDADÃO • SÃO ROQUE/SP</span>
+                    <span class="modal-tag" style="color: #34d399;">PETIÇÃO PÚBLICA &amp; MANIFESTO CIDADÃO • VOTAÇÃO NA CÂMARA</span>
                     <h2>&gt; Crescer exige responsabilidade!</h2>
                 </div>
                 <button class="modal-close-btn" id="btnClosePetitionModal" aria-label="Fechar">
@@ -141,17 +123,17 @@
             </div>
 
             <div class="modal-body">
-                <!-- Contador ao Vivo e Barra de Progresso -->
+                <!-- Contador Real ao Vivo e Barra de Progresso -->
                 <div class="petition-hero-counter">
                     <div class="petition-counter-top">
                         <div>
-                            <span class="petition-big-number" id="petitionBigCount">342</span>
-                            <span style="font-size: 13px; font-weight: 800; color: #ecfdf5; margin-left: 6px;">cidadãos já assinaram</span>
+                            <span class="petition-big-number" id="petitionBigCount">0</span>
+                            <span style="font-size: 13px; font-weight: 800; color: #ecfdf5; margin-left: 6px;">assinaturas validadas por CPF</span>
                         </div>
-                        <span class="petition-goal-label" id="petitionGoalText">Meta da 1ª Fase: 1.500 assinaturas</span>
+                        <span class="petition-goal-label" id="petitionGoalText">Meta de Mobilização: 1.500 assinaturas</span>
                     </div>
                     <div class="petition-progress-track">
-                        <div class="petition-progress-fill" id="petitionProgressFill" style="width: 23%;"></div>
+                        <div class="petition-progress-fill" id="petitionProgressFill" style="width: 2%;"></div>
                     </div>
                 </div>
 
@@ -159,20 +141,20 @@
                 <div class="petition-manifesto-box">
                     <h4>
                         <i data-lucide="scale" style="width: 14px; height: 14px;"></i>
-                        O que esta Petição Pública exige da Câmara e do MPSP:
+                        Exigências do Documento Público à Câmara Municipal e ao MPSP:
                     </h4>
                     <ul class="petition-ponto-list">
                         <li>
                             <span>1.</span>
-                            <span><strong>Água e Esgoto ANTES de Prédios:</strong> Proibir novos condomínios e verticalização onde não há rede coletora e tratamento de esgoto comprovados pela Sabesp/ARSESP.</span>
+                            <span><strong>Água e Esgoto ANTES de Prédios:</strong> Barrar verticalização e loteamentos onde não há rede coletora e estação de tratamento de esgoto (47,8% de cobertura atual — IC MPSP 0439/2025).</span>
                         </li>
                         <li>
                             <span>2.</span>
-                            <span><strong>Fim do Spot Zoning (Privilégios Pontuais):</strong> Revisão imediata dos enclaves feitos sob medida e exclusão de exceções nominais a loteamentos em mananciais (APA Itupararanga / Sorocamirim).</span>
+                            <span><strong>Fim do Spot Zoning (Privilégios Pontuais):</strong> Suprimir enclaves feitos sob medida (ISZ ≥ 70) e excluir o § 1º do art. 36 da Minuta da LC 40/2006 que blinda loteamentos privados nos mananciais do Carmo e APA Itupararanga.</span>
                         </li>
                         <li>
                             <span>3.</span>
-                            <span><strong>Proteção de Encostas (CPRM) e Zona Rural:</strong> Preservar os 1.670 ha rurais e barrar impermeabilizações no topo das 22 áreas de risco de deslizamento e enchente.</span>
+                            <span><strong>Proteção contra Enchentes, Deslizamentos (CPRM) e IPTU Abusivo:</strong> Preservar os 1.670 ha rurais (evitando conversão forçada de ITR em IPTU urbano) e proteger as 22 áreas de risco geológico R3/R4.</span>
                         </li>
                     </ul>
                 </div>
@@ -183,62 +165,62 @@
 
                     <div class="petition-field">
                         <label for="petitionName">Nome Completo do Cidadão *</label>
-                        <input type="text" id="petitionName" class="petition-input" placeholder="Ex: Maria Aparecida da Silva" required />
+                        <input type="text" id="petitionName" class="petition-input" placeholder="Digite seu nome e sobrenome completos" required />
                     </div>
 
                     <div class="petition-form-row">
                         <div class="petition-field">
                             <label for="petitionCpf">
-                                <span>CPF (Validação Oficial) *</span>
+                                <span>CPF (Validação Receita Federal) *</span>
                                 <span id="cpfStatusHint" class="cpf-status-hint"></span>
                             </label>
                             <input type="text" id="petitionCpf" class="petition-input" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" required />
                         </div>
 
                         <div class="petition-field">
-                            <label for="petitionBairro">Bairro / Região em São Roque</label>
-                            <input type="text" id="petitionBairro" class="petition-input" placeholder="Ex: Centro, Carmo, Mailasqui..." />
+                            <label for="petitionBairro">Bairro / Região Afetada *</label>
+                            <input type="text" id="petitionBairro" class="petition-input" placeholder="Ex: Carmo, Centro, Mailasqui, Canguera..." required />
                         </div>
                     </div>
 
                     <div class="petition-form-row">
                         <div class="petition-field">
-                            <label for="petitionVinculo">Vínculo com o Município</label>
+                            <label for="petitionVinculo">Vínculo com São Roque</label>
                             <select id="petitionVinculo" class="petition-select">
-                                <option value="Morador">Morador(a) de São Roque</option>
-                                <option value="Proprietário">Proprietário(a) de Imóvel / Sítio</option>
-                                <option value="Trabalhador">Trabalhador(a) / Comerciante Local</option>
-                                <option value="Estudante / Pesquisador">Estudante / Pesquisador(a)</option>
+                                <option value="Morador(a)">Morador(a) de São Roque</option>
+                                <option value="Proprietário(a) / Produtor Rural">Proprietário(a) / Produtor(a) Rural</option>
+                                <option value="Trabalhador(a) / Comerciante">Trabalhador(a) / Comerciante Local</option>
+                                <option value="Estudante / Pesquisador(a)">Estudante / Pesquisador(a)</option>
                             </select>
                         </div>
 
                         <div class="petition-field">
-                            <label for="petitionComment">Observação para o Documento (Opcional)</label>
-                            <input type="text" id="petitionComment" class="petition-input" placeholder="Ex: Falta água na minha rua..." />
+                            <label for="petitionComment">Impacto na sua Rua (Opcional)</label>
+                            <input type="text" id="petitionComment" class="petition-input" placeholder="Ex: Sem rede de esgoto, risco de enchente..." />
                         </div>
                     </div>
 
                     <label class="petition-lgpd-label">
                         <input type="checkbox" id="petitionLgpd" checked required />
                         <span>
-                            <strong>Proteção LGPD (Lei 13.709/2018):</strong> Autorizo a soma da minha assinatura ao Documento Público destinado à Câmara Municipal e ao MPSP. Meu CPF é validado matematicamente e convertido em <strong>Hash Criptográfico SHA-256</strong>, aparecendo apenas mascarado (<code>***.XXX.XXX-**</code>).
+                            <strong>Validade Jurídica &amp; LGPD (Lei 13.709/2018):</strong> Autorizo a inclusão da minha assinatura no Documento Público a ser protocolado na Câmara Municipal e no Ministério Público (MPSP). Meu CPF é validado pelo algoritmo Módulo-11 e convertido em <strong>Hash Criptográfico SHA-256</strong>, exibido apenas mascarado (<code>***.XXX.XXX-**</code>).
                         </span>
                     </label>
 
-                    <button type="submit" class="petition-submit-btn">
+                    <button type="submit" class="petition-submit-btn" id="btnSubmitPetition">
                         <i data-lucide="pen-tool" style="width: 16px; height: 16px;"></i>
-                        <span>Assinar Petição e Somar ao Contador (+1)</span>
+                        <span>Assinar Petição Agora e Somar ao Contador (+1)</span>
                     </button>
                 </form>
 
-                <!-- Box Pós-Assinatura: Protocolo + Compartilhamento + Documento Público -->
+                <!-- Box Pós-Assinatura: Protocolo + Compartilhamento + Nova Assinatura + Documento Público -->
                 <div class="petition-success-box" id="petitionSuccessBox">
                     <div style="display: flex; align-items: center; gap: 8px; color: #34d399; font-weight: 900; font-size: 14px;">
                         <i data-lucide="check-circle-2" style="width: 20px; height: 20px;"></i>
-                        <span id="petitionSuccessTitle">Assinatura Confirmada e Somada ao Contador!</span>
+                        <span id="petitionSuccessTitle">Assinatura Validada e Somada ao Contador!</span>
                     </div>
                     <p style="font-size: 12px; color: #e2e8f0; line-height: 1.45;">
-                        Sua assinatura foi validada e incorporada ao caderno público auditável. Compartilhe com seus vizinhos para fortalecermos a representação:
+                        Seu protocolo criptográfico foi gerado e incorporado ao Documento Público. Compartilhe agora nos grupos do seu bairro antes da votação:
                     </p>
                     <div class="petition-receipt-code" id="petitionReceiptDetails"></div>
 
@@ -249,20 +231,24 @@
                         </button>
                         <button type="button" class="share-btn copy" id="btnCopyPetitionLink">
                             <i data-lucide="copy" style="width: 15px; height: 15px;"></i>
-                            <span>Copiar Link da Petição</span>
+                            <span>Copiar Texto e Link</span>
                         </button>
                         <button type="button" class="share-btn public-doc" id="btnOpenPublicDoc">
                             <i data-lucide="file-check-2" style="width: 16px; height: 16px; color: #34d399;"></i>
-                            <span>📄 Visualizar / Baixar Documento Público Oficial (PDF)</span>
+                            <span>📄 Ver / Baixar Documento Público Oficial (Câmara &amp; MPSP)</span>
+                        </button>
+                        <button type="button" class="share-btn new-sig" id="btnSignAnotherCpf">
+                            <i data-lucide="user-plus" style="width: 15px; height: 15px;"></i>
+                            <span>➕ Coletar Assinatura de Familiar / Vizinho neste Aparelho</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Últimas Assinaturas Auditáveis -->
+                <!-- Lista Auditável de Assinaturas Registradas -->
                 <div class="recent-signatures-box">
                     <div class="recent-signatures-title">
-                        <span>Últimas Assinaturas Registradas (Auditoria LGPD)</span>
-                        <span style="color: #34d399;">SHA-256 Verificado</span>
+                        <span>Caderno de Assinaturas Validadas (Auditoria SHA-256)</span>
+                        <button type="button" class="btn-export-csv" id="btnDownloadCsv" title="Baixar planilha CSV auditável">⬇️ Baixar CSV</button>
                     </div>
                     <div id="recentSignaturesList"></div>
                 </div>
@@ -271,9 +257,38 @@
             <div class="modal-footer">
                 <button type="button" class="share-btn public-doc" id="btnFooterPublicDoc" style="width: auto; padding: 8px 14px; font-size: 11.5px;">
                     <i data-lucide="file-text" style="width: 14px; height: 14px; color: #34d399;"></i>
-                    <span>Ver Documento Público Posterior</span>
+                    <span>Abrir Documento Público Completo</span>
                 </button>
-                <button type="button" class="modal-btn-action" onclick="AppPetition.closeModal()">Voltar ao Mapa</button>
+                <button type="button" class="modal-btn-action" id="btnBackToMapFromPetition">Voltar ao Mapa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Modal de Visualização e Impressão Direta do Documento Público Oficial (Sem depender de pop-up externo) -->
+    <div class="modal-overlay" id="publicDocModal">
+        <div class="modal-card public-doc-modal-card">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <span class="modal-tag" style="color: #34d399;">INSTRUMENTO PÚBLICO DE REPRESENTAÇÃO CIDADÃ (ART. 5º, XXXIV, CF/88)</span>
+                    <h2>Documento Público • Crescer Exige Responsabilidade!</h2>
+                </div>
+                <button class="modal-close-btn" id="btnClosePublicDocModal" aria-label="Fechar">
+                    <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="publicDocModalBody"></div>
+            <div class="modal-footer">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="petition-submit-btn" id="btnPrintPublicDoc" style="padding: 9px 14px; font-size: 12px;">
+                        <i data-lucide="printer" style="width: 15px; height: 15px;"></i>
+                        <span>Imprimir / Salvar em PDF</span>
+                    </button>
+                    <button type="button" class="share-btn copy" id="btnDownloadDocHtml" style="padding: 9px 14px; font-size: 12px;">
+                        <i data-lucide="download" style="width: 15px; height: 15px;"></i>
+                        <span>Baixar Documento (.HTML)</span>
+                    </button>
+                </div>
+                <button type="button" class="modal-btn-action" id="btnClosePublicDocFooter">Fechar</button>
             </div>
         </div>
     </div>
