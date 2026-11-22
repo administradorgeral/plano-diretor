@@ -16,7 +16,9 @@ window.AppConfig = {
     // Configuração 100% Real da Petição Pública (Zero Placeholders)
     PETITION: {
         TITLE: 'Crescer exige responsabilidade!',
-        GOAL: 1500,
+        BASE_GOAL: 150,
+        GOAL_STEP: 100,
+        GOAL: 150,
         STORAGE_KEY: 'srq_plano_diretor_peticao_real_v2',
         // Contador Global Cloud Real-Time (Abacus Open Counter API)
         ABACUS_GET_URL: 'https://abacus.jasoncameron.dev/get/qSo0fglBAh0RrVs_/GmJj17ZrOh88b2IZ',

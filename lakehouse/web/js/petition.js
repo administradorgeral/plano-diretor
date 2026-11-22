@@ -145,10 +145,18 @@ window.AppPetition = {
         return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
     },
 
+    // Cálculo da Meta Dinâmica de Mobilização: base de 150 assinaturas, subindo de 100 em 100 conforme cada meta é atingida
+    getCurrentGoal: function (count) {
+        const base = (window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.BASE_GOAL) || 150;
+        const step = (window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.GOAL_STEP) || 100;
+        if (count < base) return base;
+        return base + Math.floor((count - base) / step + 1) * step;
+    },
+
     updateAllCounters: function (animate) {
         const count = this.getTotalCount();
-        const goal = AppConfig.PETITION.GOAL;
-        const pct = Math.min(100, Math.max(count > 0 ? 2 : 0, Math.round((count / goal) * 100)));
+        const goal = this.getCurrentGoal(count);
+        const pct = Math.min(100, Math.max(count > 0 ? 3 : 0, Math.round((count / goal) * 100)));
 
         document.querySelectorAll('[data-petition-count]').forEach(el => {
             el.textContent = `${count.toLocaleString('pt-BR')}`;
@@ -164,7 +172,9 @@ window.AppPetition = {
         if (bigNum) bigNum.textContent = count.toLocaleString('pt-BR');
 
         const goalLabel = document.getElementById('petitionGoalText');
-        if (goalLabel) goalLabel.textContent = `Meta de Mobilização: ${goal.toLocaleString('pt-BR')} assinaturas`;
+        if (goalLabel) {
+            goalLabel.textContent = `Meta de Mobilização: ${goal.toLocaleString('pt-BR')} assinaturas`;
+        }
 
         const fill = document.getElementById('petitionProgressFill');
         if (fill) fill.style.width = `${pct}%`;
@@ -475,10 +485,11 @@ window.AppPetition = {
 
                 <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #0f172a; padding-bottom: 4px; margin-top: 18px; font-family: sans-serif;">I. Dos Impactos Negativos Apurados e Requerimentos Obrigatórios Antes da Votação</h3>
                 <ol style="font-size: 12.5px; padding-left: 20px; display: flex; flex-direction: column; gap: 8px;">
-                    <li><strong>Trava de Saneamento Básico (Água e Esgoto ANTES de Novos Prédios e Condomínios):</strong> São Roque coleta e trata apenas ~47,8% do esgoto gerado (SNIS/ARSESP — Inquérito Civil MPSP nº 0439.0000192/2025). Requer-se emenda supressiva/modificativa vedando o aumento de gabarito (prédios de 18m a 30m) e o aumento de +139,3% nas Zonas de Média Densidade sem prévia estação de tratamento e viabilidade hídrica atestada.</li>
-                    <li><strong>Supressão de Spot Zoning (Privilégios Pontuais) e Proteção dos Mananciais do Carmo/Itupararanga:</strong> Requer-se a supressão do § 1º do art. 36 da Minuta da LC 40/2026 (pág. 36), que cria exceção casuística nominal para 4 loteamentos privados prevalecerem sobre a lei municipal dentro da APA de Itupararanga e Bacia do Rio Sorocamirim, bem como a revisão dos enclaves com Índice de Spot Zoning crítico (ISZ ≥ 70).</li>
-                    <li><strong>Preservação do Cinturão Rural (-1.670,71 ha) e Proteção Contra IPTU Abusivo:</strong> Requer-se a recomposição da Macrozona Rural reduzida em 12,74% na minuta, protegendo os produtores rurais e chacareiros da conversão compulsória do ITR federal em IPTU urbano sem infraestrutura.</li>
-                    <li><strong>Salvaguarda das 22 Áreas de Risco Geológico (SGB/CPRM 2023):</strong> Vedação à elevação da Taxa de Ocupação (70%-80% de impermeabilização) a montante das encostas R3/R4 (Junqueira, Goianã, Vinhedos, Mosteiro, Cambará) e várzeas de inundação (Vila do Carmo e Rio Aracaí).</li>
+                    <li><strong>Trava de Saneamento Básico (Água e Esgoto ANTES de Novos Prédios e Condomínios):</strong> São Roque coleta e trata apenas ~47,8% do esgoto gerado (SNIS/ARSESP — Inquérito Civil MPSP nº 0439.0000192/2025). Requer-se emenda supressiva/modificativa vedando o aumento de gabarito (prédios de 18m a 30m) e o aumento de densidade construtiva sem prévia ampliação das estações de tratamento e atestado de viabilidade hídrica da concessionária.</li>
+                    <li><strong>Fim do Spot Zoning (Privilégios Pontuais) e Proteção das Florestas e Mananciais de Toda São Roque:</strong> Requer-se a supressão de enclaves feitos sob medida com Índice de Spot Zoning crítico (ISZ ≥ 70) e a exclusão do § 1º do art. 36 da Minuta da LC 40/2026, que blinda loteamentos privados nos mananciais do Carmo e APA Itupararanga, estendendo a blindagem legal e ambiental para a cobertura florestal da Mata Atlântica e para as bacias hidrográficas de todo o município contra a urbanização predatória desordenada.</li>
+                    <li><strong>Preservação do Cinturão Rural (-1.670,71 ha) e Proteção Contra IPTU Abusivo:</strong> Requer-se a recomposição da Macrozona Rural reduzida em 12,74% na minuta, protegendo os produtores rurais, sitiantes e chacareiros da conversão compulsória do ITR federal em IPTU urbano sem infraestrutura e serviços públicos.</li>
+                    <li><strong>Apresentação Obrigatória de Estudos Técnicos Prévios para Alteração de Glebas Inteiras:</strong> Requer-se a expressa proibição de alterações de zoneamento que contemplem glebas pontuais inteiras sem a prévia elaboração, protocolização pública e audiência específica de Estudo de Impacto de Vizinhança (EIV), Estudo de Viabilidade Ambiental (EVA) e laudo hidrológico de esgotamento e drenagem.</li>
+                    <li><strong>Salvaguarda das 22 Áreas de Risco Geológico (SGB/CPRM 2023):</strong> Vedação à elevação da Taxa de Ocupação (70%-80% de impermeabilização) a montante das encostas R3/R4 (Junqueira, Goianã, Vinhedos, Mosteiro, Cambará) e várzeas de inundação (Vila do Carmo e Rio Aracaí), em estrito cumprimento à Lei Federal nº 12.608/2012.</li>
                 </ol>
 
                 <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #0f172a; padding-bottom: 4px; margin-top: 20px; font-family: sans-serif;">II. Caderno Auditável de Subscritores Validados por CPF (Padrão LGPD / SHA-256)</h3>
