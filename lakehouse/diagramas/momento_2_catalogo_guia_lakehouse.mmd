@@ -1,0 +1,39 @@
+graph TD
+    subgraph GUIA ["GUIA NACIONAL DE PLANOS DIRETORES (MDR / ConCidades)"]
+        direction TB
+        G_PREP["Etapa Preliminar:<br>Preparação e Contratações"]
+        G_E1["Etapa 1: Leitura do Território<br>(Diagnóstico Técnico + Comunitário)"]
+        G_E2["Etapa 2: Formulação de Propostas<br>(Diretrizes, Estratégias e Instrumentos)"]
+        G_E3["Etapa 3: Consolidação da Proposta<br>(Minutas de Lei e Mapas Oficiais)"]
+        G_TRANS["Eixo Transversal:<br>Gestão Democrática e Participação (T18)"]
+    end
+
+    subgraph LAKEHOUSE ["ACERVO DO LAKEHOUSE (São Roque / SP)"]
+        direction TB
+        L_PREP["Dossiê 05 + Contratos Geo Pixel<br>Inquérito Civil MPSP nº 0439/2025<br>Ação Popular nº 1003444/2023"]
+        L_E1["15 Cartas Temáticas PDA 2019<br>Inventário Florestal (180 MB)<br>CPRM Riscos 2023 + SNIS / ARSESP<br>Censo IBGE 2022 (KMZ)"]
+        L_E2["Zoneamento 2006 (KMZ e Cartas I-X)<br>Zoneamento PL 2026 (KMZ e Pranchas)<br>Anexos de Índices Urbanísticos (LC 40)<br>Desafetações / ADIN TJ-SP nº 2048131"]
+        L_E3["Minutas LC 39/2006 e LC 40/2006<br>(Textos Originais e Protocolo Câmara)<br>Diários Oficiais DOM 1003 e 1007/2026"]
+        L_PART["Devolutiva Consulta Pública (74 págs)<br>Auditoria de 57 Propostas da Sociedade<br>Audiências da Câmara (Nov/2026)"]
+    end
+
+    subgraph CASOS ["5 CASOS EMBLEMÁTICOS (Interesse Privado x Bem-Estar Social)"]
+        C1["Caso 01: Complexo Catarina (JHSF)<br>ZUE, Gabarito 30m vs. Raio DECEA"]
+        C2["Caso 02: Desafetações e Leilão<br>Inconstitucionalidade LC 125 e Gleba Marmeleiro"]
+        C3["Caso 03: Bairro do Carmo e Sorocamirim<br>Exceção de Loteamentos vs. APA Itupararanga"]
+        C4["Caso 04: Parcelamentos Rurais e REURB<br>Conflito INCRA e Desruralização"]
+        C5["Caso 05: Governança e Decisões<br>Assimetria de Deferimentos na Consulta"]
+    end
+
+    G_PREP <==> L_PREP
+    G_E1 <==> L_E1
+    G_E2 <==> L_E2
+    G_E3 <==> L_E3
+    G_TRANS <==> L_PART
+
+    L_PREP -.-> C5
+    L_E2 -.-> C1
+    L_E2 -.-> C2
+    L_E1 -.-> C3
+    L_E2 -.-> C4
+    L_PART -.-> C5

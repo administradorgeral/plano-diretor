@@ -1,0 +1,97 @@
+/* ==========================================================================
+   1. BASE.CSS — Design Tokens, Reset, Tipografia e Container do Mapa
+   ========================================================================== */
+
+:root {
+    --bg-glass: rgba(15, 20, 32, 0.90);
+    --bg-card: #131826;
+    --border-glass: rgba(255, 255, 255, 0.12);
+    --primary: #3b82f6;
+    --accent-red: #ef4444;
+    --accent-amber: #f59e0b;
+    --accent-cyan: #06b6d4;
+    --accent-green: #22c55e;
+    --accent-emerald: #10b981;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --radius-xl: 18px;
+    --radius-md: 10px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body,
+html {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: var(--font);
+    background: #090d16;
+    color: var(--text-main);
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: #090d16;
+}
+
+/* Animações Globais */
+@keyframes slideUp {
+    from {
+        transform: translateY(16px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalPop {
+    from {
+        transform: scale(0.92);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes streetPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8);
+    }
+    70% {
+        box-shadow: 0 0 0 18px rgba(59, 130, 246, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+}
+
+@keyframes counterBump {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.22); background: #16a34a; color: #fff; }
+    100% { transform: scale(1); }
+}

@@ -1,0 +1,77 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "CASO_01",
+        "titulo": "Complexo Catarina (JHSF)",
+        "categoria": "Privilégio de Altura & Sem Esgoto Sabesp",
+        "cor": "#ef4444",
+        "resumo": "Prédios de até 10 andares (30m) liberados para o complexo privado, enquanto os sítios vizinhos têm restrição rígida de altura pelo aeroporto. O local não tem rede pública de esgoto da Sabesp.",
+        "link_dossie": "CASO_01_REGIÃO_CATARINA.md"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.163,
+          -23.4245
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "CASO_02",
+        "titulo": "Bairro do Carmo & Represa",
+        "categoria": "Ameaça à Água que Você Bebe",
+        "cor": "#06b6d4",
+        "resumo": "Contratos de condomínios fechados vão valer mais do que a lei de São Roque, bem na área de preservação da represa e mananciais de São Roque, pressionando o Quilombo do Carmo.",
+        "link_dossie": "CASO_02_REGIME_SOLO_CARMO_SOROCAMIRIM.md"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.195,
+          -23.608
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "CASO_03",
+        "titulo": "Estrada do Candor / Rural",
+        "categoria": "Aumento de IPTU & Fim do Campo",
+        "cor": "#8b5cf6",
+        "resumo": "Sítios e chácaras agrícolas são transformados à força em solo urbano. O morador rural passa a pagar IPTU urbano caro, sem ter água encanada, asfalto ou esgoto na sua porta.",
+        "link_dossie": "CASO_03_PARCELAMENTO_RURAL_INCRA_REURB.md"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.065,
+          -23.535
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "CASO_04",
+        "titulo": "Prefeitura & Consulta Pública",
+        "categoria": "Privilégio de Decisões",
+        "cor": "#f59e0b",
+        "resumo": "Pedidos de imobiliárias para expandir loteamentos foram aceitos rapidamente na consulta pública, enquanto alertas formais dos conselhos de meio ambiente sobre falta de água foram engavetados.",
+        "link_dossie": "CASO_04_GOVERNANCA.md"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.135,
+          -23.529
+        ]
+      }
+    }
+  ]
+}

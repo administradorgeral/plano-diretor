@@ -1,0 +1,29 @@
+graph TD
+    subgraph FORMULA ["ÍNDICE COMPOSTO DE SPOT ZONING (ISZ: 0 a 100)"]
+        direction TB
+        ISZ["ISZ = (0,25·I_ilha + 0,30·I_gradiente + 0,25·I_monopólio + 0,20·I_casuísmo) × 100"]
+    end
+
+    subgraph METRICAS ["4 Dimensões Analíticas Objetivas"]
+        M1["1. Ilhamento Topológico (I_ilha)<br>Proporção da fronteira dissimilar<br>(ex.: Enclave 100% cercado por Rural/APA)"]
+        M2["2. Gradiente Edilício (I_gradiente)<br>Salto de Gabarito (m) e Taxa de Ocupação (%)<br>frente à média ponderada dos vizinhos"]
+        M3["3. Concentração Dominial (I_monopólio)<br>Coincidência entre a zona criada e a gleba<br>de um único grupo econômico privado"]
+        M4["4. Casuísmo Textual (I_casuísmo)<br>Nomes próprios de condomínios na lei<br>ou pleitos ad hoc acolhidos em Consulta"]
+    end
+
+    subgraph TOP_CASOS ["Ocorrências Críticas Identificadas em São Roque (2026)"]
+        C1["Complexo Catarina (ZUE Estratégica)<br>Score: 79,1 / 100 (CRÍTICO)<br>Gleba JHSF / Gabarito 30-100m vs. Cone DECEA"]
+        C2["ZUE Raposo Tavares (Ilha em Manancial)<br>Score: 73,9 / 100 (CRÍTICO)<br>100% cercada por bacia de manancial"]
+        C3["Enclave Turístico na Zona Rural<br>Score: 72,7 / 100 (CRÍTICO)<br>148 ha isolados com regras urbanas"]
+        C4["Bairro do Carmo (Art. 36, § 1º LC 40)<br>Exceção Nominal Explícita<br>Prevalência de contrato privado sobre APA"]
+    end
+
+    M1 --> ISZ
+    M2 --> ISZ
+    M3 --> ISZ
+    M4 --> ISZ
+
+    ISZ ==> C1
+    ISZ ==> C2
+    ISZ ==> C3
+    ISZ ==> C4

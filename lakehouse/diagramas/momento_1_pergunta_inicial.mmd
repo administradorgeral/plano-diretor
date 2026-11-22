@@ -1,0 +1,26 @@
+graph TD
+    PI["PERGUNTA INICIAL:<br>Como a Minuta do Plano Diretor de São Roque (2026) equilibra ou desequilibra<br>INTERESSE PRIVADO vs. BEM-ESTAR SOCIAL?"]
+    
+    subgraph EIXOS_INVESTIGATIVOS ["Eixos Investigativos do Método Científico"]
+        direction TB
+        E1["Eixo 1: Parâmetros Edilícios e Mais-Valia<br>(Complexo Catarina / ZUE / Gabaritos)"]
+        E2["Eixo 2: Vulnerabilidade Hídrica e Ambiental<br>(APA Itupararanga / Rio Sorocamirim / Quilombo)"]
+        E3["Eixo 3: Bens Públicos e Áreas Verdes<br>(Desafetações / Inconstitucionalidade da LC 125)"]
+        E4["Eixo 4: Governança e Captura Regulatória<br>(IC MPSP / Consulta Pública / Assimetria de Deferimentos)"]
+    end
+    
+    subgraph CRITERIOS_EVAL ["Parâmetros de Validação Científica"]
+        CF88["Constituição Federal (Art. 182)<br>Função Social da Cidade e da Propriedade"]
+        EC["Estatuto da Cidade (Lei 10.257/2001)<br>Gestão Democrática e Justa Distribuição dos Ônus/Bônus"]
+        CE["Constituição Estadual de SP (Arts. 180-181)<br>Intangibilidade de Espaços Comunitários"]
+    end
+    
+    PI --> E1
+    PI --> E2
+    PI --> E3
+    PI --> E4
+    
+    E1 -.->|"Confronto com"| CRITERIOS_EVAL
+    E2 -.->|"Confronto com"| CRITERIOS_EVAL
+    E3 -.->|"Confronto com"| CRITERIOS_EVAL
+    E4 -.->|"Confronto com"| CRITERIOS_EVAL

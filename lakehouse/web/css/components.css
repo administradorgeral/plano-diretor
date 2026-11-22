@@ -1,0 +1,487 @@
+/* ==========================================================================
+   2. COMPONENTS.CSS — Controles de Topo, Botão de Petição, Busca e Cards
+   ========================================================================== */
+
+/* 1. TOPO ESQUERDO: Alternador de Modo (Hoje vs Proposta vs Spot Zoning) */
+.segmented-control {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 1000;
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: 999px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.segment-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 7px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.segment-btn.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
+}
+
+/* Ações no Topo Direito (Petição Cidadã, Reenquadrar, Raio-X e Metodologia) */
+.top-actions {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Botão de Petição Pública: "> Crescer exige responsabilidade!" + Contador */
+.btn-petition {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.92) 0%, rgba(5, 150, 105, 0.95) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(52, 211, 153, 0.65);
+    color: #ffffff;
+    height: 36px;
+    padding: 0 13px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.38);
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+.btn-petition:hover {
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    border-color: #a7f3d0;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 22px rgba(16, 185, 129, 0.55);
+}
+
+.btn-petition:active {
+    transform: scale(0.97);
+}
+
+.petition-chevron {
+    font-weight: 900;
+    color: #a7f3d0;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.petition-counter-pill {
+    background: rgba(6, 78, 59, 0.85);
+    border: 1px solid rgba(167, 243, 208, 0.45);
+    color: #ecfdf5;
+    font-size: 10.5px;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 0.02em;
+    transition: transform 0.25s ease;
+}
+
+.petition-counter-pill.bump {
+    animation: counterBump 0.6s ease-out;
+}
+
+@media (max-width: 720px) {
+    .top-petition-btn .petition-label-text {
+        display: none;
+    }
+    .top-petition-btn {
+        padding: 0 10px;
+    }
+}
+
+.top-action-btn {
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-glass);
+    color: var(--text-main);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.top-action-btn:hover {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.top-action-btn:active {
+    transform: scale(0.9);
+}
+
+/* 2. ALERTA DE IMPACTO (Visível na Proposta e Spot Zoning) */
+.impact-banner {
+    position: absolute;
+    top: 60px;
+    left: 14px;
+    right: 14px;
+    z-index: 999;
+    background: rgba(239, 68, 68, 0.92);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-md);
+    padding: 8px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.2s ease-out;
+    max-width: 480px;
+}
+
+.impact-banner.visible {
+    display: flex;
+}
+
+/* 3. DOCK INFERIOR (Centro): Campo de Busca "O que muda na sua rua?" */
+.search-wrapper {
+    position: absolute;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: calc(100% - 28px);
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.search-pill {
+    width: 100%;
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    padding: 6px 10px 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.65);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-pill:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 14px 36px rgba(59, 130, 246, 0.35);
+    background: rgba(15, 20, 32, 0.96);
+}
+
+#streetInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+}
+
+#streetInput::placeholder {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.search-clear-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    border: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.search-clear-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.search-go-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.15s ease, background 0.15s ease;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+.search-go-btn:active {
+    transform: scale(0.9);
+}
+
+/* Lista de Sugestões / Autocomplete */
+.search-suggestions {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+    max-height: 220px;
+    overflow-y: auto;
+    display: none;
+    flex-direction: column;
+    z-index: 1001;
+    padding: 4px;
+}
+
+.search-suggestions.visible {
+    display: flex;
+}
+
+.suggestion-item {
+    padding: 9px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #f1f5f9;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+}
+
+.suggestion-item:hover,
+.suggestion-item:active {
+    background: rgba(59, 130, 246, 0.22);
+    color: #fff;
+}
+
+.suggestion-item i {
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.suggestion-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.suggestion-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.08);
+    padding: 2px 6px;
+    border-radius: 999px;
+}
+
+/* Pino Pulsante na Rua */
+.street-pulse-pin {
+    width: 20px;
+    height: 20px;
+    background: #3b82f6;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8);
+    animation: streetPulse 1.6s infinite;
+}
+
+/* 5. CARD COMPACTO DE DETALHES */
+.info-card {
+    position: absolute;
+    bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+    left: 14px;
+    right: 14px;
+    z-index: 1005;
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    padding: 14px 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 440px;
+    margin: 0 auto;
+    animation: slideUp 0.22s ease-out;
+}
+
+.info-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.info-card-title h3 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.info-card-title span {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-card-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px;
+}
+
+.info-card-close:hover {
+    color: #fff;
+}
+
+.info-card-text {
+    font-size: 12px;
+    color: #cbd5e1;
+    line-height: 1.45;
+}
+
+.info-card-meta {
+    font-size: 10px;
+    font-weight: 600;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 2px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 6px;
+}
+
+.raio-x-btn {
+    margin-top: 10px;
+    width: 100%;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.raio-x-btn:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+}
+
+.raio-x-btn:active {
+    transform: translateY(1px);
+}
+
+/* Marcadores do Mapa */
+.marker-pin-caso {
+    border-radius: 8px;
+    border: 2px solid #fff;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.marker-pin-caso:hover {
+    transform: scale(1.15);
+}
+
+.marker-pin-risco {
+    border-radius: 50%;
+    border: 2px solid #fff;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+@media (min-width: 768px) {
+    .info-card {
+        left: 20px;
+        right: auto;
+        bottom: 20px;
+        width: 380px;
+    }
+}

@@ -29,11 +29,10 @@ Plano Diretor/
 
 Localizados em `lakehouse/bronze/casos_emblematicos/`:
 
-- **Caso 01**: Complexo Catarina (JHSF) – Aeródromo Executivo (SBJH), Outlet, parâmetros e condicionantes.
-- **Caso 02**: Desafetações (LC 125) e alienação em leilão público (PNCP).
-- **Caso 03**: Regime de uso e ocupação do solo em Carmo e Sorocamirim.
-- **Caso 04**: Parcelamento rural irregular, INCRA e diretrizes de REURB.
-- **Caso 05**: Governança participativa, DPMA e processo de consulta pública.
+- **Caso 01**: Região Catarina (JHSF) – ZUE, parâmetros corporativos (gabarito 30m, TO 50%), PBZPA/DECEA e outorga onerosa.
+- **Caso 02**: Regime de Uso do Solo em Carmo e Sorocamirim – Prevalência de contratos privados em mananciais e vizinhança com o Quilombo do Carmo.
+- **Caso 03**: Parcelamento Rural Irregular, INCRA e REURB – Fracionamento abaixo de 20.000 m², indução de loteamentos e custos públicos de remediação.
+- **Caso 04**: Governança Territorial, DPMA e Integridade – Assimetria no acolhimento da Consulta Pública (mercado vs. COMDEMA) e inquéritos no MPSP.
 
 ---
 

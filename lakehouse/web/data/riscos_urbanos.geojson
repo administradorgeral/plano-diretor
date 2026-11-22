@@ -1,0 +1,131 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RISCO_01",
+        "titulo": "Eixo Castello / Dona Catarina",
+        "tipo_risco": "expulsao",
+        "tags_risco": [
+          "Expulsão da cidade",
+          "Aumento de IPTU"
+        ],
+        "cor": "#ef4444",
+        "resumo": "Ocupação industrial e pressão de condomínios na divisa norte com Mairinque e Itu, encarecendo a terra e pressionando pequenos produtores."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.205,
+          -23.438
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RISCO_02",
+        "titulo": "Distrito de São João Novo",
+        "tipo_risco": "infraestrutura",
+        "tags_risco": [
+          "Aumento de IPTU",
+          "Falta de Transporte"
+        ],
+        "cor": "#f59e0b",
+        "resumo": "Expansão desordenada e pressão de loteamentos no distrito nordeste, sem ampliação proporcional de transporte público, saneamento e postos de saúde."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.072,
+          -23.472
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RISCO_03",
+        "titulo": "Mananciais do Sorocamirim",
+        "tipo_risco": "mananciais",
+        "tags_risco": [
+          "Água & Mananciais",
+          "Preservação"
+        ],
+        "cor": "#06b6d4",
+        "resumo": "Condomínios em cima das nascentes e riachos que abastecem os mananciais. Perigo de contaminação das águas e sobrecarga ambiental."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.155,
+          -23.568
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RISCO_04",
+        "titulo": "Distrito de Mailasqui",
+        "tipo_risco": "iptu",
+        "tags_risco": [
+          "Aumento de IPTU",
+          "Fim do Campo"
+        ],
+        "cor": "#f59e0b",
+        "resumo": "Chacareiros e produtores rurais na faixa da Raposo Tavares vão receber carnê de IPTU urbano, em áreas desprovidas de rede de esgoto e asfalto."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.095,
+          -23.558
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RISCO_05",
+        "titulo": "Várzea do Rio Aracaí / Bairro Guaçu",
+        "tipo_risco": "enchentes",
+        "tags_risco": [
+          "Risco de enchentes",
+          "Fundos de Vale"
+        ],
+        "cor": "#06b6d4",
+        "resumo": "Construções nas várzeas e fundos de vale agravam o perigo de inundações rápidas e transbordamento do rio no centro e bairros baixos."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.142,
+          -23.512
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RISCO_06",
+        "titulo": "Encostas do Cambará & Morros (CPRM R4)",
+        "tipo_risco": "deslizamento",
+        "tags_risco": [
+          "Risco de desabamento",
+          "Encostas"
+        ],
+        "cor": "#8b5cf6",
+        "resumo": "Áreas de encosta com declividade acentuada e risco muito alto de deslizamento de terra em épocas de chuva forte mapeadas pelo Serviço Geológico."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.115,
+          -23.545
+        ]
+      }
+    }
+  ]
+}

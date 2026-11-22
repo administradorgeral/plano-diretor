@@ -1,0 +1,633 @@
+/* ==========================================================================
+   3. MODALS.CSS — Raio-X do Cidadão, Metodologia e Petição Pública Online
+   ========================================================================== */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.modal-overlay.visible {
+    display: flex;
+}
+
+.modal-card {
+    background: #111728;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+    overflow: hidden;
+    animation: modalPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.info-modal-card {
+    max-width: 620px;
+}
+
+.petition-modal-card {
+    max-width: 560px;
+}
+
+.modal-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.modal-tag {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.modal-header h2 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.25;
+}
+
+.modal-close-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    flex-shrink: 0;
+}
+
+.modal-close-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.modal-body {
+    padding: 16px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.modal-footer {
+    padding: 12px 20px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.modal-btn-action {
+    background: var(--primary);
+    border: none;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: var(--radius-xl);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+}
+
+.modal-btn-action:hover {
+    background: #2563eb;
+}
+
+/* Estilos do Modal de Metodologia e Fontes */
+.info-section-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 4px;
+}
+
+.doc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.doc-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.doc-card-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+
+.doc-card-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.formula-card {
+    background: rgba(59, 130, 246, 0.06);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.formula-math {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #93c5fd;
+    font-size: 12px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    line-height: 1.4;
+}
+
+.formula-desc {
+    font-size: 11px;
+    color: #cbd5e1;
+    line-height: 1.45;
+}
+
+/* ESTILOS DO RAIO-X DO CIDADÃO (6 DIMENSÕES) */
+.citizen-section-title {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #93c5fd;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    margin-bottom: 2px;
+}
+
+.citizen-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.citizen-card {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.15s ease;
+}
+
+.citizen-card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.citizen-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.citizen-card-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.citizen-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.citizen-badge.critico { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+.citizen-badge.alerta { background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4); }
+.citizen-badge.atencao { background: rgba(59, 130, 246, 0.2); color: #bfdbfe; border: 1px solid rgba(59, 130, 246, 0.4); }
+.citizen-badge.promessa { background: rgba(168, 85, 247, 0.2); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.4); }
+
+.citizen-card-body {
+    font-size: 12px;
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
+.citizen-alert-box {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 3px solid #ef4444;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 11.5px;
+    color: #fca5a5;
+    line-height: 1.45;
+    margin-top: 4px;
+}
+
+.citizen-asymmetry-box {
+    background: rgba(168, 85, 247, 0.1);
+    border-left: 3px solid #a855f7;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 11.5px;
+    color: #e9d5ff;
+    line-height: 1.45;
+    margin-top: 4px;
+}
+
+/* ==========================================================================
+   ESTILOS DO MODAL DE PETIÇÃO ONLINE ("Crescer exige responsabilidade!")
+   ========================================================================== */
+
+.petition-hero-counter {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.14) 0%, rgba(5, 150, 105, 0.08) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.petition-counter-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.petition-big-number {
+    font-size: 26px;
+    font-weight: 900;
+    color: #34d399;
+    letter-spacing: -0.02em;
+}
+
+.petition-goal-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #a7f3d0;
+}
+
+.petition-progress-track {
+    width: 100%;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.petition-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    border-radius: 999px;
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.petition-manifesto-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.petition-manifesto-box h4 {
+    font-size: 12px;
+    font-weight: 800;
+    color: #93c5fd;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.petition-ponto-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 11.5px;
+    color: #cbd5e1;
+    line-height: 1.45;
+}
+
+.petition-ponto-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+}
+
+.petition-ponto-list li strong {
+    color: #fff;
+}
+
+.petition-form {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 14px 16px;
+}
+
+.petition-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+@media (max-width: 520px) {
+    .petition-form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.petition-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.petition-field label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #cbd5e1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.petition-input,
+.petition-select {
+    background: rgba(9, 13, 22, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 10px;
+    padding: 9px 12px;
+    color: #fff;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.petition-input:focus,
+.petition-select:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.petition-input.invalid {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.petition-input.valid {
+    border-color: #10b981;
+}
+
+.cpf-status-hint {
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.cpf-status-hint.ok { color: #34d399; }
+.cpf-status-hint.err { color: #f87171; }
+
+.petition-lgpd-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 11px;
+    color: #94a3b8;
+    line-height: 1.4;
+    cursor: pointer;
+    user-select: none;
+}
+
+.petition-lgpd-label input[type="checkbox"] {
+    margin-top: 2px;
+    accent-color: #10b981;
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+.petition-submit-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    border: 1px solid rgba(167, 243, 208, 0.4);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    transition: all 0.18s ease;
+}
+
+.petition-submit-btn:hover {
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.55);
+}
+
+.petition-error-msg {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    color: #fca5a5;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    display: none;
+}
+
+/* Recibo Pós-Assinatura e Compartilhamento */
+.petition-success-box {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1.5px solid #10b981;
+    border-radius: 14px;
+    padding: 16px;
+    animation: fadeIn 0.25s ease-out;
+}
+
+.petition-success-box.visible {
+    display: flex;
+}
+
+.petition-receipt-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(52, 211, 153, 0.35);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 11px;
+    color: #a7f3d0;
+    word-break: break-all;
+    line-height: 1.45;
+}
+
+.petition-share-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+@media (max-width: 480px) {
+    .petition-share-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.share-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: all 0.15s ease;
+    text-decoration: none;
+}
+
+.share-btn.whatsapp {
+    background: #25D366;
+    color: #072614;
+}
+.share-btn.whatsapp:hover {
+    background: #1ebe5d;
+}
+
+.share-btn.copy {
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    color: #93c5fd;
+}
+.share-btn.copy:hover {
+    background: rgba(59, 130, 246, 0.35);
+    color: #fff;
+}
+
+.share-btn.public-doc {
+    grid-column: 1 / -1;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #f8fafc;
+}
+.share-btn.public-doc:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+/* Lista Recente de Assinaturas Públicas (CPF Mascarado + Hash) */
+.recent-signatures-box {
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.recent-signatures-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.signature-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    gap: 8px;
+}
+
+.signature-item-row:last-child {
+    border-bottom: none;
+}
+
+.sig-name {
+    color: #f1f5f9;
+    font-weight: 700;
+}
+
+.sig-meta {
+    color: #64748b;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+}

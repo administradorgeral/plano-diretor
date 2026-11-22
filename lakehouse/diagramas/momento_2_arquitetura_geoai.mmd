@@ -1,0 +1,36 @@
+graph TD
+    subgraph INGESTAO ["Fontes Heterogêneas (Camada Bronze)"]
+        PDF_CAD["PDFs de CAD (AutoCAD / Civil 3D)<br>Cartas I-X (2006) e Cartas PL (2026)"]
+        KMZ["Arquivos Vetoriais .KMZ<br>(Zoneamento 2006, 2026, Censo 2022)"]
+        PDF_RASTER["Pranchas Temáticas Raster<br>(PDA 2019, Riscos CPRM)"]
+        TXT["Textos Oficiais e Tabelas<br>(LC 39, LC 40, Devolutiva Consulta, TJSP)"]
+    end
+
+    subgraph PROCESSAMENTO ["Engenharia de Extração e Georreferenciamento"]
+        OCG["Extração de Camadas CAD (OCGs)<br>+ Primitivas Vetoriais (PyMuPDF)"]
+        GRID["Leitura da Grade UTM perimetral<br>Cálculo da Matriz de Transformação Afim"]
+        KML_PARSE["Parser XML de Polígonos<br>Reprojeção para SIRGAS 2000 (EPSG:31983)"]
+        SEMANTIC["Enriquecimento Semântico GeoAI<br>(Regras Edilícias, Voto Consulta, Riscos)"]
+    end
+
+    subgraph LAKEHOUSE ["Lakehouse Geoespacial (Camadas Silver e Gold)"]
+        SILVER["Camada Silver: GeoParquet<br>(zoneamento_2026, zoneamento_2006, setores_ibge)"]
+        DUCK["DuckDB Spatial Engine<br>(Consultas Espaciais e ST_Intersection em microssegundos)"]
+        PMTILES["PMTiles / COG Cloud-Native<br>(Visualização Web Ultrarrápida Client-Side)"]
+        GOLD["Camada Gold: Matriz de Conflitos Espaciais<br>(Desruralização, Sobreposição a Riscos e Mananciais)"]
+    end
+
+    PDF_CAD --> OCG
+    PDF_CAD --> GRID
+    KMZ --> KML_PARSE
+    PDF_RASTER --> GRID
+    TXT --> SEMANTIC
+
+    OCG --> SILVER
+    GRID --> SILVER
+    KML_PARSE --> SILVER
+    SEMANTIC --> SILVER
+
+    SILVER --> DUCK
+    SILVER --> PMTILES
+    DUCK --> GOLD
