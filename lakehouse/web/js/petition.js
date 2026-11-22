@@ -215,10 +215,31 @@ window.AppPetition = {
         const streetModal = document.getElementById('streetModal');
         if (streetModal) streetModal.classList.remove('visible');
 
-        const bairroInput = document.getElementById('petitionBairro');
+        const bairroSelect = document.getElementById('petitionBairro');
         const targetBairro = prefillNeighborhood || AppState.currentInspectedNeighborhood;
-        if (bairroInput && targetBairro) {
-            bairroInput.value = targetBairro;
+        if (bairroSelect) {
+            if (targetBairro) {
+                // Se foi pré-selecionado no mapa ou por busca, vincula à opção correspondente
+                const options = Array.from(bairroSelect.options);
+                const match = options.find(opt =>
+                    opt.value.toLowerCase() === targetBairro.toLowerCase() ||
+                    targetBairro.toLowerCase().includes(opt.value.toLowerCase()) ||
+                    (opt.value.length > 5 && opt.value.toLowerCase().includes(targetBairro.toLowerCase()))
+                );
+                if (match) {
+                    bairroSelect.value = match.value;
+                } else {
+                    // Adiciona a zona inspecionada no topo da lista como opção ativa
+                    const customOpt = document.createElement('option');
+                    customOpt.value = targetBairro;
+                    customOpt.textContent = `📍 ${targetBairro} (Área Inspecionada)`;
+                    bairroSelect.insertBefore(customOpt, bairroSelect.options[1] || null);
+                    bairroSelect.value = targetBairro;
+                }
+            } else {
+                // Não foi pré-selecionado: convida à seleção de Macrozona ou Bairro
+                bairroSelect.value = '';
+            }
         }
 
         this.updateAllCounters(false);
@@ -257,10 +278,17 @@ window.AppPetition = {
 
         const name = (document.getElementById('petitionName').value || '').trim();
         const rawCpf = (document.getElementById('petitionCpf').value || '').trim();
-        const bairro = (document.getElementById('petitionBairro').value || '').trim() || 'São Roque';
+        const bairroEl = document.getElementById('petitionBairro');
+        const bairro = (bairroEl ? bairroEl.value : '').trim();
         const vinculo = document.getElementById('petitionVinculo').value || 'Morador(a)';
         const comment = (document.getElementById('petitionComment').value || '').trim();
         const lgpd = document.getElementById('petitionLgpd').checked;
+
+        if (!bairro || bairro === '') {
+            this.showError('Por favor, selecione sua Macrozona, Região ou Bairro na lista para validar a assinatura.');
+            if (bairroEl) bairroEl.focus();
+            return;
+        }
 
         if (name.split(/\s+/).length < 2 || name.length < 5) {
             this.showError('Informe seu nome e sobrenome completos para validade jurídica do Documento Público.');

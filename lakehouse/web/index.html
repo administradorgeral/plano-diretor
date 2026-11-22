@@ -38,8 +38,8 @@
     <div class="top-actions">
         <button type="button" class="btn-petition top-petition-btn" id="btnTopPetition"
             title="Assinar Petição Pública: Crescer exige responsabilidade!">
-            <i data-lucide="pen-tool" style="width: 13px; height: 13px; color: #a7f3d0; flex-shrink: 0;"></i>
-            <span class="petition-label-text">Crescer exige responsabilidade!</span>
+            <i data-lucide="pen-tool" style="width: 14px; height: 14px; color: #a7f3d0; flex-shrink: 0;"></i>
+            <span class="petition-label-text">ASSINAR PETIÇÃO AGORA!</span>
             <span class="petition-counter-pill">
                 <span data-petition-count>0</span>
             </span>
@@ -96,8 +96,8 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn-petition" id="btnModalPetition">
-                    <i data-lucide="pen-tool" style="width: 13px; height: 13px; color: #a7f3d0; flex-shrink: 0;"></i>
-                    <span>Crescer exige responsabilidade!</span>
+                    <i data-lucide="pen-tool" style="width: 14px; height: 14px; color: #a7f3d0; flex-shrink: 0;"></i>
+                    <span>ASSINAR PETIÇÃO AGORA!</span>
                     <span class="petition-counter-pill">
                         <span data-petition-count>0</span>
                     </span>
@@ -177,7 +177,34 @@
 
                         <div class="petition-field">
                             <label for="petitionBairro">Bairro / Região Afetada *</label>
-                            <input type="text" id="petitionBairro" class="petition-input" placeholder="Ex: Carmo, Centro, Mailasqui, Canguera..." required />
+                            <select id="petitionBairro" class="petition-select" required>
+                                <option value="" disabled selected>Selecione a Região ou Macrozona...</option>
+                                <optgroup label="📍 Macrozonas do Plano Diretor (2026)">
+                                    <option value="Macrozona Rural (Sítios, Chácaras e Preservação)">Macrozona Rural (Sítios, Chácaras e Preservação)</option>
+                                    <option value="Macrozona de Mananciais (Carmo, APA Itupararanga, Sorocamirim)">Macrozona de Mananciais (Carmo, APA Itupararanga, Sorocamirim)</option>
+                                    <option value="Macrozona Urbana Consolidada (Centro, Taboão, Junqueira)">Macrozona Urbana Consolidada (Centro, Taboão, Junqueira)</option>
+                                    <option value="Macrozona de Expansão (Mailasqui, São João Novo, Gabriel Piza)">Macrozona de Expansão (Mailasqui, São João Novo, Gabriel Piza)</option>
+                                    <option value="Macrozona de Interesse Turístico (Roteiro do Vinho, Canguera)">Macrozona de Interesse Turístico (Roteiro do Vinho, Canguera)</option>
+                                    <option value="Macrozona Estratégica (Raposo Tavares, Castello, Dona Catarina)">Macrozona Estratégica (Raposo Tavares, Castello, Dona Catarina)</option>
+                                </optgroup>
+                                <optgroup label="🏘️ Principais Bairros e Distritos">
+                                    <option value="Bairro do Carmo">Bairro do Carmo</option>
+                                    <option value="Centro">Centro</option>
+                                    <option value="Canguera">Canguera</option>
+                                    <option value="Mailasqui">Mailasqui</option>
+                                    <option value="São João Novo">São João Novo</option>
+                                    <option value="Saboó">Saboó</option>
+                                    <option value="Gabriel Piza">Gabriel Piza</option>
+                                    <option value="Taboão">Taboão</option>
+                                    <option value="Guaçu">Guaçu</option>
+                                    <option value="Vila Nova">Vila Nova</option>
+                                    <option value="Paisagem Colonial">Paisagem Colonial</option>
+                                    <option value="Marmeleiro">Marmeleiro</option>
+                                    <option value="Vila Aguiar / Junqueira">Vila Aguiar / Junqueira</option>
+                                    <option value="Jardim Conceição / Mosteiro">Jardim Conceição / Mosteiro</option>
+                                    <option value="Outro Bairro / Todo o Município">Outro Bairro / Todo o Município</option>
+                                </optgroup>
+                            </select>
                         </div>
                     </div>
 
