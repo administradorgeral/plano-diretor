@@ -33,21 +33,6 @@ window.AppDiagnostics = {
         return null;
     },
 
-    renderInlinePetitionButton: function (contextZone) {
-        const count = window.AppPetition ? AppPetition.getTotalCount() : 0;
-        const safeZone = (contextZone || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        return `
-            <button type="button" class="btn-petition" onclick="AppPetition.openModal('${safeZone}')" style="margin-top: 8px; justify-content: center; width: 100%; font-size: 12.5px; height: 42px;">
-                <span class="petition-chevron">&gt;</span>
-                <span>Crescer exige responsabilidade!</span>
-                <span class="petition-counter-pill">
-                    <i data-lucide="pen-tool" style="width: 11px; height: 11px;"></i>
-                    <span data-petition-count>${count.toLocaleString('pt-BR')}</span>
-                </span>
-            </button>
-        `;
-    },
-
     // Abre diretamente o Modal-Card ao clicar em qualquer polígono de Zona no mapa
     openZoneModal: function (props, tagLabel, layer, clickLatLng) {
         let center = clickLatLng;
@@ -181,8 +166,6 @@ window.AppDiagnostics = {
                         <strong>+${deltaTo}% de ocupação</strong>
                     </div>
                 </div>
-
-                ${this.renderInlinePetitionButton(props.nome_zona)}
             </div>
         `;
 
@@ -463,8 +446,6 @@ window.AppDiagnostics = {
                     </div>
                 </div>
             </div>
-
-            ${this.renderInlinePetitionButton(AppState.currentInspectedNeighborhood)}
         `;
 
         document.getElementById('modalStreetBody').innerHTML = html;
