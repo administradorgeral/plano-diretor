@@ -66,17 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reenquadrar Mapa
     document.getElementById('btnRecenter').addEventListener('click', () => AppMap.recenter());
 
-    // Botão de Raio-X no Topo Direito abre direto o Modal-Card da região centralizada
+    // Botão de Raio-X no Topo Direito reabre a Lâmina Cívica de Acolhimento a qualquer momento
     const btnTopRaioX = document.getElementById('btnTopRaioX');
     if (btnTopRaioX) {
         btnTopRaioX.addEventListener('click', () => {
-            if (AppState.lastSelectedZone) {
-                const sel = AppState.lastSelectedZone;
-                AppDiagnostics.showStreetImpactModal(sel.props.nome_zona, 'Região Selecionada', sel.center.lat, sel.center.lng, sel.props);
-            } else {
-                const center = AppState.map.getCenter();
-                AppDiagnostics.showStreetImpactModal('Diagnóstico da Região Centralizada', 'São Roque', center.lat, center.lng);
-            }
+            window.AppWelcomeSheet.show();
         });
     }
 
@@ -96,4 +90,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 6. Inicia no Modo Spot Zoning habilitado por padrão
     AppMap.updateMapMode('spot_zoning');
+
+    // 7. Lâmina Cívica de Acolhimento Mobile-First (Modelo 1: Apple Maps / Uber / Mobilização Direta)
+    const welcomeSheet = document.getElementById('welcomeSheet');
+    const welcomeSheetBackdrop = document.getElementById('welcomeSheetBackdrop');
+    const btnSheetSign = document.getElementById('btnSheetSign');
+    const btnSheetExplore = document.getElementById('btnSheetExplore');
+    const btnDismissSheet = document.getElementById('btnDismissSheet');
+    const sheetDragHandle = document.getElementById('sheetDragHandle');
+
+    window.AppWelcomeSheet = {
+        show() {
+            if (welcomeSheet && welcomeSheetBackdrop) {
+                welcomeSheet.classList.add('visible');
+                welcomeSheetBackdrop.classList.add('visible');
+                lucide.createIcons();
+            }
+        },
+        hide() {
+            if (welcomeSheet && welcomeSheetBackdrop) {
+                welcomeSheet.classList.remove('visible');
+                welcomeSheetBackdrop.classList.remove('visible');
+            }
+        }
+    };
+
+    if (btnSheetSign) {
+        btnSheetSign.addEventListener('click', () => {
+            window.AppWelcomeSheet.hide();
+            AppPetition.openModal();
+        });
+    }
+
+    if (btnSheetExplore) {
+        btnSheetExplore.addEventListener('click', () => {
+            window.AppWelcomeSheet.hide();
+        });
+    }
+
+    if (btnDismissSheet) {
+        btnDismissSheet.addEventListener('click', () => {
+            window.AppWelcomeSheet.hide();
+        });
+    }
+
+    if (welcomeSheetBackdrop) {
+        welcomeSheetBackdrop.addEventListener('click', () => {
+            window.AppWelcomeSheet.hide();
+        });
+    }
+
+    if (sheetDragHandle) {
+        sheetDragHandle.addEventListener('click', () => {
+            window.AppWelcomeSheet.hide();
+        });
+    }
+
+    // Gesto touch nativo para arrastar para baixo e recolher
+    let touchStartY = 0;
+    if (welcomeSheet) {
+        welcomeSheet.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        welcomeSheet.addEventListener('touchmove', (e) => {
+            const touchY = e.touches[0].clientY;
+            const diff = touchY - touchStartY;
+            const sheetBody = welcomeSheet.querySelector('.sheet-body');
+            if (diff > 70 && (!sheetBody || sheetBody.scrollTop <= 0)) {
+                window.AppWelcomeSheet.hide();
+            }
+        }, { passive: true });
+    }
 });

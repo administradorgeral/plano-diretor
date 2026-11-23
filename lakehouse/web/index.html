@@ -94,6 +94,82 @@
         </div>
     </div>
 
+    <!-- 4.1. LÂMINA CÍVICA DE ACOLHIMENTO MOBILE-FIRST (Modelo 1: Apple Maps / Uber / Mobilização Direta) -->
+    <div class="welcome-sheet-backdrop visible" id="welcomeSheetBackdrop"></div>
+    <aside class="civic-bottom-sheet visible" id="welcomeSheet" aria-label="Acolhimento Cívico: Votação do Plano Diretor">
+        <!-- Pílula de arrasto ergonômica para toque com polegar -->
+        <div class="sheet-drag-handle" id="sheetDragHandle" title="Toque para recolher e ver o mapa">
+            <span class="drag-bar"></span>
+        </div>
+
+        <div class="sheet-header">
+            <div class="sheet-badge-urgente">
+                <span class="beacon-pulse-red"></span>
+                <span>VOTAÇÃO IMINENTE NA CÂMARA MUNICIPAL</span>
+            </div>
+            <button type="button" class="sheet-close-btn" id="btnDismissSheet" title="Explorar o Mapa" aria-label="Fechar e ver o mapa">
+                <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+            </button>
+        </div>
+
+        <div class="sheet-body">
+            <h2 class="sheet-headline">
+                A Câmara vai votar o novo Plano Diretor de São Roque esta semana.
+            </h2>
+            <p class="sheet-lead">
+                Entenda em 30 segundos o que está em jogo antes da aprovação final e faça sua voz valer para proteger seu bairro:
+            </p>
+
+            <!-- Os 3 Impactos na Vida Real com Ícones Grandes -->
+            <div class="sheet-impact-cards">
+                <div class="sheet-impact-card h2o">
+                    <div class="sheet-impact-icon">🚰</div>
+                    <div class="sheet-impact-content">
+                        <h4>Água e Esgoto ANTES de Prédios</h4>
+                        <p>Menos de <strong>48% do esgoto é tratado</strong> e a minuta quer liberar prédios de até <strong>100 metros</strong> sem garantia de água na torneira.</p>
+                    </div>
+                </div>
+
+                <div class="sheet-impact-card rural">
+                    <div class="sheet-impact-icon">🚜</div>
+                    <div class="sheet-impact-content">
+                        <h4>Zona Rural &amp; Chácaras Ameaçadas</h4>
+                        <p><strong>-1.670 hectares de sítios</strong> virando IPTU urbano forçado, sem asfalto, saneamento ou iluminação pública básica.</p>
+                    </div>
+                </div>
+
+                <div class="sheet-impact-card green">
+                    <div class="sheet-impact-icon">🌲</div>
+                    <div class="sheet-impact-content">
+                        <h4>Mananciais &amp; Fim dos Privilégios</h4>
+                        <p>Enclaves de <strong>Spot Zoning</strong> sob medida blindados nos mananciais do Carmo e APA Itupararanga.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faixa do Contador Comunitário de Mobilização -->
+            <div class="sheet-counter-strip">
+                <div class="sheet-counter-left">
+                    <i data-lucide="users" style="width: 15px; height: 15px; color: #34d399;"></i>
+                    <span>Já somos <strong data-petition-count>0</strong> são-roquenses mobilizados</span>
+                </div>
+                <span class="sheet-counter-goal">Meta: 150 assinaturas</span>
+            </div>
+        </div>
+
+        <!-- Dois Botões Claros Ergonômicos (Thumb Zone / Mobile First) -->
+        <div class="sheet-footer">
+            <button type="button" class="sheet-btn-primary" id="btnSheetSign">
+                <i data-lucide="pen-tool" style="width: 17px; height: 17px; stroke-width: 2.5;"></i>
+                <span>✍️ ASSINAR MANIFESTO EM 30 SEGUNDOS</span>
+            </button>
+            <button type="button" class="sheet-btn-secondary" id="btnSheetExplore">
+                <i data-lucide="map" style="width: 16px; height: 16px;"></i>
+                <span>🗺️ Ver o que muda no meu Bairro no Mapa</span>
+            </button>
+        </div>
+    </aside>
+
     <!-- 5. MODAL-CARD ÚNICO DE DIAGNÓSTICO CIENTÍFICO (Clean & Minimalista) -->
     <div class="modal-overlay" id="streetModal">
         <div class="modal-card">
