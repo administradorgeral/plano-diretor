@@ -39,6 +39,7 @@
     <div class="top-actions">
         <button type="button" class="btn-petition top-petition-btn" id="btnTopPetition"
             title="Assinar Petição Pública: Crescer exige responsabilidade!">
+            <span class="pulse-dot"></span>
             <i data-lucide="pen-tool" style="width: 14px; height: 14px; color: #a7f3d0; flex-shrink: 0;"></i>
             <span class="petition-label-text">ASSINAR PETIÇÃO AGORA!</span>
             <span class="petition-counter-pill">
@@ -217,11 +218,14 @@
                 <!-- Contador Real ao Vivo e Barra de Progresso -->
                 <div class="petition-hero-counter">
                     <div class="petition-counter-top">
-                        <div>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                             <span class="petition-big-number" id="petitionBigCount">0</span>
                             <span
-                                style="font-size: 13px; font-weight: 800; color: #ecfdf5; margin-left: 6px;">assinaturas
+                                style="font-size: 13px; font-weight: 800; color: #ecfdf5; margin-left: 2px;">assinaturas
                                 validadas por CPF</span>
+                            <span class="live-pulse-badge" title="Atualizações em tempo real ativas">
+                                <span class="pulse-dot"></span> AO VIVO
+                            </span>
                         </div>
                         <span class="petition-goal-label" id="petitionGoalText">Meta de Mobilização: 150
                             assinaturas</span>
@@ -399,9 +403,12 @@
                             <span>Caderno de Assinaturas Validadas (Auditoria SHA-256)</span>
                             <span class="recent-signatures-hint" id="signaturesCountHint">Recolher ▴</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                             <button type="button" class="btn-export-csv" id="btnDownloadCsv"
                                 title="Baixar planilha CSV auditável">⬇️ Baixar CSV</button>
+                            <button type="button" class="btn-export-csv btn-import-csv" id="btnImportSignatures"
+                                title="Importar assinaturas coletadas em outro aparelho (CSV ou JSON)">📥 Importar</button>
+                            <input type="file" id="inputImportFile" accept=".csv,.json" style="display: none;" />
                         </div>
                     </div>
                     <div id="signaturesCollapsibleContent" style="display: flex; flex-direction: column; gap: 7px;">
@@ -561,14 +568,14 @@
     </div>
 
     <!-- Bundle Geoespacial e Módulos JavaScript Desacoplados -->
-    <script src="data/data_bundle.js?v=20261123_audit"></script>
-    <script src="js/config.js?v=20261123_audit"></script>
-    <script src="js/state.js?v=20261123_audit"></script>
-    <script src="js/map.js?v=20261123_audit"></script>
-    <script src="js/diagnostics.js?v=20261123_audit"></script>
-    <script src="js/search.js?v=20261123_audit"></script>
-    <script src="js/petition.js?v=20261123_audit"></script>
-    <script src="js/main.js?v=20261123_audit"></script>
+    <script src="data/data_bundle.js?v=20261123_live"></script>
+    <script src="js/config.js?v=20261123_live"></script>
+    <script src="js/state.js?v=20261123_live"></script>
+    <script src="js/map.js?v=20261123_live"></script>
+    <script src="js/diagnostics.js?v=20261123_live"></script>
+    <script src="js/search.js?v=20261123_live"></script>
+    <script src="js/petition.js?v=20261123_live"></script>
+    <script src="js/main.js?v=20261123_live"></script>
 </body>
 
 </html>

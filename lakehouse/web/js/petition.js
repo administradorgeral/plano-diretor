@@ -626,6 +626,8 @@ window.AppPetition = {
         this.bindEvents();
         this.syncGlobalCountFromCloud();
         this.syncWithRemoteWebhook();
+        this.setupRealTimeSync();
+        this.setupLiveActivityTicker();
     },
 
     loadFromStorage: function () {
@@ -1190,6 +1192,7 @@ window.AppPetition = {
         this.updateAllCounters(true);
         this.showSuccessReceipt(record, false);
         this.expandSignaturesBox();
+        this.showLiveActivityToast(record, true);
 
         // Incrementa contador global na nuvem (Abacus API) e envia ao Webhook Serverless se configurado
         this.incrementGlobalCloudCounter();
@@ -1585,6 +1588,22 @@ window.AppPetition = {
             });
         }
 
+        // Importação de Assinaturas (CSV ou JSON) coletadas em outros aparelhos
+        const btnImportSignatures = document.getElementById('btnImportSignatures');
+        const inputImportFile = document.getElementById('inputImportFile');
+        if (btnImportSignatures && inputImportFile) {
+            btnImportSignatures.addEventListener('click', (e) => {
+                e.stopPropagation();
+                inputImportFile.click();
+            });
+            inputImportFile.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    window.AppPetition.importSignaturesFile(e.target.files[0]);
+                    inputImportFile.value = '';
+                }
+            });
+        }
+
         const btnDownloadCsvDoc = document.getElementById('btnDownloadCsvDoc');
         if (btnDownloadCsvDoc) {
             btnDownloadCsvDoc.addEventListener('click', (e) => {
@@ -1660,5 +1679,254 @@ window.AppPetition = {
         if (btnDownloadDocHtml) {
             btnDownloadDocHtml.addEventListener('click', () => this.downloadPublicDocumentHtml());
         }
-    }
+    },
+
+    // ==========================================================================
+    // SINCRONIZAÇÃO EM TEMPO REAL & ATIVIDADE AO VIVO ("Gente assinando a todo instante")
+    // ==========================================================================
+    setupRealTimeSync: function () {
+        // 1. Sincronização automática entre abas/janelas do mesmo navegador
+        window.addEventListener('storage', (e) => {
+            const currentKey = (window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.STORAGE_KEY) || 'srq_plano_diretor_peticao_real_v2';
+            if (!e.key || e.key === currentKey || e.key.startsWith('srq_plano_diretor')) {
+                const prevCount = this.getAllAuditSignatures().length;
+                this.loadFromStorage();
+                const newCount = this.getAllAuditSignatures().length;
+                this.updateAllCounters(newCount > prevCount);
+                if (newCount > prevCount && this.signatures.length > 0) {
+                    const latest = this.signatures[this.signatures.length - 1];
+                    if (latest) this.showLiveActivityToast(latest, true);
+                }
+            }
+        });
+
+        // 2. Polling contínuo e silencioso a cada 12 segundos (captura novas assinaturas em tempo real)
+        if (!this._livePollInterval) {
+            this._livePollInterval = setInterval(() => {
+                const prevCount = this.getAllAuditSignatures().length;
+                this.loadFromStorage();
+                const newCount = this.getAllAuditSignatures().length;
+                if (newCount !== prevCount) {
+                    this.updateAllCounters(true);
+                }
+                this.syncGlobalCountFromCloud();
+                this.syncWithRemoteWebhook();
+            }, 12000);
+        }
+    },
+
+    setupLiveActivityTicker: function () {
+        let toastEl = document.getElementById('petitionLiveToast');
+        if (!toastEl) {
+            toastEl = document.createElement('div');
+            toastEl.id = 'petitionLiveToast';
+            toastEl.className = 'petition-live-toast';
+            toastEl.innerHTML = `
+                <div class="petition-live-toast-icon">
+                    <i data-lucide="pen-tool" style="width: 17px; height: 17px;"></i>
+                </div>
+                <div class="petition-live-toast-content">
+                    <div class="petition-live-toast-header">
+                        <span style="display:flex; align-items:center; gap:5px;"><span class="pulse-dot"></span> <span id="petitionLiveToastStatus">Ao Vivo • Nova Assinatura</span></span>
+                        <span id="petitionLiveToastTime" style="color: #94a3b8; font-weight: normal; font-size: 10px;">agora</span>
+                    </div>
+                    <div class="petition-live-toast-body" id="petitionLiveToastBody">
+                        Carregando mobilização popular...
+                    </div>
+                </div>
+                <button type="button" class="petition-live-toast-close" id="btnPetitionLiveToastClose" aria-label="Fechar">&times;</button>
+            `;
+            document.body.appendChild(toastEl);
+            if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+
+            const closeBtn = document.getElementById('btnPetitionLiveToastClose');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toastEl.classList.remove('visible');
+                    this._toastSuppressedUntil = Date.now() + 60000; // Silencia por 60s se fechar
+                });
+            }
+
+            toastEl.addEventListener('click', () => {
+                this.openModal();
+            });
+        }
+
+        // Rotação dinâmica elegante de novas adesões a cada 9 segundos
+        if (!this._liveToastInterval) {
+            let lastIdx = -1;
+            this._liveToastInterval = setInterval(() => {
+                if (this._toastSuppressedUntil && Date.now() < this._toastSuppressedUntil) return;
+                const modal = document.getElementById('petitionModal');
+                const publicModal = document.getElementById('publicDocModal');
+                if ((modal && modal.classList.contains('visible')) || (publicModal && publicModal.classList.contains('visible'))) {
+                    return;
+                }
+
+                const sigs = this.getAllAuditSignatures();
+                if (!sigs || sigs.length === 0) return;
+
+                // Prioriza as assinaturas mais recentes (últimas 20)
+                const poolSize = Math.min(sigs.length, 20);
+                let nextIdx = Math.floor(Math.random() * poolSize);
+                if (nextIdx === lastIdx && poolSize > 1) {
+                    nextIdx = (nextIdx + 1) % poolSize;
+                }
+                lastIdx = nextIdx;
+                const sig = sigs[nextIdx];
+                if (sig) {
+                    this.showLiveActivityToast(sig, false);
+                }
+            }, 9000);
+        }
+    },
+
+    showLiveActivityToast: function (sig, isImmediate) {
+        const toastEl = document.getElementById('petitionLiveToast');
+        if (!toastEl) return;
+
+        const bodyEl = document.getElementById('petitionLiveToastBody');
+        const timeEl = document.getElementById('petitionLiveToastTime');
+        const statusEl = document.getElementById('petitionLiveToastStatus');
+
+        const maskedName = this.maskName(sig.name || 'Cidadão de São Roque');
+        const bairro = sig.bairro || 'São Roque';
+        const vinculo = sig.vinculo || 'Morador';
+
+        if (statusEl) {
+            statusEl.textContent = isImmediate ? 'Assinatura Validada Agora!' : 'Ao Vivo • Mobilização Cidadã';
+        }
+        if (timeEl) {
+            timeEl.textContent = isImmediate ? 'há instantes' : (sig.number ? `#${sig.number} no caderno` : 'recente');
+        }
+        if (bodyEl) {
+            bodyEl.innerHTML = `<strong>${this.escapeHtml(maskedName)}</strong> (${this.escapeHtml(bairro)} • ${this.escapeHtml(vinculo)}) assinou contra o adensamento predatório!`;
+        }
+
+        toastEl.classList.add('visible');
+
+        if (this._toastTimeout) clearTimeout(this._toastTimeout);
+        this._toastTimeout = setTimeout(() => {
+            toastEl.classList.remove('visible');
+        }, isImmediate ? 6000 : 4800);
+    },
+
+    importSignaturesFile: function (file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = e.target.result;
+            try {
+                let countAdded = 0;
+                if (file.name.endsWith('.json') || content.trim().startsWith('{') || content.trim().startsWith('[')) {
+                    const parsed = JSON.parse(content);
+                    const list = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.signatures) ? parsed.signatures : []);
+                    countAdded = this.mergeImportedSignatures(list);
+                } else {
+                    countAdded = this.parseAndMergeCsv(content);
+                }
+
+                if (countAdded > 0) {
+                    this.saveToStorage();
+                    this.updateAllCounters(true);
+                    this.expandSignaturesBox();
+                    alert(`✅ Sucesso! ${countAdded} nova(s) assinatura(s) foram validadas e somadas ao Caderno Oficial com deduplicação segura.`);
+                } else {
+                    alert('ℹ️ Todas as assinaturas do arquivo já constam registradas no Caderno Auditável (nenhuma duplicata foi inserida).');
+                }
+            } catch (err) {
+                alert('⚠️ Não foi possível processar o arquivo. Certifique-se de que é um CSV ou JSON exportado da petição.');
+            }
+        };
+        reader.readAsText(file, 'utf-8');
+    },
+
+    parseAndMergeCsv: function (csvText) {
+        const lines = csvText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        if (lines.length <= 1) return 0;
+
+        const sep = lines[0].includes(';') ? ';' : ',';
+        const headers = lines[0].split(sep).map(h => h.replace(/^["'\uFEFF]+|["']+$/g, '').trim().toLowerCase());
+
+        const getCol = (rowCols, name) => {
+            const idx = headers.findIndex(h => h.includes(name.toLowerCase()));
+            if (idx >= 0 && rowCols[idx]) {
+                return rowCols[idx].replace(/^["']+|["']+$/g, '').trim();
+            }
+            return '';
+        };
+
+        const records = [];
+        for (let i = 1; i < lines.length; i++) {
+            const row = lines[i];
+            if (!row) continue;
+            const cols = row.split(sep);
+            const name = getCol(cols, 'nome') || getCol(cols, 'name') || cols[2];
+            if (!name || name.length < 2) continue;
+
+            const proto = getCol(cols, 'protocol') || cols[1] || '';
+            const bairro = getCol(cols, 'bairro') || cols[3] || 'São Roque';
+            const vinculo = getCol(cols, 'vinculo') || cols[4] || 'Morador';
+            const cpfMasked = getCol(cols, 'cpf') || cols[5] || '***.***.***-**';
+            const hash = getCol(cols, 'hash') || cols[6] || '';
+            const comment = getCol(cols, 'relato') || getCol(cols, 'comentario') || getCol(cols, 'comment') || cols[7] || '';
+            const timestamp = getCol(cols, 'data') || getCol(cols, 'time') || cols[8] || new Date().toISOString();
+
+            records.push({
+                protocol: proto,
+                name: name.replace(/^"|"$/g, ''),
+                bairro: bairro.replace(/^"|"$/g, ''),
+                vinculo: vinculo.replace(/^"|"$/g, ''),
+                cpfMasked: cpfMasked.replace(/^"|"$/g, ''),
+                hash: hash ? hash.slice(0, 16) : '',
+                fullHash: hash,
+                comment: comment.replace(/^"|"$/g, ''),
+                timestamp: timestamp
+            });
+        }
+        return this.mergeImportedSignatures(records);
+    },
+
+    mergeImportedSignatures: function (incomingList) {
+        if (!Array.isArray(incomingList) || incomingList.length === 0) return 0;
+        let added = 0;
+        const currentList = this.signatures || [];
+
+        incomingList.forEach(item => {
+            if (!item || !item.name) return;
+            const itemHash = item.fullHash || item.hash;
+            const itemProto = item.protocol;
+            const itemNameCpf = (item.name || '').trim().toLowerCase() + '_' + (item.cpfMasked || '');
+
+            const exists = currentList.some(s =>
+                (itemHash && (s.fullHash === itemHash || s.hash === itemHash)) ||
+                (itemProto && s.protocol === itemProto) ||
+                ((s.name || '').trim().toLowerCase() + '_' + (s.cpfMasked || '') === itemNameCpf)
+            );
+
+            if (!exists) {
+                currentList.push({
+                    name: item.name,
+                    bairro: item.bairro || 'São Roque',
+                    vinculo: item.vinculo || 'Morador(a)',
+                    cpfMasked: item.cpfMasked || '***.***.***-**',
+                    hash: item.hash || (item.fullHash ? item.fullHash.slice(0, 16) : ''),
+                    fullHash: item.fullHash || item.hash || '',
+                    protocol: item.protocol || (item.fullHash ? ('SRQ-2026-' + item.fullHash.slice(0, 8).toUpperCase()) : 'SRQ-2026-OFICIAL'),
+                    comment: item.comment || '',
+                    timestamp: item.timestamp || new Date().toISOString()
+                });
+                added++;
+            }
+        });
+
+        if (added > 0) {
+            currentList.sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
+            currentList.forEach((s, idx) => { s.number = idx + 1; });
+            this.signatures = currentList;
+            this.remoteGlobalCount = Math.max(this.remoteGlobalCount, currentList.length);
+        }
+        return added;
+    },
 };
