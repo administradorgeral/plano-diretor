@@ -375,6 +375,7 @@ window.AppPetition = {
             const q = this.currentFilter;
             list = list.filter(sig =>
                 (sig.name && sig.name.toLowerCase().includes(q)) ||
+                (this.maskName(sig.name).toLowerCase().includes(q)) ||
                 (sig.bairro && sig.bairro.toLowerCase().includes(q)) ||
                 (sig.vinculo && sig.vinculo.toLowerCase().includes(q)) ||
                 (sig.protocol && sig.protocol.toLowerCase().includes(q)) ||
@@ -400,6 +401,7 @@ window.AppPetition = {
                 (this.lastReceipt.fullHash && sig.fullHash && this.lastReceipt.fullHash === sig.fullHash) ||
                 (this.lastReceipt.protocol && sig.protocol && this.lastReceipt.protocol === sig.protocol)
             );
+            const maskedName = this.maskName(sig.name || 'Cidadão');
             const commentHtml = sig.comment && sig.comment.trim().length > 0
                 ? `<div style="font-size: 12.5px; color: #f8fafc; font-style: italic; margin-top: 5px; padding: 6px 10px; background: rgba(15, 23, 42, 0.75); border-left: 3.5px solid #34d399; border-radius: 0 6px 6px 0; line-height: 1.45;">💬 <strong>Relato de Impacto:</strong> "${this.escapeHtml(sig.comment.trim())}"</div>`
                 : '';
@@ -414,7 +416,7 @@ window.AppPetition = {
                     <div style="flex: 1; min-width: 200px;">
                         <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                             <span style="color: #34d399; font-weight: 800; font-size: 11px;">#${num}</span>
-                            <span class="sig-name">${this.escapeHtml(sig.name || 'Cidadão')}</span>
+                            <span class="sig-name">${this.escapeHtml(maskedName)}</span>
                             ${recentBadge}
                             <span style="color: #94a3b8; font-size: 11px;"> • ${this.escapeHtml(sig.bairro || 'São Roque')} (${this.escapeHtml(sig.vinculo || 'Morador')})</span>
                         </div>
