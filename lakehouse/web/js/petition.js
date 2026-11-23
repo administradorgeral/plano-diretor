@@ -22,15 +22,63 @@ window.AppPetition = {
 
     loadFromStorage: function () {
         try {
-            const raw = localStorage.getItem(AppConfig.PETITION.STORAGE_KEY);
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed.signatures)) {
-                    this.signatures = parsed.signatures;
+            const currentKey = (window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.STORAGE_KEY) || 'srq_plano_diretor_peticao_real_v2';
+            let loadedSigs = [];
+            let loadedCount = 0;
+
+            // 1. Tenta carregar da chave atual
+            const rawCurrent = localStorage.getItem(currentKey);
+            if (rawCurrent) {
+                try {
+                    const parsed = JSON.parse(rawCurrent);
+                    if (Array.isArray(parsed.signatures)) {
+                        loadedSigs = parsed.signatures;
+                    }
+                    if (typeof parsed.remoteGlobalCount === 'number') {
+                        loadedCount = parsed.remoteGlobalCount;
+                    }
+                } catch (eCurrent) { }
+            }
+
+            // 2. Migra com segurança dados de chaves legadas sem destruir nada
+            const legacyKeys = ['srq_plano_diretor_peticao_v1', 'srq_plano_diretor_peticao'];
+            legacyKeys.forEach(lk => {
+                const rawLegacy = localStorage.getItem(lk);
+                if (rawLegacy) {
+                    try {
+                        const parsedLegacy = JSON.parse(rawLegacy);
+                        const legacySigs = Array.isArray(parsedLegacy.signatures)
+                            ? parsedLegacy.signatures
+                            : (Array.isArray(parsedLegacy) ? parsedLegacy : []);
+
+                        legacySigs.forEach(ls => {
+                            if (ls && (ls.hash || ls.protocol || ls.name)) {
+                                const exists = loadedSigs.some(s =>
+                                    (s.hash && ls.hash && s.hash === ls.hash) ||
+                                    (s.fullHash && ls.fullHash && s.fullHash === ls.fullHash) ||
+                                    (s.protocol && ls.protocol && s.protocol === ls.protocol) ||
+                                    (s.name && ls.name && s.name.trim().toLowerCase() === ls.name.trim().toLowerCase())
+                                );
+                                if (!exists) {
+                                    loadedSigs.push(ls);
+                                }
+                            }
+                        });
+                        if (typeof parsedLegacy.remoteGlobalCount === 'number' && parsedLegacy.remoteGlobalCount > loadedCount) {
+                            loadedCount = parsedLegacy.remoteGlobalCount;
+                        }
+                    } catch (eLegacy) { }
                 }
-                if (typeof parsed.remoteGlobalCount === 'number') {
-                    this.remoteGlobalCount = parsed.remoteGlobalCount;
-                }
+            });
+
+            this.signatures = loadedSigs;
+            if (loadedCount > 0) {
+                this.remoteGlobalCount = Math.max(loadedCount, this.signatures.length);
+            }
+
+            // Garante persistência unificada
+            if (this.signatures.length > 0) {
+                this.saveToStorage();
             }
         } catch (e) {
             this.signatures = [];
@@ -58,18 +106,23 @@ window.AppPetition = {
 
     // Sincroniza com o Contador Global Cloud em Tempo Real (Abacus API)
     syncGlobalCountFromCloud: function () {
-        const getUrl = AppConfig.PETITION.ABACUS_GET_URL;
+        const getUrl = window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.ABACUS_GET_URL;
         if (!getUrl) return;
-        fetch(getUrl, { cache: 'no-store' })
+        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+        fetch(getUrl, { cache: 'no-store', signal: controller ? controller.signal : undefined })
             .then(r => r.json())
             .then(data => {
+                if (timeoutId) clearTimeout(timeoutId);
                 if (data && typeof data.value === 'number' && data.value >= 0) {
                     this.remoteGlobalCount = Math.max(data.value, this.signatures.length);
                     this.saveToStorage();
                     this.updateAllCounters(false);
                 }
             })
-            .catch(() => { });
+            .catch(() => {
+                if (timeoutId) clearTimeout(timeoutId);
+            });
     },
 
     incrementGlobalCloudCounter: function () {
@@ -203,6 +256,8 @@ window.AppPetition = {
 
         const list = this.getAllAuditSignatures();
         const countHint = document.getElementById('signaturesCountHint');
+        const sigChevron = document.getElementById('signaturesChevron');
+
         if (countHint) {
             const isHidden = container.style.display === 'none';
             countHint.textContent = isHidden ? (list.length > 0 ? `(${list.length}) Ver ▾` : 'Ver ▾') : 'Recolher ▴';
@@ -210,25 +265,45 @@ window.AppPetition = {
 
         if (list.length === 0) {
             container.innerHTML = `
-                <div style="font-size: 11.5px; color: #94a3b8; padding: 8px 4px; text-align: center;">
-                    Seja o primeiro a registrar sua assinatura validada por CPF neste dispositivo. Cada assinatura gera um protocolo criptográfico SHA-256 auditável.
+                <div style="font-size: 11.5px; color: #94a3b8; padding: 10px 6px; text-align: center; line-height: 1.5;">
+                    Seja o primeiro a registrar sua assinatura validada por CPF neste dispositivo. Cada assinatura gera um protocolo criptográfico SHA-256 auditável somado ao Documento Público.
                 </div>
             `;
             return;
         }
 
-        container.innerHTML = list.slice(0, 10).map((sig, i) => `
-            <div class="signature-item-row">
-                <div>
-                    <span style="color: #34d399; font-weight: 800; font-size: 10.5px;">#${list.length - i}</span>
-                    <span class="sig-name"> ${this.escapeHtml(this.maskName(sig.name))}</span>
-                    <span style="color: #94a3b8; font-size: 10.5px;"> • ${this.escapeHtml(sig.bairro)}</span>
+        container.innerHTML = list.slice(0, 50).map((sig, i) => {
+            const num = sig.number || (list.length - i);
+            const isRecent = this.lastReceipt && (
+                (this.lastReceipt.hash && sig.hash && this.lastReceipt.hash === sig.hash) ||
+                (this.lastReceipt.fullHash && sig.fullHash && this.lastReceipt.fullHash === sig.fullHash) ||
+                (this.lastReceipt.protocol && sig.protocol && this.lastReceipt.protocol === sig.protocol)
+            );
+            const commentHtml = sig.comment && sig.comment.trim().length > 0
+                ? `<div style="font-size: 11.5px; color: #cbd5e1; font-style: italic; margin-top: 4px; padding-left: 6px; border-left: 2px solid rgba(52, 211, 153, 0.5); line-height: 1.35;">"${this.escapeHtml(sig.comment.trim())}"</div>`
+                : '';
+            const recentBadge = isRecent
+                ? `<span style="background: rgba(52, 211, 153, 0.2); color: #34d399; font-size: 9.5px; font-weight: 800; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.4); margin-left: 5px;">Sua Assinatura</span>`
+                : '';
+
+            return `
+                <div class="signature-item-row${isRecent ? ' recent-highlight' : ''}">
+                    <div style="flex: 1; min-width: 200px;">
+                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <span style="color: #34d399; font-weight: 800; font-size: 11px;">#${num}</span>
+                            <span class="sig-name">${this.escapeHtml(sig.name)}</span>
+                            ${recentBadge}
+                            <span style="color: #94a3b8; font-size: 11px;"> • ${this.escapeHtml(sig.bairro)} (${this.escapeHtml(sig.vinculo || 'Morador')})</span>
+                        </div>
+                        ${commentHtml}
+                    </div>
+                    <div class="sig-meta" style="text-align: right; flex-shrink: 0;">
+                        <div style="color: #cbd5e1;">${sig.cpfMasked || '***.***.***-**'}</div>
+                        <div style="color: #64748b; font-size: 10px;">${sig.protocol || ('#' + (sig.hash || '').slice(0, 8).toUpperCase())}</div>
+                    </div>
                 </div>
-                <div class="sig-meta">
-                    ${sig.cpfMasked} • ${sig.protocol || ('#' + sig.hash.slice(0, 8).toUpperCase())}
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     },
 
     escapeHtml: function (str) {
@@ -278,6 +353,19 @@ window.AppPetition = {
         }
 
         this.updateAllCounters(false);
+
+        // Se já existem assinaturas cadastradas, garante o caderno aberto com quem já assinou
+        if (this.signatures.length > 0) {
+            const sigList = document.getElementById('recentSignaturesList');
+            const sigChevron = document.getElementById('signaturesChevron');
+            const sigHint = document.getElementById('signaturesCountHint');
+            const sigBox = document.getElementById('signaturesBox');
+            if (sigList) sigList.style.display = 'flex';
+            if (sigChevron) sigChevron.style.transform = 'rotate(90deg)';
+            if (sigHint) sigHint.textContent = 'Recolher ▴';
+            if (sigBox) sigBox.classList.remove('collapsed');
+        }
+
         modal.classList.add('visible');
         lucide.createIcons();
     },
@@ -353,13 +441,23 @@ window.AppPetition = {
         if (alreadySigned) {
             this.lastReceipt = alreadySigned;
             this.showSuccessReceipt(alreadySigned, true);
+            const sigList = document.getElementById('recentSignaturesList');
+            const sigChevron = document.getElementById('signaturesChevron');
+            const sigHint = document.getElementById('signaturesCountHint');
+            const sigBox = document.getElementById('signaturesBox');
+            if (sigList) sigList.style.display = 'flex';
+            if (sigChevron) sigChevron.style.transform = 'rotate(90deg)';
+            if (sigHint) sigHint.textContent = 'Recolher ▴';
+            if (sigBox) sigBox.classList.remove('collapsed');
             return;
         }
 
         const nowIso = new Date().toISOString();
         const protocolCode = `SRQ-2026-${shortHash.slice(0, 8).toUpperCase()}`;
 
+        const nextNumber = Math.max(this.getTotalCount() + 1, this.signatures.length + 1);
         const record = {
+            number: nextNumber,
             protocol: protocolCode,
             name: name,
             bairro: bairro,
@@ -377,6 +475,16 @@ window.AppPetition = {
         this.saveToStorage();
         this.updateAllCounters(true);
         this.showSuccessReceipt(record, false);
+
+        // Garante que o caderno se expanda imediatamente para exibir a assinatura cadastrada
+        const sigList = document.getElementById('recentSignaturesList');
+        const sigChevron = document.getElementById('signaturesChevron');
+        const sigHint = document.getElementById('signaturesCountHint');
+        const sigBox = document.getElementById('signaturesBox');
+        if (sigList) sigList.style.display = 'flex';
+        if (sigChevron) sigChevron.style.transform = 'rotate(90deg)';
+        if (sigHint) sigHint.textContent = 'Recolher ▴';
+        if (sigBox) sigBox.classList.remove('collapsed');
 
         // Incrementa contador global na nuvem (Abacus API) e envia ao Webhook Serverless se configurado
         this.incrementGlobalCloudCounter();
@@ -482,7 +590,7 @@ window.AppPetition = {
         const rowsHtml = sigs.length > 0
             ? sigs.map((s, idx) => `
                 <tr>
-                    <td>#${sigs.length - idx}</td>
+                    <td>#${s.number || (sigs.length - idx)}</td>
                     <td><strong>${this.escapeHtml(s.name)}</strong></td>
                     <td>${this.escapeHtml(s.bairro)} (${this.escapeHtml(s.vinculo || 'Morador')})</td>
                     <td style="font-family: monospace;">${s.cpfMasked}</td>
@@ -706,6 +814,7 @@ window.AppPetition = {
         const sigList = document.getElementById('recentSignaturesList');
         const sigChevron = document.getElementById('signaturesChevron');
         const sigHint = document.getElementById('signaturesCountHint');
+        const sigBox = document.getElementById('signaturesBox');
 
         if (toggleBtn && sigList) {
             toggleBtn.addEventListener('click', (e) => {
@@ -714,6 +823,9 @@ window.AppPetition = {
                 sigList.style.display = isHidden ? 'flex' : 'none';
                 if (sigChevron) {
                     sigChevron.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+                }
+                if (sigBox) {
+                    sigBox.classList.toggle('collapsed', !isHidden);
                 }
                 const total = this.getAllAuditSignatures().length;
                 if (sigHint) {

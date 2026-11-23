@@ -1094,6 +1094,15 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     gap: 8px;
     flex-wrap: wrap;
+    transition: background 0.2s ease;
+}
+
+.signature-item-row.recent-highlight {
+    background: rgba(52, 211, 153, 0.09);
+    border: 1px solid rgba(52, 211, 153, 0.35);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin: 3px 0;
 }
 
 .signature-item-row:last-child {
