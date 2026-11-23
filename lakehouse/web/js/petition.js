@@ -52,35 +52,10 @@ window.AppPetition = {
                 } catch (eCurrent) { }
             }
 
-            // 2. Migra com total segurança dados de chaves legadas sem perder nenhuma assinatura
+            // 2. Limpa com total segurança chaves legadas antigas para evitar ressurreição de dados de demonstração
             const legacyKeys = ['srq_plano_diretor_peticao_v1', 'srq_plano_diretor_peticao'];
             legacyKeys.forEach(lk => {
-                const rawLegacy = localStorage.getItem(lk);
-                if (rawLegacy) {
-                    try {
-                        const parsedLegacy = JSON.parse(rawLegacy);
-                        const legacySigs = Array.isArray(parsedLegacy.signatures)
-                            ? parsedLegacy.signatures
-                            : (Array.isArray(parsedLegacy) ? parsedLegacy : []);
-
-                        legacySigs.forEach(ls => {
-                            if (ls && (ls.hash || ls.protocol || ls.name)) {
-                                const exists = loadedSigs.some(s =>
-                                    (s.hash && ls.hash && s.hash === ls.hash) ||
-                                    (s.fullHash && ls.fullHash && s.fullHash === ls.fullHash) ||
-                                    (s.protocol && ls.protocol && s.protocol === ls.protocol) ||
-                                    (s.name && ls.name && s.name.trim().toLowerCase() === ls.name.trim().toLowerCase())
-                                );
-                                if (!exists) {
-                                    loadedSigs.push(ls);
-                                }
-                            }
-                        });
-                        if (typeof parsedLegacy.remoteGlobalCount === 'number' && parsedLegacy.remoteGlobalCount > loadedCount) {
-                            loadedCount = parsedLegacy.remoteGlobalCount;
-                        }
-                    } catch (eLegacy) { }
-                }
+                try { localStorage.removeItem(lk); } catch (e) { }
             });
 
             // 3. Purga dados sintéticos de exemplo antigos do localStorage para manter apenas dados 100% REAIS
@@ -94,33 +69,19 @@ window.AppPetition = {
                 return true;
             });
 
-            // 4. Garante recuperação da informação correta de Data/Hora: todas as assinaturas fundadoras e registros anteriores foram hoje (23/11/2026)
+            // 4. Numeração sequencial transparente
             loadedSigs.forEach((sig, idx) => {
-                if (sig && sig.timestamp) {
-                    if (sig.timestamp.slice(0, 10) < '2026-11-23') {
-                        const mins = Math.floor(idx * 7.24);
-                        const d = new Date('2026-11-23T11:15:00.000Z');
-                        d.setMinutes(d.getMinutes() + mins);
-                        sig.timestamp = d.toISOString();
-                    }
-                }
-            });
-
-            // 5. Ordenação cronológica e numeração sequencial transparente
-            loadedSigs.sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
-            loadedSigs.forEach((sig, idx) => {
-                sig.number = idx + 1;
+                sig.number = sig.number || (idx + 1);
             });
 
             this.signatures = loadedSigs;
-            this.remoteGlobalCount = Math.max(loadedCount, this.signatures.length);
+            this.remoteGlobalCount = Math.max(loadedCount, this.remoteSignatures.length, this.signatures.length);
 
             // Garante persistência unificada de todo o caderno
             this.saveToStorage();
         } catch (e) {
-            this.signatures = [...(this.foundingSignatures || [])];
-            this.signatures.forEach((sig, idx) => { sig.number = idx + 1; });
-            this.remoteGlobalCount = this.signatures.length;
+            this.signatures = [];
+            this.remoteGlobalCount = (this.remoteSignatures || []).length;
         }
     },
 
@@ -136,54 +97,53 @@ window.AppPetition = {
         } catch (e) { }
     },
 
-    // Unifica e soma todas as assinaturas (fundadoras + remotas + locais) com deduplicação rigorosa
+    // Unifica e soma todas as assinaturas (Planilha do Google Sheets como Fonte Primária Oficial)
     getAllAuditSignatures: function () {
         const combined = [];
         const seenKeys = new Set();
 
-        const addSig = (sig, isFounding) => {
-            if (!sig) return;
-            if (sig.protocol === 'SRQ-2026-AUDITTEST' || (sig.name && sig.name.toLowerCase().includes('auditoria de teste'))) return;
-            const key = sig.fullHash || sig.hash || sig.protocol || (sig.name && sig.cpfMasked ? (sig.name.trim().toLowerCase() + '_' + sig.cpfMasked) : null);
-            if (key && seenKeys.has(key)) return;
-            if (key) seenKeys.add(key);
-
-            combined.push({
-                ...sig,
-                isFounding: Boolean(isFounding)
+        // 1. Se temos assinaturas da Planilha do Google Sheets (fonte oficial), usa-as diretamente com a numeração canônica da planilha!
+        if (Array.isArray(this.remoteSignatures) && this.remoteSignatures.length > 0) {
+            this.remoteSignatures.forEach((s, idx) => {
+                const num = typeof s.number === 'number' && s.number > 0 ? s.number : (idx + 1);
+                combined.push({
+                    ...s,
+                    number: num
+                });
+                const key = s.fullHash || s.hash || s.protocol || (s.name && s.cpfMasked ? (s.name.trim().toLowerCase() + '_' + s.cpfMasked) : null);
+                if (key) seenKeys.add(key);
             });
-        };
 
-        // 1. Assinaturas Remotas Reais Sincronizadas da Nuvem (Google Sheets / Webhook)
-        const hasRemote = Array.isArray(this.remoteSignatures) && this.remoteSignatures.length > 0;
-        if (hasRemote) {
-            this.remoteSignatures.forEach(s => addSig(s, false));
+            // 2. Adiciona assinaturas locais recém-feitas no aparelho que ainda estejam em trânsito para a planilha
+            if (Array.isArray(this.signatures) && this.signatures.length > 0) {
+                this.signatures.forEach(localSig => {
+                    const key = localSig.fullHash || localSig.hash || localSig.protocol || (localSig.name && localSig.cpfMasked ? (localSig.name.trim().toLowerCase() + '_' + localSig.cpfMasked) : null);
+                    if (key && !seenKeys.has(key)) {
+                        seenKeys.add(key);
+                        combined.push({
+                            ...localSig,
+                            number: combined.length + 1
+                        });
+                    }
+                });
+            }
+
+            // Retorna em ordem decrescente (#54, #53, ... #1) para que as mais recentes apareçam no topo dos feeds e cartões
+            return [...combined].sort((a, b) => (b.number || 0) - (a.number || 0));
         }
 
-        // 2. Assinaturas Registradas e Persistidas Localmente
+        // 3. Fallback apenas se a planilha ainda não respondeu: usa assinaturas locais
         if (Array.isArray(this.signatures) && this.signatures.length > 0) {
-            this.signatures.forEach(s => {
-                // Se já temos assinaturas reais da planilha, suprime as sintéticas fundadoras
-                if (hasRemote && (s.isFounding || (s.protocol && s.protocol.startsWith('SRQ-2026-') && (this.foundingSignatures || []).some(fs => fs.protocol === s.protocol)))) {
-                    return;
-                }
-                addSig(s, Boolean(s.isFounding));
+            this.signatures.forEach((s, idx) => {
+                combined.push({
+                    ...s,
+                    number: s.number || (idx + 1)
+                });
             });
-        } else if (!hasRemote) {
-            // Fallback apenas se não houver registros nem remotos nem locais
-            (this.foundingSignatures || []).forEach(s => addSig(s, true));
+            return [...combined].sort((a, b) => (b.number || 0) - (a.number || 0));
         }
 
-        // 3. Ordenação cronológica para garantir numeração sequencial transparente (#1 a #N)
-        combined.sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
-
-        // 4. Atribui a numeração sequencial auditável
-        combined.forEach((sig, idx) => {
-            sig.number = idx + 1;
-        });
-
-        // 5. Retorna em ordem decrescente (mais recentes no topo) para o feed e listagens
-        return [...combined].reverse();
+        return [];
     },
 
     // Retorna a contagem total somada (sempre maior ou igual ao número real de subscritores do caderno)
@@ -750,13 +710,14 @@ window.AppPetition = {
 
     // Constrói o HTML Completo do Documento Público Posterior (Câmara Municipal e MPSP)
     buildPublicDocumentHtml: function (standalone) {
-        const allSigs = this.getAllAuditSignatures();
-        const sigs = [...allSigs].sort((a, b) => (a.number || 0) - (b.number || 0));
-        const count = Math.max(this.getTotalCount(), sigs.length);
+        const allSigs = this.getAllAuditSignatures(); // Ordem decrescente (#54 até #1)
+        const tableSigs = [...allSigs].sort((a, b) => (a.number || 0) - (b.number || 0)); // Ordem sequencial (#1 a #54)
+        const count = allSigs.length;
         const nowStr = new Date().toLocaleString('pt-BR');
 
-        const cardsHtml = sigs.length > 0
-            ? sigs.map((s) => {
+        // 1. Cartões Responsivos: mais recentes primeiro no topo (#54 Alexandre Ferreira Gris, #53 Ana Paula Cairrão, ...)
+        const cardsHtml = allSigs.length > 0
+            ? allSigs.map((s) => {
                 const protoDisplay = s.protocol || (s.fullHash ? ('SRQ-2026-' + s.fullHash.slice(0, 8).toUpperCase()) : (s.hash ? ('SRQ-2026-' + s.hash.slice(0, 8).toUpperCase()) : 'SRQ-2026-OFICIAL'));
                 const dateDisplay = s.timestamp ? new Date(s.timestamp).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
                 const commentHtml = s.comment && s.comment.trim() && s.comment.trim() !== '—'
@@ -785,8 +746,9 @@ window.AppPetition = {
             }).join('')
             : '<div style="text-align: center; padding: 16px; color: #64748b; font-family: sans-serif;">Nenhuma assinatura registrada.</div>';
 
-        const rowsHtml = sigs.length > 0
-            ? sigs.map((s) => {
+        // 2. Tabela Sinóptica Auditável: estrita ordem sequencial (#1 a #54, idêntico à Planilha do Google)
+        const rowsHtml = tableSigs.length > 0
+            ? tableSigs.map((s) => {
                 const protoDisplay = s.protocol || (s.fullHash ? ('SRQ-2026-' + s.fullHash.slice(0, 8).toUpperCase()) : (s.hash ? ('SRQ-2026-' + s.hash.slice(0, 8).toUpperCase()) : 'SRQ-2026-OFICIAL'));
                 const dateDisplay = s.timestamp ? new Date(s.timestamp).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
                 return `
