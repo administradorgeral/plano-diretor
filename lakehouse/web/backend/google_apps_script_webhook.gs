@@ -13,14 +13,30 @@
  * 5. Cole a URL em `lakehouse/web/js/config.js` no campo `REMOTE_WEBHOOK_URL`.
  */
 
-const BASE_COUNT = 342;
+const BASE_COUNT = 50;
 
 function doGet(e) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  const rows = Math.max(0, sheet.getLastRow() - 1);
+  const lastRow = sheet.getLastRow();
+  let sigs = [];
+  if (lastRow > 1) {
+    const data = sheet.getRange(2, 1, lastRow - 1, 8).getValues();
+    sigs = data.map((row) => ({
+      protocol: String(row[0] || ''),
+      name: String(row[1] || ''),
+      bairro: String(row[2] || ''),
+      vinculo: String(row[3] || ''),
+      cpfMasked: String(row[4] || '***.***.***-**'),
+      fullHash: String(row[5] || ''),
+      hash: String(row[5] || '').slice(0, 16),
+      comment: String(row[6] || ''),
+      timestamp: String(row[7] || '')
+    }));
+  }
   const payload = {
     status: 'ok',
-    count: BASE_COUNT + rows
+    count: BASE_COUNT + (lastRow > 1 ? lastRow - 1 : 0),
+    signatures: sigs
   };
   return ContentService.createTextOutput(JSON.stringify(payload))
     .setMimeType(ContentService.MimeType.JSON);

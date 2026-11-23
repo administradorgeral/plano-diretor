@@ -391,20 +391,23 @@
                     <span>📄 Ver / Baixar Documento Público Oficial (Câmara &amp; MPSP)</span>
                 </button>
 
-                <!-- Caderno de Assinaturas Validadas (Auditoria SHA-256) - Colapsado por Padrão -->
-                <div class="recent-signatures-box collapsed" id="signaturesBox">
+                <!-- Caderno de Assinaturas Validadas (Auditoria SHA-256) -->
+                <div class="recent-signatures-box" id="signaturesBox">
                     <div class="recent-signatures-title" id="signaturesTitleToggle">
                         <div style="display: flex; align-items: center; gap: 7px;">
-                            <i data-lucide="chevron-right" class="signatures-chevron" id="signaturesChevron" style="width: 14px; height: 14px;"></i>
+                            <i data-lucide="chevron-right" class="signatures-chevron" id="signaturesChevron" style="width: 14px; height: 14px; transform: rotate(90deg);"></i>
                             <span>Caderno de Assinaturas Validadas (Auditoria SHA-256)</span>
-                            <span class="recent-signatures-hint" id="signaturesCountHint">Ver ▾</span>
+                            <span class="recent-signatures-hint" id="signaturesCountHint">Recolher ▴</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <button type="button" class="btn-export-csv" id="btnDownloadCsv"
                                 title="Baixar planilha CSV auditável">⬇️ Baixar CSV</button>
                         </div>
                     </div>
-                    <div id="recentSignaturesList" style="display: none;"></div>
+                    <div id="signaturesCollapsibleContent" style="display: flex; flex-direction: column; gap: 7px;">
+                        <input type="text" id="sigSearchInput" placeholder="🔍 Filtrar por nome, bairro ou protocolo..." class="sig-search-input" />
+                        <div id="recentSignaturesList"></div>
+                    </div>
                 </div>
             </div>
 

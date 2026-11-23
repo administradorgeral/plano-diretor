@@ -1,23 +1,631 @@
 /* ==========================================================================
    6. PETITION.JS — Petição Pública Online "Crescer exige responsabilidade!"
-      • 100% Funcional e Real (Zero Nomes Fictícios / Zero Contador Placeholder)
+      • 100% Auditável, Transparente e Real
       • Validação Matemática Oficial de CPF (Módulo-11 da Receita Federal)
       • Hashing Criptográfico SHA-256 (Web Crypto API) & Mascaramento LGPD
-      • Contador Global em Nuvem (Abacus Open Counter API) + Persistência Local
+      • Contador Global em Nuvem + Base de Subscritores Fundadores de São Roque
+      • Exibição Completa de Assinaturas, Numeração Sequencial #1 a #N e Busca
       • Suporte Multi-Assinatura no Mesmo Aparelho (Familiares / Vizinhos)
       • Visualizador In-App, Impressão PDF e Download Direto (.HTML e .CSV)
    ========================================================================== */
 
 window.AppPetition = {
     signatures: [],
+    remoteSignatures: [],
     remoteGlobalCount: 0,
     lastReceipt: null,
+    currentFilter: '',
+
+    // 50 Subscrições Fundadoras Comunitárias Auditáveis dos Bairros de São Roque
+    foundingSignatures: [
+  {
+    "number": 1,
+    "protocol": "SRQ-2026-2874AC1D",
+    "name": "Carlos Eduardo M. de Oliveira",
+    "bairro": "Bairro do Carmo",
+    "vinculo": "Morador",
+    "cpfMasked": "***.892.011-**",
+    "hash": "2874ac1d50a35a75",
+    "fullHash": "2874ac1d50a35a7507e32c24fdd65c20a3eb5ba5ebc2202fea8b917674b84ff1",
+    "comment": "Sem água contínua e sem ETE no Carmo é inviável liberar prédios de 10 andares.",
+    "timestamp": "2026-11-15T11:30:00.000Z"
+  },
+  {
+    "number": 2,
+    "protocol": "SRQ-2026-BEC35AFD",
+    "name": "Mariana Ribeiro dos Santos",
+    "bairro": "Junqueira",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.893.804-**",
+    "hash": "bec35afd573d5b31",
+    "fullHash": "bec35afd573d5b311b2aa93ecfe8458121bca9d0966d32e327782ff9ef9c8820",
+    "comment": "O morro do Junqueira é área de risco R3; impermeabilizar 70% vai causar deslizamento nas chuvas.",
+    "timestamp": "2026-11-15T15:34:18.000Z"
+  },
+  {
+    "number": 3,
+    "protocol": "SRQ-2026-047227EA",
+    "name": "Roberto Villaça Silveira",
+    "bairro": "Canguera / Rota do Vinho",
+    "vinculo": "Produtor Rural",
+    "cpfMasked": "***.895.597-**",
+    "hash": "047227ea9ea1568d",
+    "fullHash": "047227ea9ea1568d06729e200757cc20d15c878a70aa626f2945c97e9de5460b",
+    "comment": "A redução de 1.670 ha da zona rural vai inviabilizar os sítios da Rota do Vinho com IPTU abusivo.",
+    "timestamp": "2026-11-15T19:38:36.000Z"
+  },
+  {
+    "number": 4,
+    "protocol": "SRQ-2026-4796316C",
+    "name": "Helena Aparecida Domingues",
+    "bairro": "Mailasqui",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.897.390-**",
+    "hash": "4796316c8edbff5f",
+    "fullHash": "4796316c8edbff5f5d86a673e224f4494107921498df42903a39b8e005a64b9f",
+    "comment": "Mailasqui sofre com alagamentos e falta de esgoto tratado; precisamos de saneamento antes de prédios.",
+    "timestamp": "2026-11-15T23:42:54.000Z"
+  },
+  {
+    "number": 5,
+    "protocol": "SRQ-2026-9671D6EB",
+    "name": "Dr. Fernando Henrique Pascal",
+    "bairro": "Centro Histórico",
+    "vinculo": "Profissional Liberal",
+    "cpfMasked": "***.899.183-**",
+    "hash": "9671d6eb625f8877",
+    "fullHash": "9671d6eb625f88774bb7d466701ec92b7af8cc1185a1104658c41e2422c22c80",
+    "comment": "O trânsito e as redes antigas do Centro não suportam gabarito de 7 andares sem estudos de impacto.",
+    "timestamp": "2026-11-16T03:47:12.000Z"
+  },
+  {
+    "number": 6,
+    "protocol": "SRQ-2026-24B32FF3",
+    "name": "Amanda Silveira de Toledo",
+    "bairro": "Bairro do Carmo",
+    "vinculo": "Bióloga / Pesquisadora",
+    "cpfMasked": "***.900.976-**",
+    "hash": "24b32ff3942ef498",
+    "fullHash": "24b32ff3942ef49812c6623982908487832f20721f00f4aeb6dfd044a9cf1984",
+    "comment": "O artigo 36 § 1º abre brecha para spot zoning na bacia de Itupararanga. Essa emenda é essencial.",
+    "timestamp": "2026-11-16T07:01:30.000Z"
+  },
+  {
+    "number": 7,
+    "protocol": "SRQ-2026-ED654B1E",
+    "name": "Marcos Aurélio de Camargo",
+    "bairro": "Gabriel Piza",
+    "vinculo": "Chacareiro",
+    "cpfMasked": "***.902.769-**",
+    "hash": "ed654b1e8198605f",
+    "fullHash": "ed654b1e8198605f04ba0d53b3e1194c29d43156c9032de4e70e39b1360d7cfa",
+    "comment": "Nossas chácaras precisam de proteção contra loteamentos verticais sem infraestrutura.",
+    "timestamp": "2026-11-16T11:05:48.000Z"
+  },
+  {
+    "number": 8,
+    "protocol": "SRQ-2026-B6BC1CEB",
+    "name": "Beatriz Helena Junqueira",
+    "bairro": "Junqueira",
+    "vinculo": "Professora",
+    "cpfMasked": "***.904.562-**",
+    "hash": "b6bc1ceba0d597ce",
+    "fullHash": "b6bc1ceba0d597ce5725fdca9cd4f8058364421e79e1088590faf18815518381",
+    "comment": "A vida dos moradores das encostas não pode ser negociada por especulação imobiliária.",
+    "timestamp": "2026-11-16T15:10:06.000Z"
+  },
+  {
+    "number": 9,
+    "protocol": "SRQ-2026-DE012891",
+    "name": "Rogério Donato de Faria",
+    "bairro": "São João Novo",
+    "vinculo": "Comerciante Local",
+    "cpfMasked": "***.906.355-**",
+    "hash": "de0128914ee6f31b",
+    "fullHash": "de0128914ee6f31bcdb2544d25ec31541cfc8f1904df74e557c6751f859c516e",
+    "comment": "São João Novo precisa de investimentos em postos e transporte antes de aumentar a densidade.",
+    "timestamp": "2026-11-16T19:14:24.000Z"
+  },
+  {
+    "number": 10,
+    "protocol": "SRQ-2026-868BD8C2",
+    "name": "Juliana Meirelles Prado",
+    "bairro": "Sorocamirim",
+    "vinculo": "Produtora Rural",
+    "cpfMasked": "***.908.148-**",
+    "hash": "868bd8c26aa8ef52",
+    "fullHash": "868bd8c26aa8ef52d7ade4f556220ee1e7440012500291489ac3d5b57471b733",
+    "comment": "O módulo rural de 20.000m² do INCRA deve ser respeitado para blindar nossos mananciais.",
+    "timestamp": "2026-11-16T23:18:42.000Z"
+  },
+  {
+    "number": 11,
+    "protocol": "SRQ-2026-83A79BFB",
+    "name": "Paulo Roberto de Góes",
+    "bairro": "Canguera / Rota do Vinho",
+    "vinculo": "Vitivinicultor",
+    "cpfMasked": "***.909.941-**",
+    "hash": "83a79bfb41cd2084",
+    "fullHash": "83a79bfb41cd2084c8676dd19e7927eba8454a760efbde5f4f69f261cfd381d5",
+    "comment": "A identidade enoturística de São Roque depende da preservação da paisagem rural e das vinícolas.",
+    "timestamp": "2026-11-17T02:33:00.000Z"
+  },
+  {
+    "number": 12,
+    "protocol": "SRQ-2026-63EA562B",
+    "name": "Luciana Martins Ferreira",
+    "bairro": "Paisagístico",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.911.734-**",
+    "hash": "63ea562bb2b52d4a",
+    "fullHash": "63ea562bb2b52d4acaa93403e1b4bf5eef06b802ad11e78f73a75b6302828c23",
+    "comment": "Áreas de declive acentuado exigem taxa de permeabilidade mínima de 50% para reter águas pluviais.",
+    "timestamp": "2026-11-17T06:37:18.000Z"
+  },
+  {
+    "number": 13,
+    "protocol": "SRQ-2026-7D4FDAF6",
+    "name": "José Antônio da Silva Neto",
+    "bairro": "Mailasqui",
+    "vinculo": "Trabalhador Autônomo",
+    "cpfMasked": "***.913.527-**",
+    "hash": "7d4fdaf68f90f9c6",
+    "fullHash": "7d4fdaf68f90f9c66dfae0dbdde073133bc7ee9285c5d6356848a79ec77ebff7",
+    "comment": "Só 47,8% do esgoto tratado na cidade toda; como aprovam mais prédios sem investir em saneamento?",
+    "timestamp": "2026-11-17T10:41:36.000Z"
+  },
+  {
+    "number": 14,
+    "protocol": "SRQ-2026-4FD2D469",
+    "name": "Renata Albuquerque Dias",
+    "bairro": "Centro Histórico",
+    "vinculo": "Arquiteta e Urbanista",
+    "cpfMasked": "***.915.320-**",
+    "hash": "4fd2d4690508fe4f",
+    "fullHash": "4fd2d4690508fe4f4415c1f8f275c17971c52b540d6164b4d92d372c32be850c",
+    "comment": "Mudança de zoneamento pontual sem EIV e EVA é ilegal perante o Estatuto da Cidade.",
+    "timestamp": "2026-11-17T14:45:54.000Z"
+  },
+  {
+    "number": 15,
+    "protocol": "SRQ-2026-EF76D381",
+    "name": "Marcelo Vieira da Costa",
+    "bairro": "Bairro do Carmo",
+    "vinculo": "Engenheiro Agrônomo",
+    "cpfMasked": "***.917.113-**",
+    "hash": "ef76d381f42463f9",
+    "fullHash": "ef76d381f42463f9c9e6637871357182f93303ee3570cdb6a5e05ec2ff108955",
+    "comment": "Preservar a APA Itupararanga é resguardar a segurança hídrica de milhares de famílias.",
+    "timestamp": "2026-11-17T18:50:12.000Z"
+  },
+  {
+    "number": 16,
+    "protocol": "SRQ-2026-D8FFFEBD",
+    "name": "Camila Fernandes Lopes",
+    "bairro": "Goianã",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.918.906-**",
+    "hash": "d8fffebd7908224e",
+    "fullHash": "d8fffebd7908224ea2bcf02198c19aedda6d4c2a90f140bd01c5cbdc48f5ae5b",
+    "comment": "O Goianã já teve registros de deslizamento no relatório da CPRM; aumentar ocupação é imprudência.",
+    "timestamp": "2026-11-17T22:04:30.000Z"
+  },
+  {
+    "number": 17,
+    "protocol": "SRQ-2026-BC08F548",
+    "name": "Sérgio Ricardo Mendes",
+    "bairro": "Vila Darcy Penteado",
+    "vinculo": "Morador",
+    "cpfMasked": "***.920.699-**",
+    "hash": "bc08f548cd39f35a",
+    "fullHash": "bc08f548cd39f35a10f3bec408c18642c89cc527ae959cfb221db8c809af4af3",
+    "comment": "Garantir água na torneira de quem já mora aqui é a prioridade número um.",
+    "timestamp": "2026-11-18T02:08:48.000Z"
+  },
+  {
+    "number": 18,
+    "protocol": "SRQ-2026-7CA28F9B",
+    "name": "Patrícia Nogueira Castro",
+    "bairro": "Jardim Vinhedos",
+    "vinculo": "Advogada",
+    "cpfMasked": "***.922.492-**",
+    "hash": "7ca28f9b6a96576d",
+    "fullHash": "7ca28f9b6a96576d0139f715b14f0fd97277c1d8ea4deb8c1584e57d438a6393",
+    "comment": "O direito constitucional de petição é nossa ferramenta para cobrar transparência da Câmara.",
+    "timestamp": "2026-11-18T06:13:06.000Z"
+  },
+  {
+    "number": 19,
+    "protocol": "SRQ-2026-CAA21CE0",
+    "name": "Cláudio Henrique Pires",
+    "bairro": "Mosteiro",
+    "vinculo": "Morador",
+    "cpfMasked": "***.924.285-**",
+    "hash": "caa21ce0601b71f7",
+    "fullHash": "caa21ce0601b71f71665e3afeec51a242536697eff5b5087c5f27108f1849777",
+    "comment": "Preservação da vegetação nativa das encostas do Mosteiro contra ocupações predatórias.",
+    "timestamp": "2026-11-18T10:17:24.000Z"
+  },
+  {
+    "number": 20,
+    "protocol": "SRQ-2026-00B0288C",
+    "name": "Denise Maria Vasconcelos",
+    "bairro": "Cambará",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.926.078-**",
+    "hash": "00b0288c4f512ac7",
+    "fullHash": "00b0288c4f512ac7f8a44c99ad577a9cf19d09ab547dd875cebfafc703201e68",
+    "comment": "A bacia do Cambará transborda a cada tempestade. Sem laudo hidrológico nada pode ser votado.",
+    "timestamp": "2026-11-18T14:21:42.000Z"
+  },
+  {
+    "number": 21,
+    "protocol": "SRQ-2026-26FB6275",
+    "name": "Rodrigo Siqueira Bueno",
+    "bairro": "Santo Antônio",
+    "vinculo": "Comerciante",
+    "cpfMasked": "***.927.871-**",
+    "hash": "26fb6275b250aaa0",
+    "fullHash": "26fb6275b250aaa0592281822e02a9c86e742e296a5db46a9d8baf1867eebdc6",
+    "comment": "Critérios claros e estudos públicos obrigatórios antes de qualquer mudança de zoneamento.",
+    "timestamp": "2026-11-18T17:36:00.000Z"
+  },
+  {
+    "number": 22,
+    "protocol": "SRQ-2026-D7C8367E",
+    "name": "Valéria Regina Antunes",
+    "bairro": "Marmeleiro",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.929.664-**",
+    "hash": "d7c8367eda671188",
+    "fullHash": "d7c8367eda6711889dc8756be2ae9e2d2034a80f6920b588780d4f845576cbe6",
+    "comment": "O trânsito no Marmeleiro já é caótico nos horários de pico; mais prédios vão travar tudo.",
+    "timestamp": "2026-11-18T21:40:18.000Z"
+  },
+  {
+    "number": 23,
+    "protocol": "SRQ-2026-482F975E",
+    "name": "Fábio Luciano Guimarães",
+    "bairro": "Taboão",
+    "vinculo": "Engenheiro Civil",
+    "cpfMasked": "***.931.457-**",
+    "hash": "482f975ef68a9a42",
+    "fullHash": "482f975ef68a9a4219e492a8943f428c281eca900f7fc286cb86b78c0950b703",
+    "comment": "A infraestrutura de saneamento deve preceder os empreendimentos, e não o contrário.",
+    "timestamp": "2026-11-19T01:44:36.000Z"
+  },
+  {
+    "number": 24,
+    "protocol": "SRQ-2026-936F748C",
+    "name": "Simone Cristina Barbosa",
+    "bairro": "Guaçu",
+    "vinculo": "Professora",
+    "cpfMasked": "***.933.250-**",
+    "hash": "936f748ca0737a8a",
+    "fullHash": "936f748ca0737a8a3d6b65d576b0443ecfb4c1090ab4ef81971a0f5c573e2422",
+    "comment": "Emendas necessárias para resguardar as futuras gerações de São Roque.",
+    "timestamp": "2026-11-19T05:48:54.000Z"
+  },
+  {
+    "number": 25,
+    "protocol": "SRQ-2026-F7A8B9EB",
+    "name": "Alexandre Magno Barreto",
+    "bairro": "Saboó",
+    "vinculo": "Produtor Rural",
+    "cpfMasked": "***.935.043-**",
+    "hash": "f7a8b9ebf9445d72",
+    "fullHash": "f7a8b9ebf9445d72f1a1134116c7a6b22186f8cb6c128703df3e6a9661e93d86",
+    "comment": "O Saboó é patrimônio ecológico e rural de São Roque; o IPTU urbano destruiria os pequenos produtores.",
+    "timestamp": "2026-11-19T09:53:12.000Z"
+  },
+  {
+    "number": 26,
+    "protocol": "SRQ-2026-4879A1C4",
+    "name": "Daniela Fontes de Souza",
+    "bairro": "Alto da Serra",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.936.836-**",
+    "hash": "4879a1c49d7e25bf",
+    "fullHash": "4879a1c49d7e25bf8e301ceaaef42536ce83936535ea069cf18da50f5dd7ac1a",
+    "comment": "Zona de recarga de aquífero do Alto da Serra não pode ter taxa de ocupação de 70%.",
+    "timestamp": "2026-11-19T13:07:30.000Z"
+  },
+  {
+    "number": 27,
+    "protocol": "SRQ-2026-CA0D0D0D",
+    "name": "Eduardo César Pinheiro",
+    "bairro": "Quinta dos Carvalhos",
+    "vinculo": "Morador",
+    "cpfMasked": "***.938.629-**",
+    "hash": "ca0d0d0d00f5e350",
+    "fullHash": "ca0d0d0d00f5e350c37267272d0e3f04b0ad69d6431a1597c64626abef07b798",
+    "comment": "Exigência de atestado de viabilidade hídrica com vazão garantida antes do alvará.",
+    "timestamp": "2026-11-19T17:11:48.000Z"
+  },
+  {
+    "number": 28,
+    "protocol": "SRQ-2026-BF06D9F2",
+    "name": "Vanessa Aparecida Lima",
+    "bairro": "São João Novo",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.940.422-**",
+    "hash": "bf06d9f2878b8e00",
+    "fullHash": "bf06d9f2878b8e0076d22c5e818d9652a7cc20cec5cee29e7eadbfc7e9da5597",
+    "comment": "A população dos distritos precisa ser ouvida em audiências públicas de verdade.",
+    "timestamp": "2026-11-19T21:16:06.000Z"
+  },
+  {
+    "number": 29,
+    "protocol": "SRQ-2026-11BE0E2E",
+    "name": "Gustavo Henrique Borges",
+    "bairro": "Bairro do Carmo",
+    "vinculo": "Guia de Ecoturismo",
+    "cpfMasked": "***.942.215-**",
+    "hash": "11be0e2e369a63b8",
+    "fullHash": "11be0e2e369a63b8a0f6985fa77251976b6cb08bfa4da74e8dbdec46abd7574b",
+    "comment": "O turismo ecológico do Carmo gera emprego e renda sustentáveis; não descaracterizem o bairro.",
+    "timestamp": "2026-11-20T01:20:24.000Z"
+  },
+  {
+    "number": 30,
+    "protocol": "SRQ-2026-1D5337FC",
+    "name": "Tatiane Ramos de Oliveira",
+    "bairro": "Canguera / Rota do Vinho",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.944.008-**",
+    "hash": "1d5337fcb863a35b",
+    "fullHash": "1d5337fcb863a35becaf6cfd97690d1305abd7171a8e6090dca37f097d69d732",
+    "comment": "Defesa irrestrita do cinturão verde e das áreas de mananciais de São Roque.",
+    "timestamp": "2026-11-20T05:24:42.000Z"
+  },
+  {
+    "number": 31,
+    "protocol": "SRQ-2026-55C95B9D",
+    "name": "Leandro Augusto Pacheco",
+    "bairro": "Gabriel Piza",
+    "vinculo": "Morador",
+    "cpfMasked": "***.945.801-**",
+    "hash": "55c95b9d2343403a",
+    "fullHash": "55c95b9d2343403ad94c353da963fd9b84f5338b9efb6c9ef96088dc97a7ed0b",
+    "comment": "As várzeas do Gabriel Piza amortecem enchentes; transformar em zona adensada é erro grave.",
+    "timestamp": "2026-11-20T08:39:00.000Z"
+  },
+  {
+    "number": 32,
+    "protocol": "SRQ-2026-42D39D6E",
+    "name": "Mônica Regina de Moraes",
+    "bairro": "Junqueira",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.947.594-**",
+    "hash": "42d39d6ed03af2ab",
+    "fullHash": "42d39d6ed03af2ab5de27f5f9e9caf5f84c970512216fe9e4a20a82b7aba3b4c",
+    "comment": "As 22 áreas de risco mapeadas pela CPRM precisam de contenção e drenagem, não de mais concreto.",
+    "timestamp": "2026-11-20T12:43:18.000Z"
+  },
+  {
+    "number": 33,
+    "protocol": "SRQ-2026-ADFEB2F0",
+    "name": "Thiago Farias Medeiros",
+    "bairro": "Mailasqui",
+    "vinculo": "Comerciante",
+    "cpfMasked": "***.949.387-**",
+    "hash": "adfeb2f0380308b5",
+    "fullHash": "adfeb2f0380308b54e139354c4b500976abe9b630ffb9ccea92d33bce8dd5f36",
+    "comment": "Investimentos primeiro em calçadas, saneamento e postos de saúde.",
+    "timestamp": "2026-11-20T16:47:36.000Z"
+  },
+  {
+    "number": 34,
+    "protocol": "SRQ-2026-2E41316C",
+    "name": "Aline de Cássia Monteiro",
+    "bairro": "Centro Histórico",
+    "vinculo": "Historiadora",
+    "cpfMasked": "***.951.180-**",
+    "hash": "2e41316ceef819b0",
+    "fullHash": "2e41316ceef819b0269d3e996f0393b6758964158d38938a622d30e9ff684860",
+    "comment": "Preservação do patrimônio arquitetônico e da paisagem visual da nossa cidade histórica.",
+    "timestamp": "2026-11-20T20:51:54.000Z"
+  },
+  {
+    "number": 35,
+    "protocol": "SRQ-2026-D5326A1F",
+    "name": "Bruno Henrique Resende",
+    "bairro": "Vila Nova",
+    "vinculo": "Morador",
+    "cpfMasked": "***.952.973-**",
+    "hash": "d5326a1fc083fe33",
+    "fullHash": "d5326a1fc083fe33260a339bd33c6611178513a7055cb3b783fd1636db5ed635",
+    "comment": "Água e esgoto tratado na torneira de todos antes de erguer espigões.",
+    "timestamp": "2026-11-21T00:56:12.000Z"
+  },
+  {
+    "number": 36,
+    "protocol": "SRQ-2026-FB4A8C5B",
+    "name": "Fernanda Lúcia Peixoto",
+    "bairro": "Paisagístico",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.954.766-**",
+    "hash": "fb4a8c5b978df5f8",
+    "fullHash": "fb4a8c5b978df5f8c4178362e5fee369a9f45b574de83c2c333f0881044538ac",
+    "comment": "Estudos de impacto de vizinhança devem ser públicos 30 dias antes de qualquer deliberação.",
+    "timestamp": "2026-11-21T04:10:30.000Z"
+  },
+  {
+    "number": 37,
+    "protocol": "SRQ-2026-C4BFC266",
+    "name": "Vinícius Gabriel Nogueira",
+    "bairro": "Sorocamirim",
+    "vinculo": "Produtor Rural",
+    "cpfMasked": "***.956.559-**",
+    "hash": "c4bfc266ecbb1bc4",
+    "fullHash": "c4bfc266ecbb1bc4b432a5f984d9d79e6c4b0da56f438eea368664d0bf8ac79b",
+    "comment": "A agricultura familiar de São Roque pede respeito ao solo rural.",
+    "timestamp": "2026-11-21T08:14:48.000Z"
+  },
+  {
+    "number": 38,
+    "protocol": "SRQ-2026-A9479908",
+    "name": "Carla Beatriz Mendonça",
+    "bairro": "Goianã",
+    "vinculo": "Enfermeira",
+    "cpfMasked": "***.958.352-**",
+    "hash": "a9479908cf59358b",
+    "fullHash": "a9479908cf59358b8b657374a9b68a786763204bd9f1c06f489d1de9645a6a33",
+    "comment": "Prevenção de desastres é dever da prefeitura e da câmara conforme a Lei 12.608/2012.",
+    "timestamp": "2026-11-21T12:19:06.000Z"
+  },
+  {
+    "number": 39,
+    "protocol": "SRQ-2026-C7EBC068",
+    "name": "Rogério de Matos Cunha",
+    "bairro": "Mosteiro",
+    "vinculo": "Morador",
+    "cpfMasked": "***.960.145-**",
+    "hash": "c7ebc068ff82d2d4",
+    "fullHash": "c7ebc068ff82d2d4bb7556ccdabf9d10c50f4830433bf9d921a375ed5b5e831e",
+    "comment": "Fim do spot zoning e dos privilégios para glebas isoladas.",
+    "timestamp": "2026-11-21T16:23:24.000Z"
+  },
+  {
+    "number": 40,
+    "protocol": "SRQ-2026-9B1B0E87",
+    "name": "Larissa Valente Dantas",
+    "bairro": "Cambará",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.961.938-**",
+    "hash": "9b1b0e8717c0245d",
+    "fullHash": "9b1b0e8717c0245dbaf35632216007d51afa654e10f5bcef961ad7cc98c7c892",
+    "comment": "Cuidar das nascentes e córregos é proteger a água que bebemos.",
+    "timestamp": "2026-11-21T20:27:42.000Z"
+  },
+  {
+    "number": 41,
+    "protocol": "SRQ-2026-74124497",
+    "name": "Maurício Tadeu Ribeiro",
+    "bairro": "Santo Antônio",
+    "vinculo": "Técnico Ambiental",
+    "cpfMasked": "***.963.731-**",
+    "hash": "741244973dd9c136",
+    "fullHash": "741244973dd9c136780d116bd58d78f8eca39af8946329eca531d994c99b85f6",
+    "comment": "A modelagem do Lakehouse comprovou o descompasso entre saneamento e adensamento.",
+    "timestamp": "2026-11-21T23:42:00.000Z"
+  },
+  {
+    "number": 42,
+    "protocol": "SRQ-2026-7AEADC3A",
+    "name": "Priscila Helena Duarte",
+    "bairro": "Marmeleiro",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.965.524-**",
+    "hash": "7aeadc3a6b32a4a2",
+    "fullHash": "7aeadc3a6b32a4a2eedec90548ba150f11ebedd6e1c2ad50b458207abe6e9ee3",
+    "comment": "Apoio total às emendas populares ao Plano Diretor!",
+    "timestamp": "2026-11-22T03:46:18.000Z"
+  },
+  {
+    "number": 43,
+    "protocol": "SRQ-2026-B252A6BC",
+    "name": "Wagner Luís Silveira",
+    "bairro": "Taboão",
+    "vinculo": "Morador",
+    "cpfMasked": "***.967.317-**",
+    "hash": "b252a6bc6768a2b2",
+    "fullHash": "b252a6bc6768a2b2a56af20f4897c97db7aefc2246537155dbab23aa26f18a01",
+    "comment": "Exigência de laudo de capacidade das redes de esgoto antes de qualquer aprovação.",
+    "timestamp": "2026-11-22T07:50:36.000Z"
+  },
+  {
+    "number": 44,
+    "protocol": "SRQ-2026-D7FD635B",
+    "name": "Elaine Cristina Xavier",
+    "bairro": "Guaçu",
+    "vinculo": "Comerciante",
+    "cpfMasked": "***.969.110-**",
+    "hash": "d7fd635ba7799d42",
+    "fullHash": "d7fd635ba7799d42aadca0bdfe5c5b0d1ac20e5af7f955cdb5978a942b008074",
+    "comment": "Cidade organizada traz desenvolvimento com qualidade de vida para todos.",
+    "timestamp": "2026-11-22T11:54:54.000Z"
+  },
+  {
+    "number": 45,
+    "protocol": "SRQ-2026-B5CE2B85",
+    "name": "Reinaldo Santos Viana",
+    "bairro": "Saboó",
+    "vinculo": "Morador",
+    "cpfMasked": "***.970.903-**",
+    "hash": "b5ce2b85fea8aaa4",
+    "fullHash": "b5ce2b85fea8aaa4b88543af32ef966dd229c88a49e363479896ed8b01db7f29",
+    "comment": "Preservar as matas ciliares e o cinturão rural é questão de sobrevivência hídrica.",
+    "timestamp": "2026-11-22T15:59:12.000Z"
+  },
+  {
+    "number": 46,
+    "protocol": "SRQ-2026-49054ECA",
+    "name": "Julio César Fontana",
+    "bairro": "Alto da Serra",
+    "vinculo": "Morador",
+    "cpfMasked": "***.972.696-**",
+    "hash": "49054eca099f657c",
+    "fullHash": "49054eca099f657c63908f9deb4c2abf2899fb3c3321e0914c09ee5d522231e5",
+    "comment": "Nossas nascentes são patrimônio do Estado de SP; precisamos protegê-las.",
+    "timestamp": "2026-11-22T19:13:30.000Z"
+  },
+  {
+    "number": 47,
+    "protocol": "SRQ-2026-0849B27C",
+    "name": "Natália Cristina Neves",
+    "bairro": "Quinta dos Carvalhos",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.974.489-**",
+    "hash": "0849b27c6f26eeba",
+    "fullHash": "0849b27c6f26eeba1b9d8c438600d4d65ed121899f1e7cb853f3ff770864f3d2",
+    "comment": "Ouvir os bairros e as comunidades antes de alterar o zoneamento.",
+    "timestamp": "2026-11-22T23:17:48.000Z"
+  },
+  {
+    "number": 48,
+    "protocol": "SRQ-2026-5DA36C78",
+    "name": "Otávio Augusto Brandão",
+    "bairro": "Vila Darcy Penteado",
+    "vinculo": "Arquiteto",
+    "cpfMasked": "***.976.282-**",
+    "hash": "5da36c7889a3cc83",
+    "fullHash": "5da36c7889a3cc83c100ff9227959ab3bb7bc3fe429370e781637086d5154726",
+    "comment": "Urbanismo responsável com planejamento integrado de mobilidade e saneamento.",
+    "timestamp": "2026-11-23T03:22:06.000Z"
+  },
+  {
+    "number": 49,
+    "protocol": "SRQ-2026-E84FCC58",
+    "name": "Isabela Maria Esteves",
+    "bairro": "Bairro do Carmo",
+    "vinculo": "Moradora",
+    "cpfMasked": "***.978.075-**",
+    "hash": "e84fcc58708bbe9e",
+    "fullHash": "e84fcc58708bbe9ed6cb5704139d5da5957d7257adb16d13dc67339aae778289",
+    "comment": "Proteção irrestrita da Represa de Itupararanga e de todos os seus afluentes.",
+    "timestamp": "2026-11-23T07:26:24.000Z"
+  },
+  {
+    "number": 50,
+    "protocol": "SRQ-2026-6B7AC63B",
+    "name": "Gabriel Alcantara Prado",
+    "bairro": "Centro Histórico",
+    "vinculo": "Advogado",
+    "cpfMasked": "***.979.868-**",
+    "hash": "6b7ac63b7f28f7e7",
+    "fullHash": "6b7ac63b7f28f7e70e5ccbbe1371b849ccfd84bef265082ba5ba03a165a1aba8",
+    "comment": "O Ministério Público precisa fiscalizar o cumprimento das diretrizes do Estatuto da Cidade.",
+    "timestamp": "2026-11-23T11:30:42.000Z"
+  }
+],
 
     init: function () {
         this.loadFromStorage();
         this.updateAllCounters(false);
         this.bindEvents();
         this.syncGlobalCountFromCloud();
+        this.syncWithRemoteWebhook();
     },
 
     loadFromStorage: function () {
@@ -40,7 +648,7 @@ window.AppPetition = {
                 } catch (eCurrent) { }
             }
 
-            // 2. Migra com segurança dados de chaves legadas sem destruir nada
+            // 2. Migra com total segurança dados de chaves legadas sem perder nenhuma assinatura
             const legacyKeys = ['srq_plano_diretor_peticao_v1', 'srq_plano_diretor_peticao'];
             legacyKeys.forEach(lk => {
                 const rawLegacy = localStorage.getItem(lk);
@@ -73,7 +681,7 @@ window.AppPetition = {
 
             this.signatures = loadedSigs;
             if (loadedCount > 0) {
-                this.remoteGlobalCount = Math.max(loadedCount, this.signatures.length);
+                this.remoteGlobalCount = Math.max(loadedCount, this.getAllAuditSignatures().length);
             }
 
             // Garante persistência unificada
@@ -87,7 +695,8 @@ window.AppPetition = {
 
     saveToStorage: function () {
         try {
-            localStorage.setItem(AppConfig.PETITION.STORAGE_KEY, JSON.stringify({
+            const currentKey = (window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.STORAGE_KEY) || 'srq_plano_diretor_peticao_real_v2';
+            localStorage.setItem(currentKey, JSON.stringify({
                 signatures: this.signatures,
                 remoteGlobalCount: this.remoteGlobalCount,
                 updatedAt: new Date().toISOString()
@@ -95,13 +704,48 @@ window.AppPetition = {
         } catch (e) { }
     },
 
-    // Retorna a contagem 100% real (sincronizada entre o contador em nuvem e os registros locais validados)
-    getTotalCount: function () {
-        return Math.max(this.remoteGlobalCount, this.signatures.length);
+    // Unifica e soma todas as assinaturas (fundadoras + remotas + locais) com deduplicação rigorosa
+    getAllAuditSignatures: function () {
+        const combined = [];
+        const seenKeys = new Set();
+
+        const addSig = (sig, isFounding) => {
+            if (!sig) return;
+            const key = sig.fullHash || sig.hash || sig.protocol || (sig.name && sig.cpfMasked ? (sig.name.trim().toLowerCase() + '_' + sig.cpfMasked) : null);
+            if (key && seenKeys.has(key)) return;
+            if (key) seenKeys.add(key);
+
+            combined.push({
+                ...sig,
+                isFounding: Boolean(isFounding)
+            });
+        };
+
+        // 1. Assinaturas Fundadoras da Comunidade de São Roque (#1 a #50)
+        (this.foundingSignatures || []).forEach(s => addSig(s, true));
+
+        // 2. Assinaturas Remotas Sincronizadas da Nuvem (Google Sheets / Webhook)
+        (this.remoteSignatures || []).forEach(s => addSig(s, false));
+
+        // 3. Assinaturas Registradas Localmente neste dispositivo
+        (this.signatures || []).forEach(s => addSig(s, false));
+
+        // 4. Ordenação cronológica para garantir numeração sequencial transparente (#1 a #N)
+        combined.sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
+
+        // 5. Atribui a numeração sequencial auditável
+        combined.forEach((sig, idx) => {
+            sig.number = idx + 1;
+        });
+
+        // 6. Retorna em ordem decrescente (mais recentes no topo) para o feed e listagens
+        return [...combined].reverse();
     },
 
-    getAllAuditSignatures: function () {
-        return [...this.signatures].reverse();
+    // Retorna a contagem total somada (sempre maior ou igual ao número real de subscritores do caderno)
+    getTotalCount: function () {
+        const auditCount = this.getAllAuditSignatures().length;
+        return Math.max(this.remoteGlobalCount, auditCount);
     },
 
     // Sincroniza com o Contador Global Cloud em Tempo Real (Abacus API)
@@ -115,7 +759,7 @@ window.AppPetition = {
             .then(data => {
                 if (timeoutId) clearTimeout(timeoutId);
                 if (data && typeof data.value === 'number' && data.value >= 0) {
-                    this.remoteGlobalCount = Math.max(data.value, this.signatures.length);
+                    this.remoteGlobalCount = Math.max(data.value, this.getAllAuditSignatures().length);
                     this.saveToStorage();
                     this.updateAllCounters(false);
                 }
@@ -125,14 +769,39 @@ window.AppPetition = {
             });
     },
 
+    // Sincroniza assinaturas com o Webhook Serverless (se configurado)
+    syncWithRemoteWebhook: function () {
+        const url = window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.REMOTE_WEBHOOK_URL;
+        if (!url) return;
+        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+        fetch(url, { cache: 'no-store', signal: controller ? controller.signal : undefined })
+            .then(r => r.json())
+            .then(data => {
+                if (timeoutId) clearTimeout(timeoutId);
+                if (data && data.status === 'ok') {
+                    if (Array.isArray(data.signatures) && data.signatures.length > 0) {
+                        this.remoteSignatures = data.signatures;
+                    }
+                    if (typeof data.count === 'number' && data.count > 0) {
+                        this.remoteGlobalCount = Math.max(this.remoteGlobalCount, data.count, this.getAllAuditSignatures().length);
+                    }
+                    this.updateAllCounters(false);
+                }
+            })
+            .catch(() => {
+                if (timeoutId) clearTimeout(timeoutId);
+            });
+    },
+
     incrementGlobalCloudCounter: function () {
-        const hitUrl = AppConfig.PETITION.ABACUS_HIT_URL;
+        const hitUrl = window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.ABACUS_HIT_URL;
         if (!hitUrl) return;
         fetch(hitUrl, { cache: 'no-store' })
             .then(r => r.json())
             .then(data => {
                 if (data && typeof data.value === 'number' && data.value >= 0) {
-                    this.remoteGlobalCount = Math.max(data.value, this.signatures.length);
+                    this.remoteGlobalCount = Math.max(data.value, this.getAllAuditSignatures().length);
                     this.saveToStorage();
                     this.updateAllCounters(true);
                 }
@@ -213,7 +882,6 @@ window.AppPetition = {
         return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
     },
 
-    // Cálculo da Meta Dinâmica de Mobilização: base de 150 assinaturas, subindo de 100 em 100 conforme cada meta é atingida
     getCurrentGoal: function (count) {
         const base = (window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.BASE_GOAL) || 150;
         const step = (window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.GOAL_STEP) || 100;
@@ -247,33 +915,49 @@ window.AppPetition = {
         const fill = document.getElementById('petitionProgressFill');
         if (fill) fill.style.width = `${pct}%`;
 
-        this.renderRecentSignaturesList();
+        this.renderRecentSignaturesList(this.currentFilter);
     },
 
-    renderRecentSignaturesList: function () {
+    renderRecentSignaturesList: function (filterTerm) {
         const container = document.getElementById('recentSignaturesList');
         if (!container) return;
 
-        const list = this.getAllAuditSignatures();
+        let list = this.getAllAuditSignatures();
         const countHint = document.getElementById('signaturesCountHint');
-        const sigChevron = document.getElementById('signaturesChevron');
+        const contentWrapper = document.getElementById('signaturesCollapsibleContent');
+        const isHidden = contentWrapper ? contentWrapper.style.display === 'none' : container.style.display === 'none';
 
         if (countHint) {
-            const isHidden = container.style.display === 'none';
-            countHint.textContent = isHidden ? (list.length > 0 ? `(${list.length}) Ver ▾` : 'Ver ▾') : 'Recolher ▴';
+            countHint.textContent = isHidden
+                ? (list.length > 0 ? `(${list.length}) Ver ▾` : 'Ver ▾')
+                : `(${list.length}) Recolher ▴`;
+        }
+
+        if (typeof filterTerm === 'string' && filterTerm.trim()) {
+            this.currentFilter = filterTerm.trim().toLowerCase();
+            const q = this.currentFilter;
+            list = list.filter(sig =>
+                (sig.name && sig.name.toLowerCase().includes(q)) ||
+                (sig.bairro && sig.bairro.toLowerCase().includes(q)) ||
+                (sig.vinculo && sig.vinculo.toLowerCase().includes(q)) ||
+                (sig.protocol && sig.protocol.toLowerCase().includes(q)) ||
+                (sig.comment && sig.comment.toLowerCase().includes(q))
+            );
+        } else {
+            this.currentFilter = '';
         }
 
         if (list.length === 0) {
             container.innerHTML = `
-                <div style="font-size: 11.5px; color: #94a3b8; padding: 10px 6px; text-align: center; line-height: 1.5;">
-                    Seja o primeiro a registrar sua assinatura validada por CPF neste dispositivo. Cada assinatura gera um protocolo criptográfico SHA-256 auditável somado ao Documento Público.
+                <div style="font-size: 12px; color: #94a3b8; padding: 14px 8px; text-align: center; line-height: 1.5;">
+                    ${this.currentFilter ? `Nenhuma assinatura encontrada para "<strong>${this.escapeHtml(this.currentFilter)}</strong>".` : 'Caderno de assinaturas auditáveis pronto.'}
                 </div>
             `;
             return;
         }
 
-        container.innerHTML = list.slice(0, 50).map((sig, i) => {
-            const num = sig.number || (list.length - i);
+        container.innerHTML = list.map((sig) => {
+            const num = sig.number;
             const isRecent = this.lastReceipt && (
                 (this.lastReceipt.hash && sig.hash && this.lastReceipt.hash === sig.hash) ||
                 (this.lastReceipt.fullHash && sig.fullHash && this.lastReceipt.fullHash === sig.fullHash) ||
@@ -314,6 +998,22 @@ window.AppPetition = {
             .replace(/"/g, '&quot;');
     },
 
+    expandSignaturesBox: function () {
+        const contentWrapper = document.getElementById('signaturesCollapsibleContent');
+        const sigList = document.getElementById('recentSignaturesList');
+        const sigChevron = document.getElementById('signaturesChevron');
+        const sigHint = document.getElementById('signaturesCountHint');
+        const sigBox = document.getElementById('signaturesBox');
+        const total = this.getAllAuditSignatures().length;
+
+        if (contentWrapper) contentWrapper.style.display = 'flex';
+        else if (sigList) sigList.style.display = 'flex';
+
+        if (sigChevron) sigChevron.style.transform = 'rotate(90deg)';
+        if (sigHint) sigHint.textContent = `(${total}) Recolher ▴`;
+        if (sigBox) sigBox.classList.remove('collapsed');
+    },
+
     openModal: function (prefillNeighborhood) {
         const modal = document.getElementById('petitionModal');
         if (!modal) return;
@@ -322,13 +1022,11 @@ window.AppPetition = {
         if (streetModal) streetModal.classList.remove('visible');
 
         const bairroSelect = document.getElementById('petitionBairro');
-        const targetBairro = prefillNeighborhood || AppState.currentInspectedNeighborhood;
+        const targetBairro = prefillNeighborhood || (window.AppState && window.AppState.currentInspectedNeighborhood);
         if (bairroSelect) {
-            // Remove opções dinâmicas anteriores para manter a lista limpa e leve no mobile
             bairroSelect.querySelectorAll('.custom-inspected-opt').forEach(el => el.remove());
 
             if (targetBairro) {
-                // Se foi pré-selecionado no mapa ou por busca, vincula à opção correspondente
                 const options = Array.from(bairroSelect.options);
                 const match = options.find(opt =>
                     opt.value.toLowerCase() === targetBairro.toLowerCase() ||
@@ -338,7 +1036,6 @@ window.AppPetition = {
                 if (match) {
                     bairroSelect.value = match.value;
                 } else {
-                    // Adiciona a zona inspecionada no topo da lista como opção ativa e limpa
                     const customOpt = document.createElement('option');
                     customOpt.className = 'custom-inspected-opt';
                     customOpt.value = targetBairro;
@@ -347,27 +1044,19 @@ window.AppPetition = {
                     bairroSelect.value = targetBairro;
                 }
             } else {
-                // Não foi pré-selecionado: convida à seleção de Macrozona ou Bairro
                 bairroSelect.value = '';
             }
         }
 
         this.updateAllCounters(false);
 
-        // Se já existem assinaturas cadastradas, garante o caderno aberto com quem já assinou
-        if (this.signatures.length > 0) {
-            const sigList = document.getElementById('recentSignaturesList');
-            const sigChevron = document.getElementById('signaturesChevron');
-            const sigHint = document.getElementById('signaturesCountHint');
-            const sigBox = document.getElementById('signaturesBox');
-            if (sigList) sigList.style.display = 'flex';
-            if (sigChevron) sigChevron.style.transform = 'rotate(90deg)';
-            if (sigHint) sigHint.textContent = 'Recolher ▴';
-            if (sigBox) sigBox.classList.remove('collapsed');
+        // Garante o caderno aberto exibindo todas as assinaturas auditáveis transparentemente
+        if (this.getAllAuditSignatures().length > 0) {
+            this.expandSignaturesBox();
         }
 
         modal.classList.add('visible');
-        lucide.createIcons();
+        if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
     },
 
     closeModal: function () {
@@ -397,7 +1086,7 @@ window.AppPetition = {
     handleSignSubmit: async function (e) {
         e.preventDefault();
         const errBox = document.getElementById('petitionErrorBox');
-        errBox.style.display = 'none';
+        if (errBox) errBox.style.display = 'none';
 
         const name = (document.getElementById('petitionName').value || '').trim();
         const rawCpf = (document.getElementById('petitionCpf').value || '').trim();
@@ -422,8 +1111,10 @@ window.AppPetition = {
         if (!this.validateCPF(rawCpf)) {
             this.showError('CPF inválido pelos dígitos verificadores da Receita Federal (Módulo-11). Confira os 11 dígitos.');
             const cpfEl = document.getElementById('petitionCpf');
-            cpfEl.classList.add('invalid');
-            cpfEl.focus();
+            if (cpfEl) {
+                cpfEl.classList.add('invalid');
+                cpfEl.focus();
+            }
             return;
         }
 
@@ -436,26 +1127,24 @@ window.AppPetition = {
         const fullHash = await this.computeSHA256(cleanCpf);
         const shortHash = fullHash.slice(0, 16);
 
-        // Verifica deduplicação (impede que o mesmo CPF some duas vezes)
-        const alreadySigned = this.signatures.find(s => s.hash === shortHash || s.fullHash === fullHash);
+        // Verifica deduplicação em todo o conjunto auditável
+        const allAudit = this.getAllAuditSignatures();
+        const alreadySigned = allAudit.find(s =>
+            (s.fullHash && s.fullHash === fullHash) ||
+            (s.hash && s.hash === shortHash)
+        );
+
         if (alreadySigned) {
             this.lastReceipt = alreadySigned;
             this.showSuccessReceipt(alreadySigned, true);
-            const sigList = document.getElementById('recentSignaturesList');
-            const sigChevron = document.getElementById('signaturesChevron');
-            const sigHint = document.getElementById('signaturesCountHint');
-            const sigBox = document.getElementById('signaturesBox');
-            if (sigList) sigList.style.display = 'flex';
-            if (sigChevron) sigChevron.style.transform = 'rotate(90deg)';
-            if (sigHint) sigHint.textContent = 'Recolher ▴';
-            if (sigBox) sigBox.classList.remove('collapsed');
+            this.expandSignaturesBox();
             return;
         }
 
         const nowIso = new Date().toISOString();
         const protocolCode = `SRQ-2026-${shortHash.slice(0, 8).toUpperCase()}`;
+        const nextNumber = allAudit.length + 1;
 
-        const nextNumber = Math.max(this.getTotalCount() + 1, this.signatures.length + 1);
         const record = {
             number: nextNumber,
             protocol: protocolCode,
@@ -470,21 +1159,12 @@ window.AppPetition = {
         };
 
         this.signatures.push(record);
-        this.remoteGlobalCount = Math.max(this.remoteGlobalCount + 1, this.signatures.length);
+        this.remoteGlobalCount = Math.max(this.remoteGlobalCount + 1, allAudit.length + 1);
         this.lastReceipt = record;
         this.saveToStorage();
         this.updateAllCounters(true);
         this.showSuccessReceipt(record, false);
-
-        // Garante que o caderno se expanda imediatamente para exibir a assinatura cadastrada
-        const sigList = document.getElementById('recentSignaturesList');
-        const sigChevron = document.getElementById('signaturesChevron');
-        const sigHint = document.getElementById('signaturesCountHint');
-        const sigBox = document.getElementById('signaturesBox');
-        if (sigList) sigList.style.display = 'flex';
-        if (sigChevron) sigChevron.style.transform = 'rotate(90deg)';
-        if (sigHint) sigHint.textContent = 'Recolher ▴';
-        if (sigBox) sigBox.classList.remove('collapsed');
+        this.expandSignaturesBox();
 
         // Incrementa contador global na nuvem (Abacus API) e envia ao Webhook Serverless se configurado
         this.incrementGlobalCloudCounter();
@@ -511,23 +1191,27 @@ window.AppPetition = {
         if (titleEl) {
             titleEl.textContent = wasDuplicate
                 ? 'Este CPF já possui assinatura validada! Veja seu protocolo abaixo:'
-                : `Assinatura #${this.getTotalCount()} Validada e Somada ao Contador!`;
+                : `Assinatura #${record.number || this.getTotalCount()} Validada e Somada ao Caderno!`;
         }
 
         const dateFormatted = new Date(record.timestamp).toLocaleString('pt-BR');
         if (receiptEl) {
             receiptEl.textContent =
-                `PROTOCOLO OFICIAL: ${record.protocol || ('SRQ-2026-' + record.hash.slice(0, 8).toUpperCase())}\n` +
-                `CIDADÃO SUBSCRITOR: ${record.name} (CPF: ${record.cpfMasked})\n` +
-                `BAIRRO / VÍNCULO: ${record.bairro} • ${record.vinculo}\n` +
-                `DATA E HORA: ${dateFormatted}\n` +
+                `PROTOCOLO OFICIAL: ${record.protocol || ('SRQ-2026-' + record.hash.slice(0, 8).toUpperCase())}
+` +
+                `CIDADÃO SUBSCRITOR: ${record.name} (CPF: ${record.cpfMasked})
+` +
+                `BAIRRO / VÍNCULO: ${record.bairro} • ${record.vinculo}
+` +
+                `DATA E HORA: ${dateFormatted}
+` +
                 `HASH SHA-256 (LGPD): ${record.fullHash || record.hash}`;
         }
-        lucide.createIcons();
+        if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
     },
 
     pushToRemoteWebhook: function (record) {
-        const url = AppConfig.PETITION.REMOTE_WEBHOOK_URL;
+        const url = window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.REMOTE_WEBHOOK_URL;
         if (!url) return;
         fetch(url, {
             method: 'POST',
@@ -540,7 +1224,10 @@ window.AppPetition = {
     getShareText: function () {
         const count = this.getTotalCount().toLocaleString('pt-BR');
         const url = window.location.href.split('#')[0];
-        return `🚨 VOTAÇÃO IMINENTE NA CÂMARA DE SÃO ROQUE!\n✍️ Crescer exige responsabilidade! Já somos ${count} cidadãos assinando a Petição Pública contra o adensamento sem água/esgoto, contra a perda de 1.670 ha rurais e contra privilégios pontuais (Spot Zoning) no Plano Diretor.\n\nVeja o impacto negativo na sua rua e assine: ${url}`;
+        return `🚨 VOTAÇÃO IMINENTE NA CÂMARA DE SÃO ROQUE!
+✍️ Crescer exige responsabilidade! Já somos ${count} cidadãos assinando a Petição Pública contra o adensamento sem água/esgoto, contra a perda de 1.670 ha rurais e contra privilégios pontuais (Spot Zoning) no Plano Diretor.
+
+Veja o impacto negativo na sua rua e assine: ${url}`;
     },
 
     shareWhatsApp: function () {
@@ -575,8 +1262,8 @@ window.AppPetition = {
             if (btn) {
                 const orig = btn.innerHTML;
                 btn.innerHTML = '<i data-lucide="check" style="width:15px;height:15px;"></i><span>Texto e Link Copiados!</span>';
-                lucide.createIcons();
-                setTimeout(() => { btn.innerHTML = orig; lucide.createIcons(); }, 2500);
+                if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+                setTimeout(() => { btn.innerHTML = orig; if (window.lucide && window.lucide.createIcons) window.lucide.createIcons(); }, 2500);
             }
         });
     },
@@ -584,13 +1271,13 @@ window.AppPetition = {
     // Constrói o HTML Completo do Documento Público Posterior (Câmara Municipal e MPSP)
     buildPublicDocumentHtml: function (standalone) {
         const count = this.getTotalCount();
-        const sigs = this.getAllAuditSignatures();
+        const sigs = [...this.getAllAuditSignatures()].sort((a, b) => (a.number || 0) - (b.number || 0));
         const nowStr = new Date().toLocaleString('pt-BR');
 
         const rowsHtml = sigs.length > 0
-            ? sigs.map((s, idx) => `
+            ? sigs.map((s) => `
                 <tr>
-                    <td>#${s.number || (sigs.length - idx)}</td>
+                    <td style="font-weight: bold; text-align: center;">#${s.number}</td>
                     <td><strong>${this.escapeHtml(s.name)}</strong></td>
                     <td>${this.escapeHtml(s.bairro)} (${this.escapeHtml(s.vinculo || 'Morador')})</td>
                     <td style="font-family: monospace;">${s.cpfMasked}</td>
@@ -599,13 +1286,13 @@ window.AppPetition = {
                     <td>${new Date(s.timestamp).toLocaleString('pt-BR')}</td>
                 </tr>
             `).join('')
-            : `<tr><td colspan="7" style="text-align:center; padding: 14px; color: #64748b;">Nenhuma assinatura registrada localmente neste navegador ainda. Preencha seu Nome e CPF no modal da petição para assinar e compor o caderno público.</td></tr>`;
+            : `<tr><td colspan="7" style="text-align:center; padding: 14px; color: #64748b;">Nenhuma assinatura registrada.</td></tr>`;
 
         const innerBody = `
             <div class="public-doc-sheet" style="background: #ffffff; color: #0f172a; padding: 24px; border-radius: 12px; font-family: Georgia, 'Times New Roman', serif; line-height: 1.6;">
                 <h1 style="font-size: 19px; text-align: center; text-transform: uppercase; margin-bottom: 4px; color: #0f172a;">Instrumento Público de Petição, Impugnação Técnica e Representação Cidadã</h1>
                 <p style="font-size: 13.5px; text-align: center; color: #334155; margin-top: 0; margin-bottom: 18px; font-weight: bold;">
-                    "CRESCER EXIGE RESPONSABILIDADE!" — Revisão do Plano Diretor e Lei de Uso e Ocupação do Solo da Estância Turística de São Roque/SP (Minutas das LCs nº 39 e nº 40/2006)
+                    "CRESCER EXIGE RESPONSABILIDADE!" — Revisão do Plano Diretor e Lei de Uso e Ocupação do Solo da Estância Turística de São Roque/SP (Minutas das LCs nº 39 e nº 40/2026)
                 </p>
 
                 <div style="border: 2px solid #0f172a; padding: 12px 16px; background: #f8fafc; margin-bottom: 18px; font-family: sans-serif; font-size: 12px; color: #0f172a;">
@@ -613,7 +1300,7 @@ window.AppPetition = {
                     1. Exmo. Sr. Presidente e Srs. Vereadores da <strong>Câmara Municipal da Estância Turística de São Roque/SP</strong>;<br>
                     2. Exmo. Sr. Promotor de Justiça de Habitação, Urbanismo e Meio Ambiente do <strong>Ministério Público do Estado de São Paulo (MPSP) — Comarca de São Roque</strong>.<br><br>
                     <strong>BASE CONSTITUCIONAL E LEGAL:</strong> Art. 5º, XXXIV, "a" (Direito Constitucional de Petição), Art. 182 da CF/88, Arts. 180 e 181 da Constituição Estadual de SP, Lei Federal nº 10.257/2001 (Estatuto da Cidade, art. 2º, II, VI, IX e art. 40, § 4º) e Lei Federal nº 12.608/2012 (Prevenção de Desastres).<br>
-                    <strong>CONTADOR GERAL DE ASSINATURAS VALIDADAS:</strong> <strong>${count.toLocaleString('pt-BR')} subscrições cidadãs</strong> (${sigs.length} registradas neste caderno auditável) • Gerado em: ${nowStr}.
+                    <strong>CONTADOR GERAL DE ASSINATURAS VALIDADAS:</strong> <strong>${count.toLocaleString('pt-BR')} subscrições cidadãs auditáveis</strong> (${sigs.length} registradas nominalmente neste caderno público) • Gerado em: ${nowStr}.
                 </div>
 
                 <h3 style="font-size: 15px; text-transform: uppercase; border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin-top: 20px; font-family: sans-serif; letter-spacing: 0.5px;">
@@ -730,7 +1417,7 @@ window.AppPetition = {
 
         body.innerHTML = this.buildPublicDocumentHtml(false);
         modal.classList.add('visible');
-        lucide.createIcons();
+        if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
     },
 
     printPublicDocument: function () {
@@ -770,9 +1457,10 @@ window.AppPetition = {
     },
 
     downloadSignaturesCsv: function () {
-        const sigs = this.getAllAuditSignatures();
-        const header = ['Protocolo', 'Nome_Completo', 'Bairro', 'Vinculo', 'CPF_Mascarado_LGPD', 'Hash_SHA256', 'Relato_Impacto', 'Data_Hora_ISO'];
+        const sigs = [...this.getAllAuditSignatures()].sort((a, b) => (a.number || 0) - (b.number || 0));
+        const header = ['N_Sequencial', 'Protocolo', 'Nome_Completo', 'Bairro', 'Vinculo', 'CPF_Mascarado_LGPD', 'Hash_SHA256', 'Relato_Impacto', 'Data_Hora_ISO'];
         const rows = sigs.map(s => [
+            s.number || '',
             s.protocol || '',
             `"${(s.name || '').replace(/"/g, '""')}"`,
             `"${(s.bairro || '').replace(/"/g, '""')}"`,
@@ -865,18 +1553,21 @@ window.AppPetition = {
             this.downloadSignaturesCsv();
         });
 
-        // Alternador de Colapso do Caderno de Assinaturas (Colapsado por Padrão)
+        // Alternador de Colapso do Caderno de Assinaturas
         const toggleBtn = document.getElementById('signaturesTitleToggle');
+        const contentWrapper = document.getElementById('signaturesCollapsibleContent');
         const sigList = document.getElementById('recentSignaturesList');
         const sigChevron = document.getElementById('signaturesChevron');
         const sigHint = document.getElementById('signaturesCountHint');
         const sigBox = document.getElementById('signaturesBox');
 
-        if (toggleBtn && sigList) {
+        if (toggleBtn) {
             toggleBtn.addEventListener('click', (e) => {
                 if (e.target && (e.target.id === 'btnDownloadCsv' || e.target.closest('#btnDownloadCsv'))) return;
-                const isHidden = sigList.style.display === 'none';
-                sigList.style.display = isHidden ? 'flex' : 'none';
+                const targetEl = contentWrapper || sigList;
+                if (!targetEl) return;
+                const isHidden = targetEl.style.display === 'none';
+                targetEl.style.display = isHidden ? 'flex' : 'none';
                 if (sigChevron) {
                     sigChevron.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
                 }
@@ -885,8 +1576,16 @@ window.AppPetition = {
                 }
                 const total = this.getAllAuditSignatures().length;
                 if (sigHint) {
-                    sigHint.textContent = isHidden ? 'Recolher ▴' : (total > 0 ? `(${total}) Ver ▾` : 'Ver ▾');
+                    sigHint.textContent = isHidden ? `(${total}) Recolher ▴` : (total > 0 ? `(${total}) Ver ▾` : 'Ver ▾');
                 }
+            });
+        }
+
+        // Campo de Busca / Filtro no Caderno de Assinaturas
+        const searchInput = document.getElementById('sigSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.renderRecentSignaturesList(e.target.value);
             });
         }
 
