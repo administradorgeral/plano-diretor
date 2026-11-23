@@ -1219,16 +1219,16 @@
     bottom: 24px;
     left: 24px;
     z-index: 10000;
-    max-width: 370px;
-    background: rgba(15, 23, 42, 0.94);
+    max-width: 420px;
+    background: rgba(15, 23, 42, 0.95);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border: 1.5px solid rgba(52, 211, 153, 0.5);
     border-radius: 14px;
-    padding: 10px 14px;
+    padding: 12px 14px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 16px rgba(52, 211, 153, 0.18);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 11px;
     color: #f1f5f9;
     font-size: 12px;
@@ -1257,6 +1257,7 @@
     justify-content: center;
     color: #34d399;
     flex-shrink: 0;
+    margin-top: 1px;
 }
 
 .petition-live-toast-content {
@@ -1282,8 +1283,7 @@
     font-size: 12px;
     font-weight: 500;
     white-space: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-break: break-word;
 }
 
 .petition-live-toast-close {

@@ -1260,7 +1260,7 @@ window.AppPetition = {
             });
         }
 
-        // Rotação dinâmica elegante de novas adesões a cada 9 segundos
+        // Rotação dinâmica elegante com intervalo estendido (15 segundos)
         if (!this._liveToastInterval) {
             let lastIdx = -1;
             this._liveToastInterval = setInterval(() => {
@@ -1274,18 +1274,22 @@ window.AppPetition = {
                 const sigs = this.getAllAuditSignatures();
                 if (!sigs || sigs.length === 0) return;
 
-                // Prioriza as assinaturas mais recentes (últimas 20)
-                const poolSize = Math.min(sigs.length, 20);
+                // Prioriza assinaturas que tenham relatos reais dos moradores para a rotatividade
+                const withComments = sigs.filter(s => s.comment && s.comment.trim() && s.comment.trim() !== '—');
+                const pool = withComments.length >= 3 ? withComments : sigs;
+
+                // Prioriza as assinaturas mais recentes do pool (últimas 25)
+                const poolSize = Math.min(pool.length, 25);
                 let nextIdx = Math.floor(Math.random() * poolSize);
                 if (nextIdx === lastIdx && poolSize > 1) {
                     nextIdx = (nextIdx + 1) % poolSize;
                 }
                 lastIdx = nextIdx;
-                const sig = sigs[nextIdx];
+                const sig = pool[nextIdx];
                 if (sig) {
                     this.showLiveActivityToast(sig, false);
                 }
-            }, 9000);
+            }, 15000);
         }
     },
 
@@ -1300,23 +1304,53 @@ window.AppPetition = {
         const maskedName = this.maskName(sig.name || 'Cidadão de São Roque');
         const bairro = sig.bairro || 'São Roque';
         const vinculo = sig.vinculo || 'Morador';
+        const commentText = (sig.comment || '').trim();
+        const hasComment = commentText.length > 0 && commentText !== '—';
 
         if (statusEl) {
-            statusEl.textContent = isImmediate ? 'Assinatura Validada Agora!' : 'Ao Vivo • Mobilização Cidadã';
+            if (isImmediate) {
+                statusEl.textContent = hasComment ? 'Assinatura com Relato!' : 'Assinatura Validada Agora!';
+            } else if (hasComment) {
+                statusEl.textContent = 'Voz do Bairro • Relato de Morador';
+            } else {
+                statusEl.textContent = 'Ao Vivo • Mobilização Cidadã';
+            }
         }
         if (timeEl) {
             timeEl.textContent = isImmediate ? 'há instantes' : (sig.number ? `#${sig.number} no caderno` : 'recente');
         }
         if (bodyEl) {
-            bodyEl.innerHTML = `<strong>${this.escapeHtml(maskedName)}</strong> (${this.escapeHtml(bairro)} • ${this.escapeHtml(vinculo)}) assinou contra o adensamento predatório!`;
+            if (hasComment) {
+                bodyEl.innerHTML = `
+                    <div style="font-size: 11.5px; color: #cbd5e1; margin-bottom: 3px; line-height: 1.35;">
+                        <strong>${this.escapeHtml(maskedName)}</strong>
+                        <span style="color: #94a3b8; font-size: 11px;"> • ${this.escapeHtml(bairro)} (${this.escapeHtml(vinculo)})</span>
+                    </div>
+                    <div style="font-size: 12px; color: #ecfdf5; font-style: italic; line-height: 1.45; background: rgba(16, 185, 129, 0.15); border-left: 3px solid #34d399; padding: 5px 9px; border-radius: 0 6px 6px 0; margin-top: 3px;">
+                        💬 "${this.escapeHtml(commentText)}"
+                    </div>
+                `;
+            } else {
+                bodyEl.innerHTML = `
+                    <div style="font-size: 12px; color: #e2e8f0; line-height: 1.45;">
+                        <strong>${this.escapeHtml(maskedName)}</strong>
+                        <span style="color: #94a3b8; font-size: 11px;"> • ${this.escapeHtml(bairro)} (${this.escapeHtml(vinculo)})</span>
+                        <div style="color: #6ee7b7; font-size: 11px; margin-top: 2px;">Assinou a Petição contra o adensamento predatório!</div>
+                    </div>
+                `;
+            }
         }
 
         toastEl.classList.add('visible');
 
+        // Mais tempo na tela para leitura calma e completa:
+        // Se tiver relato do morador: 10.5 segundos; Imediato: 9 segundos; Sem relato: 7.5 segundos
+        const displayDuration = hasComment ? 10500 : (isImmediate ? 9000 : 7500);
+
         if (this._toastTimeout) clearTimeout(this._toastTimeout);
         this._toastTimeout = setTimeout(() => {
             toastEl.classList.remove('visible');
-        }, isImmediate ? 6000 : 4800);
+        }, displayDuration);
     },
 
     importSignaturesFile: function (file) {
