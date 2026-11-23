@@ -178,8 +178,26 @@ window.AppMap = {
         if (mode === 'hoje') {
             AppState.layers.z2006.addTo(map);
             if (banner) {
-                banner.innerHTML = '<i data-lucide="clock" style="width: 16px; height: 16px; flex-shrink: 0;"></i><span><strong>Lei Vigente (2006):</strong> Toque em qualquer área do mapa para comparar como é hoje e o impacto negativo do que querem votar.</span>';
-                banner.classList.add('visible');
+                banner.className = 'impact-banner visible mode-hoje';
+                banner.innerHTML = `
+                    <div class="impact-banner-inner">
+                        <div class="impact-banner-top">
+                            <span class="impact-badge hoje">
+                                <span class="impact-beacon blue"></span>
+                                LEI VIGENTE (2006)
+                            </span>
+                            <span class="impact-tag">PARÂMETROS ATUAIS</span>
+                        </div>
+                        <div class="impact-banner-headline">
+                            <strong>Gabarito máximo de 9m (2 andares)</strong> e cinturão rural protegido. Veja como a cidade é hoje antes da votação da nova proposta.
+                        </div>
+                        <div class="impact-banner-cta">
+                            <i data-lucide="hand" style="width: 14px; height: 14px;"></i>
+                            <span>Toque no mapa para comparar com a proposta de 2026</span>
+                            <i data-lucide="chevron-right" style="width: 14px; height: 14px; margin-left: auto;"></i>
+                        </div>
+                    </div>
+                `;
                 lucide.createIcons();
             }
             if (AppState.layers.riscos) map.removeLayer(AppState.layers.riscos);
@@ -187,8 +205,26 @@ window.AppMap = {
         } else if (mode === 'proposta') {
             AppState.layers.z2026.addTo(map);
             if (banner) {
-                banner.innerHTML = '<i data-lucide="alert-triangle" style="width: 16px; height: 16px; flex-shrink: 0;"></i><span><strong>Votação Iminente na Câmara:</strong> A proposta elimina 1.670 ha de solo rural (-12,7%) e dobra áreas de prédios sem rede de esgoto. Toque no mapa!</span>';
-                banner.classList.add('visible');
+                banner.className = 'impact-banner visible mode-proposta';
+                banner.innerHTML = `
+                    <div class="impact-banner-inner">
+                        <div class="impact-banner-top">
+                            <span class="impact-badge alerta">
+                                <span class="impact-beacon amber"></span>
+                                VOTAÇÃO IMINENTE NA CÂMARA
+                            </span>
+                            <span class="impact-tag danger">URGÊNCIA CIDADÃ</span>
+                        </div>
+                        <div class="impact-banner-headline">
+                            Elimina <strong>1.670 ha de solo rural (-12,7%)</strong> e dobra áreas de prédios onde a Sabesp trata apenas <strong>47,8% do esgoto</strong>.
+                        </div>
+                        <div class="impact-banner-cta">
+                            <i data-lucide="hand" style="width: 14px; height: 14px;"></i>
+                            <span>Toque em qualquer bairro para abrir o Raio-X pericial</span>
+                            <i data-lucide="chevron-right" style="width: 14px; height: 14px; margin-left: auto;"></i>
+                        </div>
+                    </div>
+                `;
                 lucide.createIcons();
             }
             this.renderCasos();
@@ -196,8 +232,26 @@ window.AppMap = {
         } else if (mode === 'spot_zoning') {
             AppState.layers.spotZoning.addTo(map);
             if (banner) {
-                banner.innerHTML = '<i data-lucide="shield-alert" style="width: 16px; height: 16px; flex-shrink: 0;"></i><span><strong>Auditoria de Privilégios (Spot Zoning):</strong> Exibindo áreas com regras sob medida para grandes empreendimentos. Toque no mapa!</span>';
-                banner.classList.add('visible');
+                banner.className = 'impact-banner visible mode-spot';
+                banner.innerHTML = `
+                    <div class="impact-banner-inner">
+                        <div class="impact-banner-top">
+                            <span class="impact-badge critico">
+                                <span class="impact-beacon red"></span>
+                                AUDITORIA DE PRIVILÉGIOS ATIVA
+                            </span>
+                            <span class="impact-tag red">SPOT ZONING DETECTADO</span>
+                        </div>
+                        <div class="impact-banner-headline">
+                            <strong>Regras sob medida para grandes glebas:</strong> Prédios de até 100m e TO de 60% concedidos a grupos privados, contrastando com o entorno.
+                        </div>
+                        <div class="impact-banner-cta">
+                            <i data-lucide="hand" style="width: 14px; height: 14px;"></i>
+                            <span>Toque na área vermelha ou em qualquer zona para auditar</span>
+                            <i data-lucide="chevron-right" style="width: 14px; height: 14px; margin-left: auto;"></i>
+                        </div>
+                    </div>
+                `;
                 lucide.createIcons();
             }
             this.renderCasos();

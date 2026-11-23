@@ -80,6 +80,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Toque no Banner Superior abre diretamente o Diagnóstico Pericial (Ergonomia Tátil)
+    const impactBanner = document.getElementById('impactBanner');
+    if (impactBanner) {
+        impactBanner.addEventListener('click', () => {
+            if (AppState.lastSelectedZone) {
+                const sel = AppState.lastSelectedZone;
+                AppDiagnostics.showStreetImpactModal(sel.props.nome_zona, 'Região Selecionada', sel.center.lat, sel.center.lng, sel.props);
+            } else {
+                const center = AppState.map.getCenter();
+                AppDiagnostics.showStreetImpactModal('Diagnóstico Pericial • São Roque', 'Região Centralizada', center.lat, center.lng);
+            }
+        });
+    }
+
     // 6. Inicia no Modo Spot Zoning habilitado por padrão
     AppMap.updateMapMode('spot_zoning');
 });
