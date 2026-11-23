@@ -1200,17 +1200,6 @@
     }
 }
 
-.btn-import-csv {
-    background: rgba(59, 130, 246, 0.2) !important;
-    border: 1px solid rgba(59, 130, 246, 0.45) !important;
-    color: #93c5fd !important;
-}
-
-.btn-import-csv:hover {
-    background: rgba(59, 130, 246, 0.35) !important;
-    color: #ffffff !important;
-}
-
 /* ==========================================================================
    Toast de Atividade em Tempo Real ("Tem gente assinando a todo instante")
    ========================================================================== */
