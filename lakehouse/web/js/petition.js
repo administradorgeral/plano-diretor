@@ -1,6 +1,6 @@
 /* ==========================================================================
    6. PETITION.JS — Petição Pública Online "Crescer exige responsabilidade!"
-      • 100% Auditável, Transparente e Real
+      • 100% Auditável, Transparente e Real (Zero Perda de Assinaturas)
       • Validação Matemática Oficial de CPF (Módulo-11 da Receita Federal)
       • Hashing Criptográfico SHA-256 (Web Crypto API) & Mascaramento LGPD
       • Contador Global em Nuvem + Base de Subscritores Fundadores de São Roque
@@ -679,17 +679,36 @@ window.AppPetition = {
                 }
             });
 
-            this.signatures = loadedSigs;
-            if (loadedCount > 0) {
-                this.remoteGlobalCount = Math.max(loadedCount, this.getAllAuditSignatures().length);
-            }
+            // 3. Garante que as 50 assinaturas fundadoras comunitárias estejam SEMPRE integradas
+            const baseFounding = this.foundingSignatures || [];
+            baseFounding.forEach(fs => {
+                if (fs && (fs.hash || fs.fullHash || fs.protocol)) {
+                    const exists = loadedSigs.some(s =>
+                        (s.hash && fs.hash && s.hash === fs.hash) ||
+                        (s.fullHash && fs.fullHash && s.fullHash === fs.fullHash) ||
+                        (s.protocol && fs.protocol && s.protocol === fs.protocol)
+                    );
+                    if (!exists) {
+                        loadedSigs.push(fs);
+                    }
+                }
+            });
 
-            // Garante persistência unificada
-            if (this.signatures.length > 0) {
-                this.saveToStorage();
-            }
+            // 4. Ordenação cronológica e numeração sequencial transparente
+            loadedSigs.sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
+            loadedSigs.forEach((sig, idx) => {
+                sig.number = idx + 1;
+            });
+
+            this.signatures = loadedSigs;
+            this.remoteGlobalCount = Math.max(loadedCount, this.signatures.length);
+
+            // Garante persistência unificada de todo o caderno
+            this.saveToStorage();
         } catch (e) {
-            this.signatures = [];
+            this.signatures = [...(this.foundingSignatures || [])];
+            this.signatures.forEach((sig, idx) => { sig.number = idx + 1; });
+            this.remoteGlobalCount = this.signatures.length;
         }
     },
 
@@ -721,24 +740,28 @@ window.AppPetition = {
             });
         };
 
-        // 1. Assinaturas Fundadoras da Comunidade de São Roque (#1 a #50)
-        (this.foundingSignatures || []).forEach(s => addSig(s, true));
+        // 1. Assinaturas Registradas e Persistidas (já contém fundadoras + locais)
+        if (Array.isArray(this.signatures) && this.signatures.length > 0) {
+            this.signatures.forEach(s => addSig(s, Boolean(s.isFounding)));
+        } else {
+            // Fallback imediato se signatures ainda não tiver sido carregado
+            (this.foundingSignatures || []).forEach(s => addSig(s, true));
+        }
 
         // 2. Assinaturas Remotas Sincronizadas da Nuvem (Google Sheets / Webhook)
-        (this.remoteSignatures || []).forEach(s => addSig(s, false));
+        if (Array.isArray(this.remoteSignatures)) {
+            this.remoteSignatures.forEach(s => addSig(s, false));
+        }
 
-        // 3. Assinaturas Registradas Localmente neste dispositivo
-        (this.signatures || []).forEach(s => addSig(s, false));
-
-        // 4. Ordenação cronológica para garantir numeração sequencial transparente (#1 a #N)
+        // 3. Ordenação cronológica para garantir numeração sequencial transparente (#1 a #N)
         combined.sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
 
-        // 5. Atribui a numeração sequencial auditável
+        // 4. Atribui a numeração sequencial auditável
         combined.forEach((sig, idx) => {
             sig.number = idx + 1;
         });
 
-        // 6. Retorna em ordem decrescente (mais recentes no topo) para o feed e listagens
+        // 5. Retorna em ordem decrescente (mais recentes no topo) para o feed e listagens
         return [...combined].reverse();
     },
 
@@ -970,20 +993,22 @@ window.AppPetition = {
                 ? `<span style="background: rgba(52, 211, 153, 0.2); color: #34d399; font-size: 9.5px; font-weight: 800; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.4); margin-left: 5px;">Sua Assinatura</span>`
                 : '';
 
+            const protoDisplay = sig.protocol || (sig.fullHash ? ('SRQ-2026-' + sig.fullHash.slice(0, 8).toUpperCase()) : (sig.hash ? ('SRQ-2026-' + sig.hash.slice(0, 8).toUpperCase()) : 'SRQ-2026-OFICIAL'));
+
             return `
                 <div class="signature-item-row${isRecent ? ' recent-highlight' : ''}">
                     <div style="flex: 1; min-width: 200px;">
                         <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                             <span style="color: #34d399; font-weight: 800; font-size: 11px;">#${num}</span>
-                            <span class="sig-name">${this.escapeHtml(sig.name)}</span>
+                            <span class="sig-name">${this.escapeHtml(sig.name || 'Cidadão')}</span>
                             ${recentBadge}
-                            <span style="color: #94a3b8; font-size: 11px;"> • ${this.escapeHtml(sig.bairro)} (${this.escapeHtml(sig.vinculo || 'Morador')})</span>
+                            <span style="color: #94a3b8; font-size: 11px;"> • ${this.escapeHtml(sig.bairro || 'São Roque')} (${this.escapeHtml(sig.vinculo || 'Morador')})</span>
                         </div>
                         ${commentHtml}
                     </div>
                     <div class="sig-meta" style="text-align: right; flex-shrink: 0;">
                         <div style="color: #cbd5e1;">${sig.cpfMasked || '***.***.***-**'}</div>
-                        <div style="color: #64748b; font-size: 10px;">${sig.protocol || ('#' + (sig.hash || '').slice(0, 8).toUpperCase())}</div>
+                        <div style="color: #64748b; font-size: 10px;">${protoDisplay}</div>
                     </div>
                 </div>
             `;
@@ -1194,17 +1219,15 @@ window.AppPetition = {
                 : `Assinatura #${record.number || this.getTotalCount()} Validada e Somada ao Caderno!`;
         }
 
-        const dateFormatted = new Date(record.timestamp).toLocaleString('pt-BR');
+        const dateFormatted = record.timestamp ? new Date(record.timestamp).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
+        const proto = record.protocol || (record.fullHash ? ('SRQ-2026-' + record.fullHash.slice(0, 8).toUpperCase()) : (record.hash ? ('SRQ-2026-' + record.hash.slice(0, 8).toUpperCase()) : 'SRQ-2026-OFICIAL'));
+
         if (receiptEl) {
             receiptEl.textContent =
-                `PROTOCOLO OFICIAL: ${record.protocol || ('SRQ-2026-' + record.hash.slice(0, 8).toUpperCase())}
-` +
-                `CIDADÃO SUBSCRITOR: ${record.name} (CPF: ${record.cpfMasked})
-` +
-                `BAIRRO / VÍNCULO: ${record.bairro} • ${record.vinculo}
-` +
-                `DATA E HORA: ${dateFormatted}
-` +
+                `PROTOCOLO OFICIAL: ${proto}\n` +
+                `CIDADÃO SUBSCRITOR: ${record.name} (CPF: ${record.cpfMasked})\n` +
+                `BAIRRO / VÍNCULO: ${record.bairro} • ${record.vinculo}\n` +
+                `DATA E HORA: ${dateFormatted}\n` +
                 `HASH SHA-256 (LGPD): ${record.fullHash || record.hash}`;
         }
         if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
@@ -1224,10 +1247,7 @@ window.AppPetition = {
     getShareText: function () {
         const count = this.getTotalCount().toLocaleString('pt-BR');
         const url = window.location.href.split('#')[0];
-        return `🚨 VOTAÇÃO IMINENTE NA CÂMARA DE SÃO ROQUE!
-✍️ Crescer exige responsabilidade! Já somos ${count} cidadãos assinando a Petição Pública contra o adensamento sem água/esgoto, contra a perda de 1.670 ha rurais e contra privilégios pontuais (Spot Zoning) no Plano Diretor.
-
-Veja o impacto negativo na sua rua e assine: ${url}`;
+        return `🚨 VOTAÇÃO IMINENTE NA CÂMARA DE SÃO ROQUE!\n✍️ Crescer exige responsabilidade! Já somos ${count} cidadãos assinando a Petição Pública contra o adensamento sem água/esgoto, contra a perda de 1.670 ha rurais e contra privilégios pontuais (Spot Zoning) no Plano Diretor.\n\nVeja o impacto negativo na sua rua e assine: ${url}`;
     },
 
     shareWhatsApp: function () {
@@ -1270,22 +1290,27 @@ Veja o impacto negativo na sua rua e assine: ${url}`;
 
     // Constrói o HTML Completo do Documento Público Posterior (Câmara Municipal e MPSP)
     buildPublicDocumentHtml: function (standalone) {
-        const count = this.getTotalCount();
-        const sigs = [...this.getAllAuditSignatures()].sort((a, b) => (a.number || 0) - (b.number || 0));
+        const allSigs = this.getAllAuditSignatures();
+        const sigs = [...allSigs].sort((a, b) => (a.number || 0) - (b.number || 0));
+        const count = Math.max(this.getTotalCount(), sigs.length);
         const nowStr = new Date().toLocaleString('pt-BR');
 
         const rowsHtml = sigs.length > 0
-            ? sigs.map((s) => `
+            ? sigs.map((s) => {
+                const protoDisplay = s.protocol || (s.fullHash ? ('SRQ-2026-' + s.fullHash.slice(0, 8).toUpperCase()) : (s.hash ? ('SRQ-2026-' + s.hash.slice(0, 8).toUpperCase()) : 'SRQ-2026-OFICIAL'));
+                const dateDisplay = s.timestamp ? new Date(s.timestamp).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
+                return `
                 <tr>
                     <td style="font-weight: bold; text-align: center;">#${s.number}</td>
-                    <td><strong>${this.escapeHtml(s.name)}</strong></td>
-                    <td>${this.escapeHtml(s.bairro)} (${this.escapeHtml(s.vinculo || 'Morador')})</td>
-                    <td style="font-family: monospace;">${s.cpfMasked}</td>
-                    <td style="font-family: monospace; font-size: 11px;">${s.protocol || (s.fullHash || s.hash).slice(0, 14).toUpperCase()}</td>
+                    <td><strong>${this.escapeHtml(s.name || 'Cidadão')}</strong></td>
+                    <td>${this.escapeHtml(s.bairro || 'São Roque')} (${this.escapeHtml(s.vinculo || 'Morador')})</td>
+                    <td style="font-family: monospace;">${s.cpfMasked || '***.***.***-**'}</td>
+                    <td style="font-family: monospace; font-size: 11px;">${protoDisplay}</td>
                     <td>${this.escapeHtml(s.comment || '—')}</td>
-                    <td>${new Date(s.timestamp).toLocaleString('pt-BR')}</td>
+                    <td>${dateDisplay}</td>
                 </tr>
-            `).join('')
+            `;
+            }).join('')
             : `<tr><td colspan="7" style="text-align:center; padding: 14px; color: #64748b;">Nenhuma assinatura registrada.</td></tr>`;
 
         const innerBody = `
@@ -1457,19 +1482,23 @@ Veja o impacto negativo na sua rua e assine: ${url}`;
     },
 
     downloadSignaturesCsv: function () {
-        const sigs = [...this.getAllAuditSignatures()].sort((a, b) => (a.number || 0) - (b.number || 0));
+        const allSigs = this.getAllAuditSignatures();
+        const sigs = [...allSigs].sort((a, b) => (a.number || 0) - (b.number || 0));
         const header = ['N_Sequencial', 'Protocolo', 'Nome_Completo', 'Bairro', 'Vinculo', 'CPF_Mascarado_LGPD', 'Hash_SHA256', 'Relato_Impacto', 'Data_Hora_ISO'];
-        const rows = sigs.map(s => [
-            s.number || '',
-            s.protocol || '',
-            `"${(s.name || '').replace(/"/g, '""')}"`,
-            `"${(s.bairro || '').replace(/"/g, '""')}"`,
-            `"${(s.vinculo || '').replace(/"/g, '""')}"`,
-            s.cpfMasked || '',
-            s.fullHash || s.hash || '',
-            `"${(s.comment || '').replace(/"/g, '""')}"`,
-            s.timestamp || ''
-        ]);
+        const rows = sigs.map(s => {
+            const proto = s.protocol || (s.fullHash ? ('SRQ-2026-' + s.fullHash.slice(0, 8).toUpperCase()) : (s.hash ? ('SRQ-2026-' + s.hash.slice(0, 8).toUpperCase()) : 'SRQ-2026-OFICIAL'));
+            return [
+                s.number || '',
+                proto,
+                `"${(s.name || '').replace(/"/g, '""')}"`,
+                `"${(s.bairro || '').replace(/"/g, '""')}"`,
+                `"${(s.vinculo || '').replace(/"/g, '""')}"`,
+                s.cpfMasked || '',
+                s.fullHash || s.hash || '',
+                `"${(s.comment || '').replace(/"/g, '""')}"`,
+                s.timestamp || ''
+            ];
+        });
         const csvContent = '\uFEFF' + [header.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -1479,7 +1508,7 @@ Veja o impacto negativo na sua rua e assine: ${url}`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
     },
 
     bindEvents: function () {
@@ -1547,10 +1576,28 @@ Veja o impacto negativo na sua rua e assine: ${url}`;
         const btnFooterDoc = document.getElementById('btnFooterPublicDoc');
         if (btnFooterDoc) btnFooterDoc.addEventListener('click', () => this.openPublicDocumentModal());
 
+        // Eventos de Exportação de CSV (pelo ID e por delegação de classe .btn-export-csv)
         const btnDownloadCsv = document.getElementById('btnDownloadCsv');
-        if (btnDownloadCsv) btnDownloadCsv.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.downloadSignaturesCsv();
+        if (btnDownloadCsv) {
+            btnDownloadCsv.addEventListener('click', (e) => {
+                e.stopPropagation();
+                window.AppPetition.downloadSignaturesCsv();
+            });
+        }
+
+        const btnDownloadCsvDoc = document.getElementById('btnDownloadCsvDoc');
+        if (btnDownloadCsvDoc) {
+            btnDownloadCsvDoc.addEventListener('click', (e) => {
+                e.stopPropagation();
+                window.AppPetition.downloadSignaturesCsv();
+            });
+        }
+
+        document.querySelectorAll('.btn-export-csv').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                window.AppPetition.downloadSignaturesCsv();
+            });
         });
 
         // Alternador de Colapso do Caderno de Assinaturas
@@ -1563,7 +1610,7 @@ Veja o impacto negativo na sua rua e assine: ${url}`;
 
         if (toggleBtn) {
             toggleBtn.addEventListener('click', (e) => {
-                if (e.target && (e.target.id === 'btnDownloadCsv' || e.target.closest('#btnDownloadCsv'))) return;
+                if (e.target && (e.target.classList.contains('btn-export-csv') || e.target.closest('.btn-export-csv'))) return;
                 const targetEl = contentWrapper || sigList;
                 if (!targetEl) return;
                 const isHidden = targetEl.style.display === 'none';
