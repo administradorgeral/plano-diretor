@@ -213,19 +213,30 @@ window.AppPetition = {
         const url = window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.REMOTE_WEBHOOK_URL;
         if (!url) return;
         const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-        const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+        const timeoutId = controller ? setTimeout(() => controller.abort(), 6000) : null;
         fetch(url, { cache: 'no-store', signal: controller ? controller.signal : undefined })
             .then(r => r.json())
             .then(data => {
                 if (timeoutId) clearTimeout(timeoutId);
                 if (data && data.status === 'ok') {
-                    if (Array.isArray(data.signatures) && data.signatures.length > 0) {
+                    if (Array.isArray(data.signatures)) {
                         this.remoteSignatures = data.signatures;
                     }
-                    if (typeof data.count === 'number' && data.count > 0) {
-                        this.remoteGlobalCount = Math.max(this.remoteGlobalCount, data.count, this.getAllAuditSignatures().length);
+                    if (typeof data.count === 'number') {
+                        this.remoteGlobalCount = Math.max(data.count, this.getAllAuditSignatures().length);
                     }
                     this.updateAllCounters(false);
+
+                    // Sincronização Reversa: se houver assinaturas reais locais que não constam na planilha, envia para ela!
+                    if (Array.isArray(this.signatures) && this.signatures.length > 0) {
+                        const remoteKeys = new Set((this.remoteSignatures || []).map(s => s.fullHash || s.hash || s.protocol || (s.name && s.cpfMasked ? (s.name.trim().toLowerCase() + '_' + s.cpfMasked) : null)).filter(Boolean));
+                        this.signatures.forEach(localSig => {
+                            const key = localSig.fullHash || localSig.hash || localSig.protocol || (localSig.name && localSig.cpfMasked ? (localSig.name.trim().toLowerCase() + '_' + localSig.cpfMasked) : null);
+                            if (key && !remoteKeys.has(key)) {
+                                this.pushToRemoteWebhook(localSig);
+                            }
+                        });
+                    }
                 }
             })
             .catch(() => {
