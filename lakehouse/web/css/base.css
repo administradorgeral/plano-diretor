@@ -34,6 +34,9 @@ html {
     font-family: var(--font);
     background: #090d16;
     color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 #map {
