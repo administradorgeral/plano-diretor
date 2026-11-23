@@ -139,6 +139,7 @@ window.AppPetition = {
 
         const addSig = (sig, isFounding) => {
             if (!sig) return;
+            if (sig.protocol === 'SRQ-2026-AUDITTEST' || (sig.name && sig.name.toLowerCase().includes('auditoria de teste'))) return;
             const key = sig.fullHash || sig.hash || sig.protocol || (sig.name && sig.cpfMasked ? (sig.name.trim().toLowerCase() + '_' + sig.cpfMasked) : null);
             if (key && seenKeys.has(key)) return;
             if (key) seenKeys.add(key);
@@ -226,6 +227,14 @@ window.AppPetition = {
                         this.remoteGlobalCount = Math.max(data.count, this.getAllAuditSignatures().length);
                     }
                     this.updateAllCounters(false);
+
+                    // Atualiza em tempo real o modal do Documento Público se estiver aberto na tela
+                    const publicDocModal = document.getElementById('publicDocModal');
+                    if (publicDocModal && publicDocModal.classList.contains('visible')) {
+                        const body = document.getElementById('publicDocModalBody');
+                        if (body) body.innerHTML = this.buildPublicDocumentHtml(false);
+                        if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+                    }
 
                     // Sincronização Reversa: se houver assinaturas reais locais que não constam na planilha, envia para ela!
                     if (Array.isArray(this.signatures) && this.signatures.length > 0) {
@@ -507,6 +516,9 @@ window.AppPetition = {
 
         modal.classList.add('visible');
         if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+
+        // Dispara busca imediata da planilha do Google Sheets para garantir dados frescos ao abrir o modal
+        this.syncWithRemoteWebhook();
     },
 
     closeModal: function () {
@@ -922,6 +934,9 @@ window.AppPetition = {
         body.innerHTML = this.buildPublicDocumentHtml(false);
         modal.classList.add('visible');
         if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+
+        // Dispara busca imediata da planilha do Google Sheets para garantir dados frescos ao abrir o modal
+        this.syncWithRemoteWebhook();
     },
 
     printPublicDocument: function () {
