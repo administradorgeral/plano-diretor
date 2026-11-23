@@ -23,8 +23,8 @@ window.AppConfig = {
         // Contador Global Cloud Real-Time (Abacus Open Counter API)
         ABACUS_GET_URL: 'https://abacus.jasoncameron.dev/get/qSo0fglBAh0RrVs_/GmJj17ZrOh88b2IZ',
         ABACUS_HIT_URL: 'https://abacus.jasoncameron.dev/hit/qSo0fglBAh0RrVs_/GmJj17ZrOh88b2IZ',
-        // Webhook Serverless opcional (Google Apps Script / Cloudflare Worker)
-        REMOTE_WEBHOOK_URL: ''
+        // Webhook Serverless (Google Apps Script / Planilha do Google Sheets)
+        REMOTE_WEBHOOK_URL: 'https://script.google.com/macros/s/AKfycbxZKOzHVHUj2Alr_IXeMcHO4M8YN97Oh01630DbGhSVXaXXt5k2SUpHqYty1zDzZg8x/exec'
     },
 
     ZONE_SPECS: {
