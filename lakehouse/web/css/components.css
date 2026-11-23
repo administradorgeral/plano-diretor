@@ -24,10 +24,10 @@
 .segment-btn {
     background: transparent;
     border: none;
-    color: var(--text-muted);
-    font-size: 11px;
-    font-weight: 700;
-    padding: 7px 13px;
+    color: #cbd5e1;
+    font-size: 12.5px;
+    font-weight: 800;
+    padding: 8px 14px;
     border-radius: 999px;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -37,7 +37,7 @@
 .segment-btn.active {
     background: var(--primary);
     color: #fff;
-    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 2px 12px rgba(59, 130, 246, 0.5);
 }
 
 /* Efeito Suave de Lembrete no Botão Proposta para Lembrar que Pode Alternar */
@@ -138,11 +138,11 @@
 
 /* Posicionamento Anatômico & Ergonômico do Botão de Petição */
 .top-petition-btn {
-    height: 38px;
-    padding: 0 14px;
-    font-size: 12px;
+    height: 40px;
+    padding: 0 16px;
+    font-size: 13px;
     font-weight: 900;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.5px;
 }
 
 @media (max-width: 768px) {
@@ -155,14 +155,14 @@
         z-index: 1001 !important;
         width: calc(100% - 28px) !important;
         max-width: 440px !important;
-        height: 44px !important;
-        font-size: 12.5px !important;
+        height: 48px !important;
+        font-size: 13.5px !important;
         font-weight: 900 !important;
-        letter-spacing: 0.5px !important;
+        letter-spacing: 0.6px !important;
         justify-content: center !important;
         border-radius: 999px !important;
         box-shadow: 0 8px 25px rgba(16, 185, 129, 0.55) !important;
-        padding: 0 16px !important;
+        padding: 0 18px !important;
     }
 
     .top-petition-btn:hover {
@@ -175,9 +175,9 @@
 
     .top-petition-btn .petition-label-text {
         display: inline !important;
-        font-size: 12px !important;
+        font-size: 13px !important;
         font-weight: 900 !important;
-        letter-spacing: 0.4px !important;
+        letter-spacing: 0.5px !important;
     }
 }
 
@@ -185,10 +185,10 @@
     background: var(--bg-glass);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border-glass);
+    border: 1.5px solid var(--border-glass);
     color: var(--text-main);
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -200,8 +200,9 @@
 
 .top-action-btn:hover {
     background: rgba(30, 41, 59, 0.95);
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.35);
     color: #fff;
+    transform: scale(1.05);
 }
 
 .top-action-btn:active {
@@ -303,93 +304,94 @@
 .impact-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 10.5px;
+    gap: 7px;
+    font-size: 11.5px;
     font-weight: 900;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: 999px;
 }
 
 .impact-badge.critico {
-    color: #fca5a5;
-    background: rgba(239, 68, 68, 0.2);
-    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fecaca;
+    background: rgba(239, 68, 68, 0.22);
+    border: 1.5px solid rgba(239, 68, 68, 0.55);
 }
 
 .impact-badge.alerta {
-    color: #fde68a;
-    background: rgba(245, 158, 11, 0.2);
-    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #fef08a;
+    background: rgba(245, 158, 11, 0.22);
+    border: 1.5px solid rgba(245, 158, 11, 0.55);
 }
 
 .impact-badge.hoje {
     color: #bae6fd;
-    background: rgba(56, 189, 248, 0.2);
-    border: 1px solid rgba(56, 189, 248, 0.4);
+    background: rgba(56, 189, 248, 0.22);
+    border: 1.5px solid rgba(56, 189, 248, 0.55);
 }
 
 .impact-beacon {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     display: inline-block;
     animation: beaconPulse 1.8s ease-in-out infinite;
+    flex-shrink: 0;
 }
 
 .impact-beacon.red {
     background: #ef4444;
-    box-shadow: 0 0 6px #ef4444;
+    box-shadow: 0 0 8px #ef4444;
 }
 
 .impact-beacon.amber {
     background: #f59e0b;
-    box-shadow: 0 0 6px #f59e0b;
+    box-shadow: 0 0 8px #f59e0b;
 }
 
 .impact-beacon.blue {
     background: #38bdf8;
-    box-shadow: 0 0 6px #38bdf8;
+    box-shadow: 0 0 8px #38bdf8;
 }
 
 .impact-tag {
-    font-size: 9.5px;
+    font-size: 11px;
     font-weight: 800;
-    color: #94a3b8;
+    color: #cbd5e1;
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
 
 .impact-tag.red {
-    color: #f87171;
+    color: #fca5a5;
 }
 
 .impact-tag.danger {
-    color: #fb923c;
+    color: #fdba74;
 }
 
 .impact-banner-headline {
-    font-size: 12.5px;
-    line-height: 1.45;
-    color: #f1f5f9;
-    font-weight: 500;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: #f8fafc;
+    font-weight: 600;
 }
 
 .impact-banner-headline strong {
-    color: #fff;
-    font-weight: 800;
+    color: #ffffff;
+    font-weight: 900;
 }
 
 .impact-banner-cta {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    padding-top: 4px;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
-    margin-top: 2px;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 800;
+    padding-top: 5px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 3px;
 }
 
 .impact-banner.mode-spot .impact-banner-cta {
@@ -435,12 +437,13 @@
     background: var(--bg-glass);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border-glass);
+    border: 1.5px solid var(--border-glass);
     border-radius: var(--radius-xl);
-    padding: 6px 10px 6px 14px;
+    padding: 8px 12px 8px 16px;
     display: flex;
     align-items: center;
     gap: 10px;
+    min-height: 48px;
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.65);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -457,23 +460,23 @@
     border: none;
     outline: none;
     color: #fff;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     font-family: inherit;
 }
 
 #streetInput::placeholder {
-    color: var(--text-muted);
+    color: #94a3b8;
     font-weight: 500;
-    font-size: 12px;
+    font-size: 13.5px;
 }
 
 .search-clear-btn {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
     border: none;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -484,15 +487,15 @@
 
 .search-clear-btn:hover {
     color: #fff;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .search-go-btn {
     background: var(--primary);
     color: #fff;
     border: none;
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -500,7 +503,7 @@
     cursor: pointer;
     flex-shrink: 0;
     transition: transform 0.15s ease, background 0.15s ease;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.5);
 }
 
 .search-go-btn:active {
@@ -513,18 +516,18 @@
     bottom: calc(100% + 8px);
     left: 0;
     right: 0;
-    background: rgba(17, 24, 39, 0.95);
+    background: rgba(17, 24, 39, 0.97);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border-glass);
+    border: 1.5px solid var(--border-glass);
     border-radius: 16px;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
-    max-height: 220px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+    max-height: 240px;
     overflow-y: auto;
     display: none;
     flex-direction: column;
     z-index: 1001;
-    padding: 4px;
+    padding: 6px;
 }
 
 .search-suggestions.visible {
@@ -532,20 +535,21 @@
 }
 
 .suggestion-item {
-    padding: 9px 12px;
+    padding: 11px 14px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13.5px;
+    font-weight: 700;
     color: #f1f5f9;
-    border-radius: 8px;
+    border-radius: 10px;
     transition: background 0.15s ease;
 }
 
 .suggestion-item:hover,
 .suggestion-item:active {
-    background: rgba(59, 130, 246, 0.22);
+    background: rgba(59, 130, 246, 0.25);
     color: #fff;
 }
 
@@ -562,11 +566,11 @@
 }
 
 .suggestion-badge {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--text-muted);
-    background: rgba(255, 255, 255, 0.08);
-    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 3px 8px;
     border-radius: 999px;
 }
 
