@@ -648,7 +648,7 @@ window.AppPetition = {
                         </p>
                         <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 6px; padding: 10px 12px; font-family: sans-serif; font-size: 11.5px; color: #166534; line-height: 1.5;">
                             <strong>🛡️ PROPOSTA DE EMENDA CIDADÃ (Blindagem do Solo Rural e das Chácaras):</strong><br>
-                            <em>"Fica restaurada na íntegra a delimitação da Maczorona Rural do município, recompondo os 1.670,71 hectares retirados nas minutas e mantendo a exigência do módulo rural INCRA (20.000 m²). Fica terminantemente proibida a cobrança de IPTU sobre sítios, chácaras e propriedades rurais que não contem com pelo menos 3 melhoramentos urbanos essenciais (água tratada, rede coletora de esgoto e pavimentação com drenagem), resguardando os produtores rurais, a Mata Atlântica e a vocação turística de São Roque."</em>
+                            <em>"Fica restaurada na íntegra a delimitação da Macrozona Rural do município, recompondo os 1.670,71 hectares retirados nas minutas e mantendo a exigência do módulo rural INCRA (20.000 m²). Fica terminantemente proibida a cobrança de IPTU sobre sítios, chácaras e propriedades rurais que não contem com pelo menos 3 melhoramentos urbanos essenciais (água tratada, rede coletora de esgoto e pavimentação com drenagem), resguardando os produtores rurais, a Mata Atlântica e a vocação turística de São Roque."</em>
                         </div>
                     </div>
 
@@ -662,7 +662,7 @@ window.AppPetition = {
                         </p>
                         <div style="background: #fff7ed; border: 1.5px solid #fdba74; border-radius: 6px; padding: 10px 12px; font-family: sans-serif; font-size: 11.5px; color: #9a3412; line-height: 1.5;">
                             <strong>🛡️ PROPOSTA DE EMENDA CIDADÃ (Critérios Transparentes e Estudos Públicos Obrigatórios):</strong><br>
-                            <em>"Fica revogado o § 1º do art. 36 da Minuta da LC 40/2026 e proibida qualquer alteração de zoneamento feita sob medida para glebas ou empreendimentos isolados. Nenhuma mudança de zoneamento, elevação de gabarito ou expansão de perímetro urbano poderá ser votada sem a publicação com 30 dias de antecedência no Portal da Transparência e realização de audiência pública específica dos seguintes estudos técnicos oficiais: (1) Estudo de Impacto de Vizinhança (EIV), (2) Estudo de Viabilidade Ambiental (EVA) e (3) Laudo Hidrológico oficial de capacidade de drenagem e esgotamento."</em>
+                            <em>"Fica revogado o § 1º do art. 36 da Minuta da LC 40/2026 e proibida qualquer alteração de zoneamento feita sob medida para glebas ou empreendimentos isolados. Qualquer proposta de mudança de zoneamento, elevação de gabarito ou expansão de perímetro urbano somente poderá ser apreciada e votada exclusivamente nos momentos formais de revisão periódica e global do Plano Diretor, vedadas leis avulsas fora desses ciclos, e sempre mediante a publicação com 30 dias de antecedência no Portal da Transparência e realização de audiência pública específica dos seguintes estudos técnicos oficiais: (1) Estudo de Impacto de Vizinhança (EIV), (2) Estudo de Viabilidade Ambiental (EVA) e (3) Laudo Hidrológico oficial de capacidade de drenagem e esgotamento."</em>
                         </div>
                     </div>
 
