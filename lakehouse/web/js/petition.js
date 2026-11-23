@@ -880,7 +880,7 @@ window.AppPetition = {
                         <thead>
                             <tr style="background: #e2e8f0;">
                                 <th style="border: 1px solid #94a3b8; padding: 6px 8px;">Nº</th>
-                                <th style="border: 1px solid #94a3b8; padding: 6px 8px;">Nome Completo</th>
+                                <th style="border: 1px solid #94a3b8; padding: 6px 8px;">Nome (LGPD)</th>
                                 <th style="border: 1px solid #94a3b8; padding: 6px 8px;">Bairro / Vínculo</th>
                                 <th style="border: 1px solid #94a3b8; padding: 6px 8px;">CPF (LGPD)</th>
                                 <th style="border: 1px solid #94a3b8; padding: 6px 8px;">Protocolo SHA-256</th>
@@ -904,8 +904,13 @@ window.AppPetition = {
     <meta charset="UTF-8">
     <title>Documento Público • Petição Crescer Exige Responsabilidade - São Roque/SP</title>
     <style>
-        body { background: #f1f5f9; margin: 24px; }
-        @media print { body { background: #fff; margin: 0; } }
+        body { background: #f1f5f9; margin: 24px; font-family: sans-serif; }
+        @media print {
+            body { background: #fff; margin: 0; padding: 12mm; }
+            .public-doc-sheet { padding: 0 !important; }
+            a { text-decoration: none !important; color: inherit !important; }
+            tr { page-break-inside: avoid; }
+        }
     </style>
 </head>
 <body>${innerBody}</body>
