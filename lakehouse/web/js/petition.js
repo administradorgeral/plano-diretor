@@ -722,6 +722,7 @@ window.AppPetition = {
             ? allSigs.map((s) => {
                 const protoDisplay = s.protocol || (s.fullHash ? ('SRQ-2026-' + s.fullHash.slice(0, 8).toUpperCase()) : (s.hash ? ('SRQ-2026-' + s.hash.slice(0, 8).toUpperCase()) : 'SRQ-2026-OFICIAL'));
                 const dateDisplay = s.timestamp ? new Date(s.timestamp).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
+                const maskedName = this.maskName(s.name || 'Cidadão');
                 const commentHtml = s.comment && s.comment.trim() && s.comment.trim() !== '—'
                     ? `<div style="font-size: 13px; color: #0f172a; background: #f0fdf4; border-left: 3.5px solid #059669; padding: 9px 13px; border-radius: 0 8px 8px 0; margin-top: 8px; font-style: italic; line-height: 1.5; border: 1px solid #dcfce7; border-left: 3.5px solid #059669;">
                         💬 <strong>Relato do Cidadão:</strong> "${this.escapeHtml(s.comment.trim())}"
@@ -732,7 +733,7 @@ window.AppPetition = {
                     <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px;">
                         <span style="font-weight: 800; font-size: 13.5px; color: #0f172a;">
                             <span style="color: #059669; margin-right: 5px;">#${s.number}</span>
-                            <strong>${this.escapeHtml(s.name || 'Cidadão')}</strong>
+                            <strong>${this.escapeHtml(maskedName)}</strong>
                             <span style="font-weight: normal; color: #475569; font-size: 12px;"> — ${this.escapeHtml(s.bairro || 'São Roque')} (${this.escapeHtml(s.vinculo || 'Morador')})</span>
                         </span>
                         <span style="font-family: monospace; font-size: 11px; color: #475569; background: #f1f5f9; padding: 3px 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
@@ -753,10 +754,11 @@ window.AppPetition = {
             ? tableSigs.map((s) => {
                 const protoDisplay = s.protocol || (s.fullHash ? ('SRQ-2026-' + s.fullHash.slice(0, 8).toUpperCase()) : (s.hash ? ('SRQ-2026-' + s.hash.slice(0, 8).toUpperCase()) : 'SRQ-2026-OFICIAL'));
                 const dateDisplay = s.timestamp ? new Date(s.timestamp).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
+                const maskedName = this.maskName(s.name || 'Cidadão');
                 return `
                 <tr>
                     <td style="font-weight: bold; text-align: center; border: 1px solid #cbd5e1; padding: 6px;">#${s.number}</td>
-                    <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>${this.escapeHtml(s.name || 'Cidadão')}</strong></td>
+                    <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>${this.escapeHtml(maskedName)}</strong></td>
                     <td style="border: 1px solid #cbd5e1; padding: 6px;">${this.escapeHtml(s.bairro || 'São Roque')} (${this.escapeHtml(s.vinculo || 'Morador')})</td>
                     <td style="font-family: monospace; border: 1px solid #cbd5e1; padding: 6px;">${s.cpfMasked || '***.***.***-**'}</td>
                     <td style="font-family: monospace; font-size: 11px; border: 1px solid #cbd5e1; padding: 6px;">${protoDisplay}</td>
@@ -1174,7 +1176,6 @@ window.AppPetition = {
         const btnClosePublicDoc = document.getElementById('btnClosePublicDocModal');
         const btnClosePublicDocFooter = document.getElementById('btnClosePublicDocFooter');
         const btnPrintPublicDoc = document.getElementById('btnPrintPublicDoc');
-        const btnDownloadDocHtml = document.getElementById('btnDownloadDocHtml');
 
         if (btnClosePublicDoc && publicDocModal) {
             btnClosePublicDoc.addEventListener('click', () => publicDocModal.classList.remove('visible'));
@@ -1189,9 +1190,6 @@ window.AppPetition = {
         }
         if (btnPrintPublicDoc) {
             btnPrintPublicDoc.addEventListener('click', (e) => this.printPublicDocument(e.currentTarget));
-        }
-        if (btnDownloadDocHtml) {
-            btnDownloadDocHtml.addEventListener('click', (e) => this.downloadPublicDocumentHtml(e.currentTarget));
         }
     },
 
