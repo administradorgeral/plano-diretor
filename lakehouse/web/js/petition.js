@@ -383,6 +383,18 @@ window.AppPetition = {
         if (fill) fill.style.width = `${pct}%`;
 
         this.renderRecentSignaturesList(this.currentFilter);
+
+        // Atualização em Tempo Real: se o Documento Público estiver aberto na tela, atualiza a Tabela Sinóptica e os Cartões preservando a rolagem
+        const publicDocModal = document.getElementById('publicDocModal');
+        if (publicDocModal && publicDocModal.classList.contains('visible')) {
+            const body = document.getElementById('publicDocModalBody');
+            if (body) {
+                const prevScroll = body.scrollTop;
+                body.innerHTML = this.buildPublicDocumentHtml(false);
+                body.scrollTop = prevScroll;
+                if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+            }
+        }
     },
 
     renderRecentSignaturesList: function (filterTerm) {
