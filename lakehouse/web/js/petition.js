@@ -754,17 +754,24 @@ window.AppPetition = {
             });
         };
 
-        // 1. Assinaturas Registradas e Persistidas (já contém fundadoras + locais)
-        if (Array.isArray(this.signatures) && this.signatures.length > 0) {
-            this.signatures.forEach(s => addSig(s, Boolean(s.isFounding)));
-        } else {
-            // Fallback imediato se signatures ainda não tiver sido carregado
-            (this.foundingSignatures || []).forEach(s => addSig(s, true));
+        // 1. Assinaturas Remotas Reais Sincronizadas da Nuvem (Google Sheets / Webhook)
+        const hasRemote = Array.isArray(this.remoteSignatures) && this.remoteSignatures.length > 0;
+        if (hasRemote) {
+            this.remoteSignatures.forEach(s => addSig(s, false));
         }
 
-        // 2. Assinaturas Remotas Sincronizadas da Nuvem (Google Sheets / Webhook)
-        if (Array.isArray(this.remoteSignatures)) {
-            this.remoteSignatures.forEach(s => addSig(s, false));
+        // 2. Assinaturas Registradas e Persistidas Localmente
+        if (Array.isArray(this.signatures) && this.signatures.length > 0) {
+            this.signatures.forEach(s => {
+                // Se já temos assinaturas reais da planilha, suprime as sintéticas fundadoras
+                if (hasRemote && (s.isFounding || (s.protocol && s.protocol.startsWith('SRQ-2026-') && (this.foundingSignatures || []).some(fs => fs.protocol === s.protocol)))) {
+                    return;
+                }
+                addSig(s, Boolean(s.isFounding));
+            });
+        } else if (!hasRemote) {
+            // Fallback apenas se não houver registros nem remotos nem locais
+            (this.foundingSignatures || []).forEach(s => addSig(s, true));
         }
 
         // 3. Ordenação cronológica para garantir numeração sequencial transparente (#1 a #N)
@@ -1254,8 +1261,10 @@ window.AppPetition = {
         fetch(url, {
             method: 'POST',
             mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(record)
+        }).then(() => {
+            setTimeout(() => this.syncWithRemoteWebhook(), 1500);
         }).catch(() => { });
     },
 
