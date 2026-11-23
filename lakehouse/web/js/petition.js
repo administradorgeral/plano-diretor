@@ -989,7 +989,7 @@ window.AppPetition = {
                 (this.lastReceipt.protocol && sig.protocol && this.lastReceipt.protocol === sig.protocol)
             );
             const commentHtml = sig.comment && sig.comment.trim().length > 0
-                ? `<div style="font-size: 11.5px; color: #cbd5e1; font-style: italic; margin-top: 4px; padding-left: 6px; border-left: 2px solid rgba(52, 211, 153, 0.5); line-height: 1.35;">"${this.escapeHtml(sig.comment.trim())}"</div>`
+                ? `<div style="font-size: 12.5px; color: #f8fafc; font-style: italic; margin-top: 5px; padding: 6px 10px; background: rgba(15, 23, 42, 0.75); border-left: 3.5px solid #34d399; border-radius: 0 6px 6px 0; line-height: 1.45;">💬 <strong>Relato de Impacto:</strong> "${this.escapeHtml(sig.comment.trim())}"</div>`
                 : '';
             const recentBadge = isRecent
                 ? `<span style="background: rgba(52, 211, 153, 0.2); color: #34d399; font-size: 9.5px; font-weight: 800; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.4); margin-left: 5px;">Sua Assinatura</span>`
@@ -1298,23 +1298,53 @@ window.AppPetition = {
         const count = Math.max(this.getTotalCount(), sigs.length);
         const nowStr = new Date().toLocaleString('pt-BR');
 
+        const cardsHtml = sigs.length > 0
+            ? sigs.map((s) => {
+                const protoDisplay = s.protocol || (s.fullHash ? ('SRQ-2026-' + s.fullHash.slice(0, 8).toUpperCase()) : (s.hash ? ('SRQ-2026-' + s.hash.slice(0, 8).toUpperCase()) : 'SRQ-2026-OFICIAL'));
+                const dateDisplay = s.timestamp ? new Date(s.timestamp).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
+                const commentHtml = s.comment && s.comment.trim() && s.comment.trim() !== '—'
+                    ? `<div style="font-size: 13px; color: #0f172a; background: #f0fdf4; border-left: 3.5px solid #059669; padding: 9px 13px; border-radius: 0 8px 8px 0; margin-top: 8px; font-style: italic; line-height: 1.5; border: 1px solid #dcfce7; border-left: 3.5px solid #059669;">
+                        💬 <strong>Relato do Cidadão:</strong> "${this.escapeHtml(s.comment.trim())}"
+                       </div>`
+                    : '';
+                return `
+                <div style="border: 1px solid #cbd5e1; border-left: 4px solid #10b981; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; background: #ffffff; box-shadow: 0 1px 4px rgba(0,0,0,0.05); font-family: sans-serif;">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px;">
+                        <span style="font-weight: 800; font-size: 13.5px; color: #0f172a;">
+                            <span style="color: #059669; margin-right: 5px;">#${s.number}</span>
+                            <strong>${this.escapeHtml(s.name || 'Cidadão')}</strong>
+                            <span style="font-weight: normal; color: #475569; font-size: 12px;"> — ${this.escapeHtml(s.bairro || 'São Roque')} (${this.escapeHtml(s.vinculo || 'Morador')})</span>
+                        </span>
+                        <span style="font-family: monospace; font-size: 11px; color: #475569; background: #f1f5f9; padding: 3px 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            ${protoDisplay} • ${s.cpfMasked || '***.***.***-**'}
+                        </span>
+                    </div>
+                    ${commentHtml}
+                    <div style="font-size: 11px; color: #94a3b8; margin-top: 6px; text-align: right;">
+                        Validação Oficial: ${dateDisplay}
+                    </div>
+                </div>
+                `;
+            }).join('')
+            : '<div style="text-align: center; padding: 16px; color: #64748b; font-family: sans-serif;">Nenhuma assinatura registrada.</div>';
+
         const rowsHtml = sigs.length > 0
             ? sigs.map((s) => {
                 const protoDisplay = s.protocol || (s.fullHash ? ('SRQ-2026-' + s.fullHash.slice(0, 8).toUpperCase()) : (s.hash ? ('SRQ-2026-' + s.hash.slice(0, 8).toUpperCase()) : 'SRQ-2026-OFICIAL'));
                 const dateDisplay = s.timestamp ? new Date(s.timestamp).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
                 return `
                 <tr>
-                    <td style="font-weight: bold; text-align: center;">#${s.number}</td>
-                    <td><strong>${this.escapeHtml(s.name || 'Cidadão')}</strong></td>
-                    <td>${this.escapeHtml(s.bairro || 'São Roque')} (${this.escapeHtml(s.vinculo || 'Morador')})</td>
-                    <td style="font-family: monospace;">${s.cpfMasked || '***.***.***-**'}</td>
-                    <td style="font-family: monospace; font-size: 11px;">${protoDisplay}</td>
-                    <td>${this.escapeHtml(s.comment || '—')}</td>
-                    <td>${dateDisplay}</td>
+                    <td style="font-weight: bold; text-align: center; border: 1px solid #cbd5e1; padding: 6px;">#${s.number}</td>
+                    <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>${this.escapeHtml(s.name || 'Cidadão')}</strong></td>
+                    <td style="border: 1px solid #cbd5e1; padding: 6px;">${this.escapeHtml(s.bairro || 'São Roque')} (${this.escapeHtml(s.vinculo || 'Morador')})</td>
+                    <td style="font-family: monospace; border: 1px solid #cbd5e1; padding: 6px;">${s.cpfMasked || '***.***.***-**'}</td>
+                    <td style="font-family: monospace; font-size: 11px; border: 1px solid #cbd5e1; padding: 6px;">${protoDisplay}</td>
+                    <td style="border: 1px solid #cbd5e1; padding: 6px;">${this.escapeHtml(s.comment || '—')}</td>
+                    <td style="border: 1px solid #cbd5e1; padding: 6px;">${dateDisplay}</td>
                 </tr>
             `;
             }).join('')
-            : `<tr><td colspan="7" style="text-align:center; padding: 14px; color: #64748b;">Nenhuma assinatura registrada.</td></tr>`;
+            : `<tr><td colspan="7" style="text-align:center; padding: 14px; color: #64748b; border: 1px solid #cbd5e1;">Nenhuma assinatura registrada.</td></tr>`;
 
         const innerBody = `
             <div class="public-doc-sheet" style="background: #ffffff; color: #0f172a; padding: 24px; border-radius: 12px; font-family: Georgia, 'Times New Roman', serif; line-height: 1.6;">
@@ -1331,7 +1361,17 @@ window.AppPetition = {
                     <strong>CONTADOR GERAL DE ASSINATURAS VALIDADAS:</strong> <strong>${count.toLocaleString('pt-BR')} subscrições cidadãs auditáveis</strong> (${sigs.length} registradas nominalmente neste caderno público) • Gerado em: ${nowStr}.
                 </div>
 
-                <h3 style="font-size: 15px; text-transform: uppercase; border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin-top: 20px; font-family: sans-serif; letter-spacing: 0.5px;">
+                <!-- Barra de Navegação Rápida do Documento -->
+                <div style="display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap;">
+                    <a href="#caderno-assinaturas" style="background: #059669; color: #ffffff; padding: 10px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35); font-family: sans-serif;">
+                        👥 Ver Caderno de Assinaturas e Relatos dos Cidadãos (${sigs.length}) ▾
+                    </a>
+                    <a href="#propostas-emendas" style="background: #2563eb; color: #ffffff; padding: 10px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-family: sans-serif;">
+                        🛡️ Ver as 4 Emendas de Blindagem
+                    </a>
+                </div>
+
+                <h3 id="propostas-emendas" style="font-size: 15px; text-transform: uppercase; border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin-top: 20px; font-family: sans-serif; letter-spacing: 0.5px;">
                     I. Dos Impactos Apurados e Propostas de Emendas em Linguagem Simples para Blindar São Roque
                 </h3>
                 <p style="font-size: 12px; color: #334155; margin-top: 6px; margin-bottom: 16px; font-style: italic; line-height: 1.5;">
@@ -1396,11 +1436,22 @@ window.AppPetition = {
                     </div>
                 </div>
 
-                <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #0f172a; padding-bottom: 4px; margin-top: 20px; font-family: sans-serif;">II. Caderno Auditável de Subscritores Validados por CPF (Padrão LGPD / SHA-256)</h3>
-                <p style="font-size: 11.5px; color: #475569; font-family: sans-serif; margin-bottom: 10px;">
-                    Cada assinatura abaixo teve seu CPF validado pelo algoritmo Módulo-11 da Receita Federal e encontra-se protegida por máscara oficial LGPD (Lei nº 13.709/2018) e código de integridade criptográfica SHA-256.
+                <h3 id="caderno-assinaturas" style="font-size: 15px; text-transform: uppercase; border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin-top: 28px; font-family: sans-serif; letter-spacing: 0.5px; color: #0f172a;">
+                    II. Caderno Auditável de Subscritores Validados por CPF e Relatos dos Cidadãos (Padrão LGPD / SHA-256)
+                </h3>
+                <p style="font-size: 12px; color: #475569; font-family: sans-serif; margin-bottom: 14px; line-height: 1.5;">
+                    Cada assinatura abaixo teve seu CPF validado pelo algoritmo Módulo-11 da Receita Federal e encontra-se protegida por máscara oficial LGPD (Lei nº 13.709/2018) e código de integridade criptográfica SHA-256. Abaixo constam as <strong>vozes e relatos de impacto direto</strong> manifestados pelos moradores e produtores rurais de São Roque:
                 </p>
 
+                <!-- 1. Cartões Responsivos de Relatos dos Cidadãos (Visível Imediatamente em Celulares e Telas) -->
+                <div class="public-doc-signatures-cards" style="margin-bottom: 22px;">
+                    ${cardsHtml}
+                </div>
+
+                <!-- 2. Tabela Sinóptica Auditável para Impressão e Protocolo Oficial -->
+                <h4 style="font-size: 12.5px; text-transform: uppercase; margin: 18px 0 8px 0; color: #334155; font-family: sans-serif; letter-spacing: 0.5px;">
+                    Tabela Sinóptica Auditável para Protocolo Oficial (Câmara Municipal &amp; MPSP):
+                </h4>
                 <div style="overflow-x: auto;">
                     <table style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 11.5px; color: #0f172a;">
                         <thead>
@@ -1580,6 +1631,20 @@ window.AppPetition = {
         if (btnFooterDoc) btnFooterDoc.addEventListener('click', () => this.openPublicDocumentModal());
 
         // Eventos de Exportação de CSV (pelo ID e por delegação de classe .btn-export-csv)
+        // Atalho para pular direto ao Caderno de Assinaturas e Relatos
+        const btnJump = document.getElementById('btnJumpToSignatures');
+        if (btnJump) {
+            btnJump.addEventListener('click', () => {
+                this.expandSignaturesBox();
+                const target = document.getElementById('signaturesBox');
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    target.style.boxShadow = '0 0 20px rgba(52, 211, 153, 0.4)';
+                    setTimeout(() => { target.style.boxShadow = ''; }, 2000);
+                }
+            });
+        }
+
         const btnDownloadCsv = document.getElementById('btnDownloadCsv');
         if (btnDownloadCsv) {
             btnDownloadCsv.addEventListener('click', (e) => {
@@ -1686,19 +1751,21 @@ window.AppPetition = {
     // ==========================================================================
     setupRealTimeSync: function () {
         // 1. Sincronização automática entre abas/janelas do mesmo navegador
-        window.addEventListener('storage', (e) => {
-            const currentKey = (window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.STORAGE_KEY) || 'srq_plano_diretor_peticao_real_v2';
-            if (!e.key || e.key === currentKey || e.key.startsWith('srq_plano_diretor')) {
-                const prevCount = this.getAllAuditSignatures().length;
-                this.loadFromStorage();
-                const newCount = this.getAllAuditSignatures().length;
-                this.updateAllCounters(newCount > prevCount);
-                if (newCount > prevCount && this.signatures.length > 0) {
-                    const latest = this.signatures[this.signatures.length - 1];
-                    if (latest) this.showLiveActivityToast(latest, true);
+        if (typeof window !== 'undefined' && window.addEventListener) {
+            window.addEventListener('storage', (e) => {
+                const currentKey = (window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.STORAGE_KEY) || 'srq_plano_diretor_peticao_real_v2';
+                if (!e.key || e.key === currentKey || e.key.startsWith('srq_plano_diretor')) {
+                    const prevCount = this.getAllAuditSignatures().length;
+                    this.loadFromStorage();
+                    const newCount = this.getAllAuditSignatures().length;
+                    this.updateAllCounters(newCount > prevCount);
+                    if (newCount > prevCount && this.signatures.length > 0) {
+                        const latest = this.signatures[this.signatures.length - 1];
+                        if (latest) this.showLiveActivityToast(latest, true);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // 2. Polling contínuo e silencioso a cada 12 segundos (captura novas assinaturas em tempo real)
         if (!this._livePollInterval) {
@@ -1716,6 +1783,7 @@ window.AppPetition = {
     },
 
     setupLiveActivityTicker: function () {
+        if (typeof document === 'undefined' || !document.createElement) return;
         let toastEl = document.getElementById('petitionLiveToast');
         if (!toastEl) {
             toastEl = document.createElement('div');
