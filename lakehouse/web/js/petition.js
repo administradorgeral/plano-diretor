@@ -616,14 +616,70 @@ window.AppPetition = {
                     <strong>CONTADOR GERAL DE ASSINATURAS VALIDADAS:</strong> <strong>${count.toLocaleString('pt-BR')} subscrições cidadãs</strong> (${sigs.length} registradas neste caderno auditável) • Gerado em: ${nowStr}.
                 </div>
 
-                <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #0f172a; padding-bottom: 4px; margin-top: 18px; font-family: sans-serif;">I. Dos Impactos Negativos Apurados e Requerimentos Obrigatórios Antes da Votação</h3>
-                <ol style="font-size: 12.5px; padding-left: 20px; display: flex; flex-direction: column; gap: 8px;">
-                    <li><strong>Trava de Saneamento Básico (Água e Esgoto ANTES de Novos Prédios e Condomínios):</strong> São Roque coleta e trata apenas ~47,8% do esgoto gerado (SNIS/ARSESP — Inquérito Civil MPSP nº 0439.0000192/2025). Requer-se emenda supressiva/modificativa vedando o aumento de gabarito (prédios de 18m a 30m) e o aumento de densidade construtiva sem prévia ampliação das estações de tratamento e atestado de viabilidade hídrica da concessionária.</li>
-                    <li><strong>Fim do Spot Zoning (Privilégios Pontuais) e Proteção das Florestas e Mananciais de Toda São Roque:</strong> Requer-se a supressão de enclaves feitos sob medida com Índice de Spot Zoning crítico (ISZ ≥ 70) e a exclusão do § 1º do art. 36 da Minuta da LC 40/2026, que blinda loteamentos privados nos mananciais do Carmo e APA Itupararanga, estendendo a blindagem legal e ambiental para a cobertura florestal da Mata Atlântica e para as bacias hidrográficas de todo o município contra a urbanização predatória desordenada.</li>
-                    <li><strong>Preservação do Cinturão Rural (-1.670,71 ha) e Proteção Contra IPTU Abusivo:</strong> Requer-se a recomposição da Macrozona Rural reduzida em 12,74% na minuta, protegendo os produtores rurais, sitiantes e chacareiros da conversão compulsória do ITR federal em IPTU urbano sem infraestrutura e serviços públicos.</li>
-                    <li><strong>Apresentação Obrigatória de Estudos Técnicos Prévios para Alteração de Glebas Inteiras:</strong> Requer-se a expressa proibição de alterações de zoneamento que contemplem glebas pontuais inteiras sem a prévia elaboração, protocolização pública e audiência específica de Estudo de Impacto de Vizinhança (EIV), Estudo de Viabilidade Ambiental (EVA) e laudo hidrológico de esgotamento e drenagem.</li>
-                    <li><strong>Salvaguarda das 22 Áreas de Risco Geológico (SGB/CPRM 2023):</strong> Vedação à elevação da Taxa de Ocupação (70%-80% de impermeabilização) a montante das encostas R3/R4 (Junqueira, Goianã, Vinhedos, Mosteiro, Cambará) e várzeas de inundação (Vila do Carmo e Rio Aracaí), em estrito cumprimento à Lei Federal nº 12.608/2012.</li>
-                </ol>
+                <h3 style="font-size: 15px; text-transform: uppercase; border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin-top: 20px; font-family: sans-serif; letter-spacing: 0.5px;">
+                    I. Dos Impactos Apurados e Propostas de Emendas em Linguagem Simples para Blindar São Roque
+                </h3>
+                <p style="font-size: 12px; color: #334155; margin-top: 6px; margin-bottom: 16px; font-style: italic; line-height: 1.5;">
+                    Com base no diagnóstico técnico do Lakehouse Municipal (cruzamento do Censo IBGE 2022, dados oficiais de saneamento SNIS/ARSESP, mapeamento de risco geológico SGB/CPRM 2023 e sobreposição cartográfica da Lei 2006 vs. Minutas 2026), os cidadãos abaixo subscritos requerem a incorporação das seguintes <strong>Propostas de Emendas Modificativas, Supressivas e Aditivas</strong> para blindar o município antes de qualquer votação:
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 22px;">
+                    <!-- 1. Saneamento: Prédios Altos Chegando PRIMEIRO -->
+                    <div style="border-left: 4px solid #2563eb; background: #f8fafc; padding: 12px 14px; border-radius: 0 8px 8px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+                        <h4 style="font-size: 13px; margin: 0 0 6px 0; color: #1e3a8a; text-transform: uppercase; font-family: sans-serif; font-weight: 800;">
+                            1. Prédios Altos Chegando PRIMEIRO: Garantia de Água na Torneira e Esgoto ANTES de Prédios
+                        </h4>
+                        <p style="font-size: 12px; margin: 0 0 8px 0; color: #334155; line-height: 1.55;">
+                            <strong>O problema apurado:</strong> São Roque coleta e trata apenas cerca de <strong>47,8% do esgoto gerado</strong> (SNIS/ARSESP — Inquérito Civil MPSP nº 0439.0000192/2025). As minutas das leis elevam a altura máxima de prédios para até 30 metros (10 andares) e multiplicam a densidade urbana sem exigir expansão prévia de saneamento. Se os prédios chegarem antes dos canos e das estações, faltará água nas torneiras e o esgoto sem tratamento transbordará nos córregos e rios.
+                        </p>
+                        <div style="background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: 6px; padding: 10px 12px; font-family: sans-serif; font-size: 11.5px; color: #1e40af; line-height: 1.5;">
+                            <strong>🛡️ PROPOSTA DE EMENDA CIDADÃ (Trava de Saneamento):</strong><br>
+                            <em>"Fica expressamente vedada a aprovação de projetos, concessão de alvarás de construção ou expedição de 'habite-se' para novos edifícios residenciais multifamiliares de médio e grande porte (acima de 3 pavimentos) e novos loteamentos sem que a concessionária de saneamento emita Atestado de Viabilidade Hídrica com garantia de vazão contínua E comprove a interligação efetiva a rede coletora e estação de tratamento de esgoto (ETE) em pleno funcionamento. Primeiro a garantia de água na torneira e esgoto tratado, DEPOIS os prédios."</em>
+                        </div>
+                    </div>
+
+                    <!-- 2. Zona Rural e Chácaras Ameaçadas -->
+                    <div style="border-left: 4px solid #16a34a; background: #f8fafc; padding: 12px 14px; border-radius: 0 8px 8px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+                        <h4 style="font-size: 13px; margin: 0 0 6px 0; color: #14532d; text-transform: uppercase; font-family: sans-serif; font-weight: 800;">
+                            2. Zona Rural &amp; Chácaras Ameaçadas: Proteção dos 1.670 Hectares de Sítios e Escudo contra IPTU Abusivo
+                        </h4>
+                        <p style="font-size: 12px; margin: 0 0 8px 0; color: #334155; line-height: 1.55;">
+                            <strong>O problema apurado:</strong> O estudo cartográfico oficial comprovou que as minutas reduzem a Zona Rural em 12,74%, eliminando <strong>1.670,71 hectares</strong> de solo rural tradicional. Ao transformar essas áreas em zonas urbanas ou de expansão, ameaça-se sitiantes, produtores rurais e famílias chacareiras com a conversão compulsória do ITR federal em IPTU urbano impagável em estradas de terra sem água encanada, sem rede de esgoto e sem serviços públicos, empurrando famílias históricas para a venda forçada e especulação imobiliária.
+                        </p>
+                        <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 6px; padding: 10px 12px; font-family: sans-serif; font-size: 11.5px; color: #166534; line-height: 1.5;">
+                            <strong>🛡️ PROPOSTA DE EMENDA CIDADÃ (Blindagem do Solo Rural e das Chácaras):</strong><br>
+                            <em>"Fica restaurada na íntegra a delimitação da Maczorona Rural do município, recompondo os 1.670,71 hectares retirados nas minutas e mantendo a exigência do módulo rural INCRA (20.000 m²). Fica terminantemente proibida a cobrança de IPTU sobre sítios, chácaras e propriedades rurais que não contem com pelo menos 3 melhoramentos urbanos essenciais (água tratada, rede coletora de esgoto e pavimentação com drenagem), resguardando os produtores rurais, a Mata Atlântica e a vocação turística de São Roque."</em>
+                        </div>
+                    </div>
+
+                    <!-- 3. Spot Zoning: Critérios Transparentes e Estudos -->
+                    <div style="border-left: 4px solid #ea580c; background: #f8fafc; padding: 12px 14px; border-radius: 0 8px 8px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+                        <h4 style="font-size: 13px; margin: 0 0 6px 0; color: #7c2d12; text-transform: uppercase; font-family: sans-serif; font-weight: 800;">
+                            3. Fim do Spot Zoning (Privilégios Pontuais): Critérios Transparentes e Estudos Antes de Mudar Zoneamento
+                        </h4>
+                        <p style="font-size: 12px; margin: 0 0 8px 0; color: #334155; line-height: 1.55;">
+                            <strong>O problema apurado:</strong> A modelagem geoespacial identificou enclaves com Índice de Spot Zoning Crítico (ISZ ≥ 70) — áreas onde as regras foram alteradas sob medida para beneficiar terrenos ou empreendimentos pontuais —, além de casuísmos explícitos como o § 1º do art. 36 da Minuta da LC 40/2026, que blinda quatro loteamentos fechados dentro da bacia de mananciais protegida (Carmo e APA Itupararanga). Mudança de zoneamento sem critérios objetivos e transparentes desrespeita a vizinhança e estimula privilégios indevidos.
+                        </p>
+                        <div style="background: #fff7ed; border: 1.5px solid #fdba74; border-radius: 6px; padding: 10px 12px; font-family: sans-serif; font-size: 11.5px; color: #9a3412; line-height: 1.5;">
+                            <strong>🛡️ PROPOSTA DE EMENDA CIDADÃ (Critérios Transparentes e Estudos Públicos Obrigatórios):</strong><br>
+                            <em>"Fica revogado o § 1º do art. 36 da Minuta da LC 40/2026 e proibida qualquer alteração de zoneamento feita sob medida para glebas ou empreendimentos isolados. Nenhuma mudança de zoneamento, elevação de gabarito ou expansão de perímetro urbano poderá ser votada sem a publicação com 30 dias de antecedência no Portal da Transparência e realização de audiência pública específica dos seguintes estudos técnicos oficiais: (1) Estudo de Impacto de Vizinhança (EIV), (2) Estudo de Viabilidade Ambiental (EVA) e (3) Laudo Hidrológico oficial de capacidade de drenagem e esgotamento."</em>
+                        </div>
+                    </div>
+
+                    <!-- 4. Risco Geológico e Enchentes -->
+                    <div style="border-left: 4px solid #dc2626; background: #f8fafc; padding: 12px 14px; border-radius: 0 8px 8px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+                        <h4 style="font-size: 13px; margin: 0 0 6px 0; color: #7f1d1d; text-transform: uppercase; font-family: sans-serif; font-weight: 800;">
+                            4. Proteção da Vida nas 22 Áreas de Risco Geológico e Enchentes (CPRM 2023 / Lei Federal 12.608/2012)
+                        </h4>
+                        <p style="font-size: 12px; margin: 0 0 8px 0; color: #334155; line-height: 1.55;">
+                            <strong>O problema apurado:</strong> O Serviço Geológico do Brasil mapeou 22 setores com risco alto e muito alto (R3/R4) para deslizamentos de morros e inundações em São Roque (Junqueira, Goianã, Vinhedos, Mosteiro, Cambará e Vila do Carmo). As minutas elevam a Taxa de Ocupação para 70% a 80%, aumentando a impermeabilização a montante desses locais vulneráveis e expondo famílias ao perigo de desastres provocados pelas chuvas.
+                        </p>
+                        <div style="background: #fef2f2; border: 1.5px solid #fca5a5; border-radius: 6px; padding: 10px 12px; font-family: sans-serif; font-size: 11.5px; color: #991b1b; line-height: 1.5;">
+                            <strong>🛡️ PROPOSTA DE EMENDA CIDADÃ (Salvaguarda de Vidas contra Desastres):</strong><br>
+                            <em>"Fica expressamente vedado o aumento da Taxa de Ocupação e da densidade construtiva nas bacias de contribuição a montante dos 22 setores de risco geológico mapeados pelo SGB/CPRM e pela Defesa Civil. Nas encostas e várzeas vulneráveis, a Taxa de Permeabilidade mínima do solo deverá ser mantida em 50% do lote, com implantação obrigatória de reservatórios de contenção de águas pluviais, em estrito cumprimento à Lei Federal nº 12.608/2012."</em>
+                        </div>
+                    </div>
+                </div>
 
                 <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #0f172a; padding-bottom: 4px; margin-top: 20px; font-family: sans-serif;">II. Caderno Auditável de Subscritores Validados por CPF (Padrão LGPD / SHA-256)</h3>
                 <p style="font-size: 11.5px; color: #475569; font-family: sans-serif; margin-bottom: 10px;">
