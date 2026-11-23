@@ -43,6 +43,9 @@ window.AppPetition = {
                     if (Array.isArray(parsed.signatures)) {
                         loadedSigs = parsed.signatures;
                     }
+                    if (Array.isArray(parsed.remoteSignatures) && parsed.remoteSignatures.length > 0) {
+                        this.remoteSignatures = parsed.remoteSignatures;
+                    }
                     if (typeof parsed.remoteGlobalCount === 'number') {
                         loadedCount = parsed.remoteGlobalCount;
                     }
@@ -126,6 +129,7 @@ window.AppPetition = {
             const currentKey = (window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.STORAGE_KEY) || 'srq_plano_diretor_peticao_real_v2';
             localStorage.setItem(currentKey, JSON.stringify({
                 signatures: this.signatures,
+                remoteSignatures: this.remoteSignatures,
                 remoteGlobalCount: this.remoteGlobalCount,
                 updatedAt: new Date().toISOString()
             }));
@@ -212,10 +216,10 @@ window.AppPetition = {
     // Sincroniza assinaturas com o Webhook Serverless (se configurado)
     syncWithRemoteWebhook: function () {
         const url = window.AppConfig && window.AppConfig.PETITION && window.AppConfig.PETITION.REMOTE_WEBHOOK_URL;
-        if (!url) return;
+        if (!url) return Promise.resolve(null);
         const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-        const timeoutId = controller ? setTimeout(() => controller.abort(), 6000) : null;
-        fetch(url, { cache: 'no-store', signal: controller ? controller.signal : undefined })
+        const timeoutId = controller ? setTimeout(() => controller.abort(), 8000) : null;
+        return fetch(url, { cache: 'no-store', signal: controller ? controller.signal : undefined })
             .then(r => r.json())
             .then(data => {
                 if (timeoutId) clearTimeout(timeoutId);
@@ -226,6 +230,7 @@ window.AppPetition = {
                     if (typeof data.count === 'number') {
                         this.remoteGlobalCount = Math.max(data.count, this.getAllAuditSignatures().length);
                     }
+                    this.saveToStorage();
                     this.updateAllCounters(false);
 
                     // Atualiza em tempo real o modal do Documento Público se estiver aberto na tela
@@ -246,10 +251,13 @@ window.AppPetition = {
                             }
                         });
                     }
+                    return data;
                 }
+                return null;
             })
             .catch(() => {
                 if (timeoutId) clearTimeout(timeoutId);
+                return null;
             });
     },
 
@@ -939,7 +947,26 @@ window.AppPetition = {
         this.syncWithRemoteWebhook();
     },
 
-    printPublicDocument: function () {
+    printPublicDocument: async function (triggerBtn) {
+        const btn = triggerBtn || document.getElementById('btnPrintPublicDoc');
+        let origContent = null;
+        if (btn) {
+            origContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><span class="pulse-dot"></span> Sincronizando...</span>';
+        }
+
+        try {
+            await this.syncWithRemoteWebhook();
+        } catch (e) { }
+        finally {
+            if (btn && origContent) {
+                btn.disabled = false;
+                btn.innerHTML = origContent;
+                if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+            }
+        }
+
         const html = this.buildPublicDocumentHtml(true);
         const iframe = document.createElement('iframe');
         iframe.style.position = 'fixed';
@@ -958,29 +985,74 @@ window.AppPetition = {
         setTimeout(() => {
             iframe.contentWindow.focus();
             iframe.contentWindow.print();
-            setTimeout(() => document.body.removeChild(iframe), 2000);
-        }, 300);
+            setTimeout(() => document.body.removeChild(iframe), 2500);
+        }, 400);
     },
 
-    downloadPublicDocumentHtml: function () {
+    downloadPublicDocumentHtml: async function (triggerBtn) {
+        const btn = triggerBtn || document.getElementById('btnDownloadDocHtml');
+        let origContent = null;
+        if (btn) {
+            origContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><span class="pulse-dot"></span> Atualizando...</span>';
+        }
+
+        try {
+            await this.syncWithRemoteWebhook();
+        } catch (e) { }
+        finally {
+            if (btn && origContent) {
+                btn.disabled = false;
+                btn.innerHTML = origContent;
+                if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+            }
+        }
+
         const html = this.buildPublicDocumentHtml(true);
         const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Documento_Publico_Peticao_Plano_Diretor_Sao_Roque_${new Date().toISOString().slice(0, 10)}.html`;
+        const now = new Date();
+        const timeTag = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}h${String(now.getMinutes()).padStart(2, '0')}`;
+        a.download = `Documento_Publico_Peticao_Plano_Diretor_Sao_Roque_${timeTag}.html`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
     },
 
-    downloadSignaturesCsv: function () {
+    downloadSignaturesCsv: async function (triggerBtn) {
+        const btn = triggerBtn || document.getElementById('btnDownloadCsvDoc') || document.getElementById('btnDownloadCsv');
+        let origContent = null;
+        if (btn) {
+            origContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.style.opacity = '0.75';
+            btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><span class="pulse-dot"></span> Sincronizando dados ao vivo da planilha...</span>';
+        }
+
+        try {
+            // Garante recuperação direta e em tempo real da planilha do Google antes de gerar o CSV
+            await this.syncWithRemoteWebhook();
+        } catch (e) {
+            console.warn('Erro ao atualizar webhook remoto antes do download:', e);
+        } finally {
+            if (btn && origContent) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerHTML = origContent;
+                if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+            }
+        }
+
         const allSigs = this.getAllAuditSignatures();
         const sigs = [...allSigs].sort((a, b) => (a.number || 0) - (b.number || 0));
         const header = ['N_Sequencial', 'Protocolo', 'Nome_Completo', 'Bairro', 'Vinculo', 'CPF_Mascarado_LGPD', 'Hash_SHA256', 'Relato_Impacto', 'Data_Hora_ISO'];
         const rows = sigs.map(s => {
             const proto = s.protocol || (s.fullHash ? ('SRQ-2026-' + s.fullHash.slice(0, 8).toUpperCase()) : (s.hash ? ('SRQ-2026-' + s.hash.slice(0, 8).toUpperCase()) : 'SRQ-2026-OFICIAL'));
+            const dateStr = s.timestamp ? (new Date(s.timestamp).toISOString()) : '';
             return [
                 s.number || '',
                 proto,
@@ -990,7 +1062,7 @@ window.AppPetition = {
                 s.cpfMasked || '',
                 s.fullHash || s.hash || '',
                 `"${(s.comment || '').replace(/"/g, '""')}"`,
-                s.timestamp || ''
+                dateStr
             ];
         });
         const csvContent = '\uFEFF' + [header.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
@@ -998,11 +1070,13 @@ window.AppPetition = {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Assinaturas_Peticao_Plano_Diretor_Sao_Roque_${new Date().toISOString().slice(0, 10)}.csv`;
+        const now = new Date();
+        const timeTag = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}h${String(now.getMinutes()).padStart(2, '0')}`;
+        a.download = `Assinaturas_Peticao_Plano_Diretor_Sao_Roque_${timeTag}.csv`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
     },
 
     bindEvents: function () {
@@ -1089,7 +1163,7 @@ window.AppPetition = {
         if (btnDownloadCsv) {
             btnDownloadCsv.addEventListener('click', (e) => {
                 e.stopPropagation();
-                window.AppPetition.downloadSignaturesCsv();
+                window.AppPetition.downloadSignaturesCsv(e.currentTarget);
             });
         }
 
@@ -1113,16 +1187,9 @@ window.AppPetition = {
         if (btnDownloadCsvDoc) {
             btnDownloadCsvDoc.addEventListener('click', (e) => {
                 e.stopPropagation();
-                window.AppPetition.downloadSignaturesCsv();
+                window.AppPetition.downloadSignaturesCsv(e.currentTarget);
             });
         }
-
-        document.querySelectorAll('.btn-export-csv').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                window.AppPetition.downloadSignaturesCsv();
-            });
-        });
 
         // Alternador de Colapso do Caderno de Assinaturas
         const toggleBtn = document.getElementById('signaturesTitleToggle');
@@ -1178,10 +1245,10 @@ window.AppPetition = {
             });
         }
         if (btnPrintPublicDoc) {
-            btnPrintPublicDoc.addEventListener('click', () => this.printPublicDocument());
+            btnPrintPublicDoc.addEventListener('click', (e) => this.printPublicDocument(e.currentTarget));
         }
         if (btnDownloadDocHtml) {
-            btnDownloadDocHtml.addEventListener('click', () => this.downloadPublicDocumentHtml());
+            btnDownloadDocHtml.addEventListener('click', (e) => this.downloadPublicDocumentHtml(e.currentTarget));
         }
     },
 
