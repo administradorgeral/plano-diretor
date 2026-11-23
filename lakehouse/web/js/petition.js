@@ -1135,22 +1135,6 @@ window.AppPetition = {
             });
         }
 
-        const btnDownloadCsv = document.getElementById('btnDownloadCsv');
-        if (btnDownloadCsv) {
-            btnDownloadCsv.addEventListener('click', (e) => {
-                e.stopPropagation();
-                window.AppPetition.downloadSignaturesCsv(e.currentTarget);
-            });
-        }
-
-        const btnDownloadCsvDoc = document.getElementById('btnDownloadCsvDoc');
-        if (btnDownloadCsvDoc) {
-            btnDownloadCsvDoc.addEventListener('click', (e) => {
-                e.stopPropagation();
-                window.AppPetition.downloadSignaturesCsv(e.currentTarget);
-            });
-        }
-
         // Alternador de Colapso do Caderno de Assinaturas
         const toggleBtn = document.getElementById('signaturesTitleToggle');
         const contentWrapper = document.getElementById('signaturesCollapsibleContent');
@@ -1160,8 +1144,7 @@ window.AppPetition = {
         const sigBox = document.getElementById('signaturesBox');
 
         if (toggleBtn) {
-            toggleBtn.addEventListener('click', (e) => {
-                if (e.target && (e.target.classList.contains('btn-export-csv') || e.target.closest('.btn-export-csv'))) return;
+            toggleBtn.addEventListener('click', () => {
                 const targetEl = contentWrapper || sigList;
                 if (!targetEl) return;
                 const isHidden = targetEl.style.display === 'none';

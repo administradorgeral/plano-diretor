@@ -410,10 +410,6 @@
                             <span>Caderno de Assinaturas Validadas (Auditoria SHA-256)</span>
                             <span class="recent-signatures-hint" id="signaturesCountHint">Recolher ▴</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                            <button type="button" class="btn-export-csv" id="btnDownloadCsv"
-                                title="Baixar planilha CSV auditável">⬇️ Baixar CSV</button>
-                        </div>
                     </div>
                     <div id="signaturesCollapsibleContent" style="display: flex; flex-direction: column; gap: 7px;">
                         <input type="text" id="sigSearchInput" placeholder="🔍 Filtrar por nome, bairro ou protocolo..." class="sig-search-input" />
@@ -458,11 +454,6 @@
                         style="padding: 9px 14px; font-size: 12px;">
                         <i data-lucide="download" style="width: 15px; height: 15px;"></i>
                         <span>Baixar Documento (.HTML)</span>
-                    </button>
-                    <button type="button" class="btn-export-csv" id="btnDownloadCsvDoc"
-                        style="padding: 9px 14px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
-                        <i data-lucide="file-spreadsheet" style="width: 15px; height: 15px;"></i>
-                        <span>⬇️ Baixar Planilha CSV</span>
                     </button>
                 </div>
                 <button type="button" class="modal-btn-action" id="btnClosePublicDocFooter">Fechar</button>
@@ -578,7 +569,7 @@
     <script src="js/map.js?v=20261123_verified"></script>
     <script src="js/diagnostics.js?v=20261123_verified"></script>
     <script src="js/search.js?v=20261123_verified"></script>
-    <script src="js/petition.js?v=20261123_maskname"></script>
+    <script src="js/petition.js?v=20261123_nocsvbtn"></script>
     <script src="js/main.js?v=20261123_verified"></script>
 </body>
 
