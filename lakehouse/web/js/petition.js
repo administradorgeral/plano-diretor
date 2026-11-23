@@ -777,13 +777,13 @@ window.AppPetition = {
                     1. Exmo. Sr. Presidente e Srs. Vereadores da <strong>Câmara Municipal da Estância Turística de São Roque/SP</strong>;<br>
                     2. Exmo. Sr. Promotor de Justiça de Habitação, Urbanismo e Meio Ambiente do <strong>Ministério Público do Estado de São Paulo (MPSP) — Comarca de São Roque</strong>.<br><br>
                     <strong>BASE CONSTITUCIONAL E LEGAL:</strong> Art. 5º, XXXIV, "a" (Direito Constitucional de Petição), Art. 182 da CF/88, Arts. 180 e 181 da Constituição Estadual de SP, Lei Federal nº 10.257/2001 (Estatuto da Cidade, art. 2º, II, VI, IX e art. 40, § 4º) e Lei Federal nº 12.608/2012 (Prevenção de Desastres).<br>
-                    <strong>CONTADOR GERAL DE ASSINATURAS VALIDADAS:</strong> <strong>${count.toLocaleString('pt-BR')} subscrições cidadãs auditáveis</strong> (${sigs.length} registradas nominalmente neste caderno público) • Gerado em: ${nowStr}.
+                    <strong>CONTADOR GERAL DE ASSINATURAS VALIDADAS:</strong> <strong>${count.toLocaleString('pt-BR')} subscrições cidadãs auditáveis</strong> (${count} registradas nominalmente neste caderno público) • Gerado em: ${nowStr}.
                 </div>
 
                 <!-- Barra de Navegação Rápida do Documento -->
                 <div style="display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap;">
                     <a href="#caderno-assinaturas" style="background: #059669; color: #ffffff; padding: 10px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35); font-family: sans-serif;">
-                        👥 Ver Caderno de Assinaturas e Relatos dos Cidadãos (${sigs.length}) ▾
+                        👥 Ver Caderno de Assinaturas e Relatos dos Cidadãos (${count}) ▾
                     </a>
                     <a href="#propostas-emendas" style="background: #2563eb; color: #ffffff; padding: 10px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-family: sans-serif;">
                         🛡️ Ver as 4 Emendas de Blindagem
