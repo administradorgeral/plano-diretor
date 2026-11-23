@@ -378,9 +378,7 @@ window.AppPetition = {
         const isHidden = contentWrapper ? contentWrapper.style.display === 'none' : container.style.display === 'none';
 
         if (countHint) {
-            countHint.textContent = isHidden
-                ? (list.length > 0 ? `(${list.length}) Ver ▾` : 'Ver ▾')
-                : `(${list.length}) Recolher ▴`;
+            countHint.textContent = isHidden ? 'Ver ▾' : 'Recolher ▴';
         }
 
         if (typeof filterTerm === 'string' && filterTerm.trim()) {
@@ -462,7 +460,7 @@ window.AppPetition = {
         else if (sigList) sigList.style.display = 'flex';
 
         if (sigChevron) sigChevron.style.transform = 'rotate(90deg)';
-        if (sigHint) sigHint.textContent = `(${total}) Recolher ▴`;
+        if (sigHint) sigHint.textContent = 'Recolher ▴';
         if (sigBox) sigBox.classList.remove('collapsed');
     },
 
@@ -1132,9 +1130,8 @@ window.AppPetition = {
                 if (sigBox) {
                     sigBox.classList.toggle('collapsed', !isHidden);
                 }
-                const total = this.getAllAuditSignatures().length;
                 if (sigHint) {
-                    sigHint.textContent = isHidden ? `(${total}) Recolher ▴` : (total > 0 ? `(${total}) Ver ▾` : 'Ver ▾');
+                    sigHint.textContent = isHidden ? 'Recolher ▴' : 'Ver ▾';
                 }
             });
         }
