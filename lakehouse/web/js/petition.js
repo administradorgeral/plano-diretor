@@ -228,6 +228,9 @@ window.AppPetition = {
         const bairroSelect = document.getElementById('petitionBairro');
         const targetBairro = prefillNeighborhood || AppState.currentInspectedNeighborhood;
         if (bairroSelect) {
+            // Remove opções dinâmicas anteriores para manter a lista limpa e leve no mobile
+            bairroSelect.querySelectorAll('.custom-inspected-opt').forEach(el => el.remove());
+
             if (targetBairro) {
                 // Se foi pré-selecionado no mapa ou por busca, vincula à opção correspondente
                 const options = Array.from(bairroSelect.options);
@@ -239,8 +242,9 @@ window.AppPetition = {
                 if (match) {
                     bairroSelect.value = match.value;
                 } else {
-                    // Adiciona a zona inspecionada no topo da lista como opção ativa
+                    // Adiciona a zona inspecionada no topo da lista como opção ativa e limpa
                     const customOpt = document.createElement('option');
+                    customOpt.className = 'custom-inspected-opt';
                     customOpt.value = targetBairro;
                     customOpt.textContent = `📍 ${targetBairro} (Área Inspecionada)`;
                     bairroSelect.insertBefore(customOpt, bairroSelect.options[1] || null);

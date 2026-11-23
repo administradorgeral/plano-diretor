@@ -673,51 +673,122 @@
     padding: 14px 16px;
 }
 
+/* Mobile-First Form Structure */
 .petition-form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    width: 100%;
 }
 
-@media (max-width: 520px) {
+@media (min-width: 580px) {
     .petition-form-row {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 11px;
     }
 }
 
 .petition-field {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 5px;
+    width: 100%;
 }
 
 .petition-field label {
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 700;
     color: #cbd5e1;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    cursor: pointer;
 }
 
+.bairro-hint-pill {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 999px;
+    padding: 2px 7px;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* Mobile-First Inputs e Selects: 48px de área de toque, 16px no mobile para impedir auto-zoom no iOS Safari */
 .petition-input,
 .petition-select {
-    background: rgba(9, 13, 22, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 10px;
-    padding: 9px 12px;
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+    background: rgba(9, 13, 22, 0.92);
+    border: 1.5px solid rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    padding: 12px 14px;
     color: #fff;
-    font-size: 13px;
+    font-size: 16px; /* Padrão Mobile-First: previne zoom forçado no iOS Safari ao focar */
     font-family: inherit;
     font-weight: 600;
     outline: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    touch-action: manipulation;
+}
+
+/* Redução proporcional e elegante no Desktop */
+@media (min-width: 640px) {
+    .petition-input,
+    .petition-select {
+        min-height: 42px;
+        padding: 9px 12px;
+        font-size: 13px;
+        border-radius: 10px;
+        border-width: 1px;
+    }
+}
+
+/* Estilo Mobile-First Específico para Selects com Seta Chevron SVG */
+.petition-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
+    padding-right: 42px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* Contraste em telas mobile para o dropdown nativo (Android, iOS e Desktop) */
+.petition-select optgroup {
+    background-color: #0f172a;
+    color: #38bdf8;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 8px 4px;
+}
+
+.petition-select option {
+    background-color: #0b1120;
+    color: #f8fafc;
+    font-size: 14.5px;
+    padding: 10px 12px;
+}
+
+.petition-select option:disabled {
+    color: #64748b;
 }
 
 .petition-input:focus,
 .petition-select:focus {
     border-color: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
 }
 
 .petition-input.invalid {
@@ -954,4 +1025,37 @@
     color: #64748b;
     font-family: ui-monospace, monospace;
     font-size: 10px;
+}
+
+/* ==========================================================================
+   Mobile-First Responsiveness (Viewport e Toque em Smartphones)
+   ========================================================================== */
+@media (max-width: 480px) {
+    .modal-overlay {
+        padding: 8px;
+    }
+    .modal-card {
+        border-radius: 16px;
+        max-height: 94vh;
+    }
+    .modal-header {
+        padding: 14px 14px 10px;
+    }
+    .modal-header h2 {
+        font-size: 15px;
+    }
+    .modal-body {
+        padding: 12px 14px;
+        gap: 11px;
+    }
+    .petition-form {
+        padding: 12px;
+        border-radius: 12px;
+    }
+    .petition-manifesto-box {
+        padding: 12px;
+    }
+    .petition-ponto-list {
+        font-size: 11px;
+    }
 }
