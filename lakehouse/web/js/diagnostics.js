@@ -99,79 +99,14 @@ window.AppDiagnostics = {
     },
 
     showSpotZoningCard: function (props, layer) {
-        const streetModal = document.getElementById('streetModal');
-        const isSpot = (props.score_spot_zoning >= 35) || props.is_spot_zoning;
-
-        if (!isSpot) {
-            if (streetModal) streetModal.classList.remove('visible');
-            return;
-        }
-
         let center = null;
         if (layer && typeof layer.getBounds === 'function') {
             center = layer.getBounds().getCenter();
         } else {
             center = AppState.map.getCenter();
         }
-        AppState.lastSelectedZone = { props: props, center: center, timeLabel: 'Spot Zoning' };
-        AppState.currentInspectedNeighborhood = props.nome_zona || '';
-
-        const score = props.score_spot_zoning || 0;
-        const nivel = (props.nivel_spot_zoning || 'Moderado').toUpperCase();
-        const diag = props.diagnostico || 'Área com índices urbanísticos sob medida que destoam de todo o entorno.';
-        const ilha = Math.round((props.i_ilha || 0) * 100);
-        const deltaGab = props.delta_gab_m || 0;
-        const deltaTo = props.delta_to_pct || 0;
-        const areaHa = props.area_ha ? `${Math.round(props.area_ha).toLocaleString('pt-BR')} ha` : '';
-
-        document.getElementById('modalStreetTag').textContent = `AUDITORIA DE PRIVILÉGIOS • SPOT ZONING (${nivel})`;
-        document.getElementById('modalStreetTitle').textContent = `${props.nome_zona || 'Área Auditada'}`;
-        document.getElementById('modalStreetMeta').innerHTML = `
-            <span>📏 Área: <strong>${areaHa}</strong></span>
-            <span>•</span>
-            <span>🎯 Score ISZ: <strong style="color:#f87171;">${score}/100</strong></span>
-        `;
-
-        const html = `
-            <div class="clean-lead-card">
-                <div class="clean-lead-header">
-                    <span class="clean-lead-title">
-                        <i data-lucide="compass" style="width: 15px; height: 15px; color: #38bdf8;"></i>
-                        Spot Zoning • Regra sob Medida
-                    </span>
-                    <span class="clean-lead-badge">
-                        ISZ: ${score}/100 • ${nivel}
-                    </span>
-                </div>
-
-                <p class="clean-lead-text">
-                    Esta zona foi desenhada com regras de exceção, permitindo construir mais alto e impermeabilizar mais o solo do que nos terrenos vizinhos, sem obras públicas compensatórias.
-                </p>
-
-                <div class="clean-diagnostic-box">
-                    <strong>Diagnóstico científico:</strong> ${diag}
-                </div>
-
-                <div class="clean-metrics-grid">
-                    <div class="clean-metric-item">
-                        <span>Ilhamento</span>
-                        <strong>${ilha}% dissimilar</strong>
-                    </div>
-                    <div class="clean-metric-item">
-                        <span>Salto de Altura</span>
-                        <strong>+${deltaGab}m sobre vizinhos</strong>
-                    </div>
-                    <div class="clean-metric-item">
-                        <span>Ocupação do Solo</span>
-                        <strong>+${deltaTo}% de concreto</strong>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('modalStreetBody').innerHTML = html;
-        streetModal.classList.add('visible');
-        lucide.createIcons();
+        const areaStr = props.area_ha ? `${Math.round(props.area_ha).toLocaleString('pt-BR')} ha` : '';
+        this.showStreetImpactModal(props.nome_zona || 'Área Selecionada', areaStr, center.lat, center.lng, props, null, null);
     },
 
     // Construtor Unificado do Modal-Card com Foco no Impacto Negativo Real
@@ -201,25 +136,41 @@ window.AppDiagnostics = {
         const locName = (name + ' ' + bairro + ' ' + z26Name).toLowerCase();
 
         const isSpotZoning = szProps && (szProps.score_spot_zoning >= 35 || szProps.is_spot_zoning);
-
-        if (AppState.mode === 'spot_zoning') {
-            if (!isSpotZoning) {
-                if (streetModal) streetModal.classList.remove('visible');
-                return;
-            }
-            this.showSpotZoningCard(szProps, null);
-            return;
-        }
+        const spotScore = szProps ? szProps.score_spot_zoning : 0;
+        const spotNivel = szProps ? (szProps.nivel_spot_zoning || 'Moderado') : 'Moderado';
+        const spotDiag = szProps ? szProps.diagnostico : 'Zoneamento padrão compatível com o tecido urbano ou rural do entorno.';
+        const spotIlha = Math.round((szProps ? szProps.i_ilha || 0 : 0) * 100);
+        const spotDelta = szProps ? szProps.delta_gab_m || 0 : 0;
+        const spotDeltaTo = szProps ? szProps.delta_to_pct || 0 : 0;
 
         const spec06 = AppConfig.ZONE_SPECS[z06Name] || { gabarito: 'Até 9m (2 andares)', to: '20% a 40%', ca: '0.4 a 1.0' };
         const spec26 = AppConfig.ZONE_SPECS[z26Name] || { gabarito: 'Até 18m a 21m', to: '50% a 70%', ca: '1.2 a 2.4' };
         const areaHa = (customProps && customProps.area_ha) || (z26Props && z26Props.area_ha) || (z06Props && z06Props.area_ha);
 
-        // Preenche o modal-title-wrap unificado
-        document.getElementById('modalStreetTag').textContent = (customTag || 'DIAGNÓSTICO CIENTÍFICO').toUpperCase();
+        // Preenche o modal-title-wrap unificado: Tag de Auditoria + Comparativo Temporal
+        let headerTag = '';
+        let headerColor = '#38bdf8';
+
+        if (customTag && (customTag.includes('DOSSIÊ') || customTag.includes('ALERTA'))) {
+            headerTag = customTag.toUpperCase();
+            headerColor = '#ef4444';
+        } else if (isSpotZoning) {
+            headerTag = `AUDITORIA DE PRIVILÉGIOS • SPOT ZONING DETECTADO (${spotNivel.toUpperCase()} • ${spotScore}/100)`;
+            headerColor = '#f87171';
+        } else {
+            headerTag = `AUDITORIA CIENTÍFICA • ZONEAMENTO REGULAR (ISZ: ${spotScore}/100 • PADRÃO HARMÔNICO)`;
+            headerColor = '#38bdf8';
+        }
+
+        const tagEl = document.getElementById('modalStreetTag');
+        if (tagEl) {
+            tagEl.textContent = headerTag;
+            tagEl.style.color = headerColor;
+        }
+
         document.getElementById('modalStreetTitle').textContent = bairro && !bairro.includes('hectares') ? `${name} • ${bairro}` : name;
         document.getElementById('modalStreetMeta').innerHTML = `
-            <span>Hoje (2006): <strong>${z06Name}</strong></span>
+            <span>Hoje (2006): <strong style="color:#cbd5e1;">${z06Name}</strong></span>
             <span style="color:#64748b;">→</span>
             <span>Proposta (2026): <strong style="color:#38bdf8;">${z26Name}</strong></span>
             ${areaHa ? `<span style="color:#64748b;">•</span> <span>${Math.round(areaHa).toLocaleString('pt-BR')} ha</span>` : ''}
@@ -268,22 +219,33 @@ window.AppDiagnostics = {
             `;
         }
 
+        // Auditoria de Privilégios (Spot Zoning): Sempre visível e informativo (nunca gera vácuo)
         let spotZoningBox = '';
         if (isSpotZoning) {
-            const spotScore = szProps ? szProps.score_spot_zoning : 0;
-            const spotNivel = szProps ? (szProps.nivel_spot_zoning || 'Moderado') : 'Moderado';
-            const spotDiag = szProps ? szProps.diagnostico : '';
-            const spotIlha = Math.round((szProps.i_ilha || 0) * 100);
-            const spotDelta = szProps.delta_gab_m || 0;
-
             spotZoningBox = `
-            <div class="clean-spot-callout">
+            <div class="clean-spot-callout critico">
                 <div class="clean-spot-title">
-                    <i data-lucide="alert-circle" style="width: 14px; height: 14px; color: #f87171;"></i>
-                    Spot Zoning Detectado • ${spotNivel} (${spotScore}/100)
+                    <i data-lucide="alert-triangle" style="width: 14px; height: 14px; color: #ef4444;"></i>
+                    <span>Auditoria de Privilégios: Spot Zoning Detectado • ${spotNivel} (${spotScore}/100)</span>
                 </div>
                 <div class="clean-spot-body">
-                    <strong>Diagnóstico científico:</strong> ${spotDiag} (Ilhamento: ${spotIlha}% • Salto de gabarito: +${spotDelta}m sobre vizinhos).
+                    <strong>Diagnóstico científico:</strong> ${spotDiag}
+                    <div class="clean-spot-badges">
+                        <span class="spot-pill">Ilhamento: <strong>${spotIlha}% dissimilar</strong></span>
+                        <span class="spot-pill">Salto de Gabarito: <strong>+${spotDelta}m sobre vizinhos</strong></span>
+                        <span class="spot-pill">Ocupação do Solo: <strong>+${spotDeltaTo}% de concreto</strong></span>
+                    </div>
+                </div>
+            </div>`;
+        } else {
+            spotZoningBox = `
+            <div class="clean-spot-callout regular">
+                <div class="clean-spot-title">
+                    <i data-lucide="shield-check" style="width: 14px; height: 14px; color: #10b981;"></i>
+                    <span>Auditoria de Privilégios: Padrão Harmônico / Regular (Score ISZ: ${spotScore}/100)</span>
+                </div>
+                <div class="clean-spot-body">
+                    <strong>Diagnóstico científico:</strong> Esta zona não apresenta privilégios anômalos de spot zoning. Os parâmetros urbanísticos mantêm continuidade morfológica com as áreas vizinhas, sem saltos pontuais de gabarito feitos sob medida.
                 </div>
             </div>`;
         }

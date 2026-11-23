@@ -196,12 +196,12 @@ window.AppMap = {
         } else if (mode === 'spot_zoning') {
             AppState.layers.spotZoning.addTo(map);
             if (banner) {
-                banner.innerHTML = '<i data-lucide="shield-alert" style="width: 16px; height: 16px; flex-shrink: 0;"></i><span><strong>Auditoria de Privilégios (Spot Zoning):</strong> Exibindo áreas com regras sob medida para grandes empreendimentos. Toque na área vermelha!</span>';
+                banner.innerHTML = '<i data-lucide="shield-alert" style="width: 16px; height: 16px; flex-shrink: 0;"></i><span><strong>Auditoria de Privilégios (Spot Zoning):</strong> Exibindo áreas com regras sob medida para grandes empreendimentos. Toque no mapa!</span>';
                 banner.classList.add('visible');
                 lucide.createIcons();
             }
-            if (AppState.layers.riscos) map.removeLayer(AppState.layers.riscos);
-            if (AppState.layers.casos) map.removeLayer(AppState.layers.casos);
+            this.renderCasos();
+            this.renderRiscos();
         }
     },
 

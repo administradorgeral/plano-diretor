@@ -18,7 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. Eventos do Alternador de Modo (Hoje vs Proposta vs Spot Zoning)
     document.querySelectorAll('.segment-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.segment-btn').forEach(b => b.className = 'segment-btn');
+            document.querySelectorAll('.segment-btn').forEach(b => {
+                b.classList.remove('active', 'pulse-hint');
+            });
             btn.classList.add('active');
             AppMap.updateMapMode(btn.dataset.mode);
         });
@@ -78,6 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 6. Inicia no Modo Proposta (2026)
-    AppMap.updateMapMode('proposta');
+    // 6. Inicia no Modo Spot Zoning habilitado por padrão
+    AppMap.updateMapMode('spot_zoning');
 });
