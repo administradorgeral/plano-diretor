@@ -44,7 +44,7 @@ window.AppPetition = {
                 remoteGlobalCount: this.remoteGlobalCount,
                 updatedAt: new Date().toISOString()
             }));
-        } catch (e) {}
+        } catch (e) { }
     },
 
     // Retorna a contagem 100% real (sincronizada entre o contador em nuvem e os registros locais validados)
@@ -69,7 +69,7 @@ window.AppPetition = {
                     this.updateAllCounters(false);
                 }
             })
-            .catch(() => {});
+            .catch(() => { });
     },
 
     incrementGlobalCloudCounter: function () {
@@ -84,7 +84,7 @@ window.AppPetition = {
                     this.updateAllCounters(true);
                 }
             })
-            .catch(() => {});
+            .catch(() => { });
     },
 
     // Algoritmo Oficial Módulo-11 da Receita Federal para Validação de CPF
@@ -124,6 +124,21 @@ window.AppPetition = {
         const d = (rawCpf || '').replace(/\D/g, '');
         if (d.length !== 11) return '***.***.***-**';
         return `***.${d.slice(3, 6)}.${d.slice(6, 9)}-**`;
+    },
+
+    maskName: function (fullName) {
+        if (!fullName) return 'Cidadão';
+        const parts = fullName.trim().split(/\s+/).filter(Boolean);
+        if (parts.length <= 1) return parts[0] || 'Cidadão';
+        const firstName = parts[0];
+        const rest = parts.slice(1).map(p => {
+            const lower = p.toLowerCase();
+            if (['da', 'de', 'do', 'das', 'dos'].includes(lower)) {
+                return '***';
+            }
+            return p[0].toUpperCase() + '***';
+        }).join(' ');
+        return `${firstName} ${rest}`;
     },
 
     computeSHA256: async function (text) {
@@ -187,6 +202,12 @@ window.AppPetition = {
         if (!container) return;
 
         const list = this.getAllAuditSignatures();
+        const countHint = document.getElementById('signaturesCountHint');
+        if (countHint) {
+            const isHidden = container.style.display === 'none';
+            countHint.textContent = isHidden ? (list.length > 0 ? `(${list.length}) Ver ▾` : 'Ver ▾') : 'Recolher ▴';
+        }
+
         if (list.length === 0) {
             container.innerHTML = `
                 <div style="font-size: 11.5px; color: #94a3b8; padding: 8px 4px; text-align: center;">
@@ -200,7 +221,7 @@ window.AppPetition = {
             <div class="signature-item-row">
                 <div>
                     <span style="color: #34d399; font-weight: 800; font-size: 10.5px;">#${list.length - i}</span>
-                    <span class="sig-name"> ${this.escapeHtml(sig.name)}</span>
+                    <span class="sig-name"> ${this.escapeHtml(this.maskName(sig.name))}</span>
                     <span style="color: #94a3b8; font-size: 10.5px;"> • ${this.escapeHtml(sig.bairro)}</span>
                 </div>
                 <div class="sig-meta">
@@ -405,13 +426,13 @@ window.AppPetition = {
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(record)
-        }).catch(() => {});
+        }).catch(() => { });
     },
 
     getShareText: function () {
         const count = this.getTotalCount().toLocaleString('pt-BR');
         const url = window.location.href.split('#')[0];
-        return `🚨 VOTAÇÃO IMINENTE NA CÂMARA DE SÃO ROQUE!\n✍️ Crescer exige responsabilidade! Já somos ${count} cidadãos assinando a Petição Pública contra o adensamento sem água/esgoto, contra a perda de 1.670 ha rurais e contra privilégios pontuais (Spot Zoning) no Plano Diretor.\n\nVeja o impacto negativo na sua rua e assine com seu CPF: ${url}`;
+        return `🚨 VOTAÇÃO IMINENTE NA CÂMARA DE SÃO ROQUE!\n✍️ Crescer exige responsabilidade! Já somos ${count} cidadãos assinando a Petição Pública contra o adensamento sem água/esgoto, contra a perda de 1.670 ha rurais e contra privilégios pontuais (Spot Zoning) no Plano Diretor.\n\nVeja o impacto negativo na sua rua e assine: ${url}`;
     },
 
     shareWhatsApp: function () {
@@ -435,7 +456,7 @@ window.AppPetition = {
         document.body.appendChild(ta);
         ta.focus();
         ta.select();
-        try { document.execCommand('copy'); } catch (e) {}
+        try { document.execCommand('copy'); } catch (e) { }
         document.body.removeChild(ta);
     },
 
@@ -675,7 +696,31 @@ window.AppPetition = {
         if (btnFooterDoc) btnFooterDoc.addEventListener('click', () => this.openPublicDocumentModal());
 
         const btnDownloadCsv = document.getElementById('btnDownloadCsv');
-        if (btnDownloadCsv) btnDownloadCsv.addEventListener('click', () => this.downloadSignaturesCsv());
+        if (btnDownloadCsv) btnDownloadCsv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.downloadSignaturesCsv();
+        });
+
+        // Alternador de Colapso do Caderno de Assinaturas (Colapsado por Padrão)
+        const toggleBtn = document.getElementById('signaturesTitleToggle');
+        const sigList = document.getElementById('recentSignaturesList');
+        const sigChevron = document.getElementById('signaturesChevron');
+        const sigHint = document.getElementById('signaturesCountHint');
+
+        if (toggleBtn && sigList) {
+            toggleBtn.addEventListener('click', (e) => {
+                if (e.target && (e.target.id === 'btnDownloadCsv' || e.target.closest('#btnDownloadCsv'))) return;
+                const isHidden = sigList.style.display === 'none';
+                sigList.style.display = isHidden ? 'flex' : 'none';
+                if (sigChevron) {
+                    sigChevron.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+                }
+                const total = this.getAllAuditSignatures().length;
+                if (sigHint) {
+                    sigHint.textContent = isHidden ? 'Recolher ▴' : (total > 0 ? `(${total}) Ver ▾` : 'Ver ▾');
+                }
+            });
+        }
 
         // Controles do Modal do Documento Público
         const publicDocModal = document.getElementById('publicDocModal');

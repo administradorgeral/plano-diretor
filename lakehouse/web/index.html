@@ -310,10 +310,6 @@
                             <i data-lucide="copy" style="width: 15px; height: 15px;"></i>
                             <span>Copiar Texto e Link</span>
                         </button>
-                        <button type="button" class="share-btn public-doc" id="btnOpenPublicDoc">
-                            <i data-lucide="file-check-2" style="width: 16px; height: 16px; color: #34d399;"></i>
-                            <span>📄 Ver / Baixar Documento Público Oficial (Câmara &amp; MPSP)</span>
-                        </button>
                         <button type="button" class="share-btn new-sig" id="btnSignAnotherCpf">
                             <i data-lucide="user-plus" style="width: 15px; height: 15px;"></i>
                             <span>➕ Coletar Assinatura de Familiar / Vizinho neste Aparelho</span>
@@ -321,14 +317,26 @@
                     </div>
                 </div>
 
-                <!-- Lista Auditável de Assinaturas Registradas -->
-                <div class="recent-signatures-box">
-                    <div class="recent-signatures-title">
-                        <span>Caderno de Assinaturas Validadas (Auditoria SHA-256)</span>
-                        <button type="button" class="btn-export-csv" id="btnDownloadCsv"
-                            title="Baixar planilha CSV auditável">⬇️ Baixar CSV</button>
+                <!-- Botão de Documento Público Oficial posicionado ACIMA do Caderno de Assinaturas -->
+                <button type="button" class="share-btn public-doc standalone" id="btnOpenPublicDoc">
+                    <i data-lucide="file-check-2" style="width: 16px; height: 16px; color: #34d399;"></i>
+                    <span>📄 Ver / Baixar Documento Público Oficial (Câmara &amp; MPSP)</span>
+                </button>
+
+                <!-- Caderno de Assinaturas Validadas (Auditoria SHA-256) - Colapsado por Padrão -->
+                <div class="recent-signatures-box collapsed" id="signaturesBox">
+                    <div class="recent-signatures-title" id="signaturesTitleToggle">
+                        <div style="display: flex; align-items: center; gap: 7px;">
+                            <i data-lucide="chevron-right" class="signatures-chevron" id="signaturesChevron" style="width: 14px; height: 14px;"></i>
+                            <span>Caderno de Assinaturas Validadas (Auditoria SHA-256)</span>
+                            <span class="recent-signatures-hint" id="signaturesCountHint">Ver ▾</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" class="btn-export-csv" id="btnDownloadCsv"
+                                title="Baixar planilha CSV auditável">⬇️ Baixar CSV</button>
+                        </div>
                     </div>
-                    <div id="recentSignaturesList"></div>
+                    <div id="recentSignaturesList" style="display: none;"></div>
                 </div>
             </div>
 
